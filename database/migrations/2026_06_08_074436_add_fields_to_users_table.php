@@ -1,0 +1,32 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreignId('school_id')->nullable()->constrained('schools')->onDelete('cascade')->after('id');
+            $table->string('mobile')->nullable()->after('email');
+            $table->enum('status', ['active', 'inactive'])->default('active')->after('password');
+            $table->timestamp('last_login_at')->nullable()->after('status');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign(['school_id']);
+            $table->dropColumn(['school_id', 'mobile', 'status', 'last_login_at']);
+        });
+    }
+};
