@@ -746,4 +746,82 @@ class ExaminationsTest extends TestCase
                 'message' => 'This academic session is locked. Modifications are only allowed in the active session.'
             ]);
     }
+
+    public function test_report_card_setups_crud_and_status()
+    {
+        $examType = ExamType::create([
+            'school_id' => $this->school->id,
+            'name' => 'First Term Exam Type',
+            'status' => 'active'
+        ]);
+
+        $exam1 = Exam::create([
+            'school_id' => $this->school->id,
+            'academic_year_id' => $this->academicYear->id,
+            'exam_type_id' => $examType->id,
+            'name' => 'First Term 2026',
+            'start_date' => '2026-07-01',
+            'end_date' => '2026-07-05',
+            'status' => 'published'
+        ]);
+
+        // 1. Create a report card setup
+        $response = $this->actingAs($this->schoolAdmin)
+            ->postJson('/api/report-card-setups', [
+                'academic_year_id' => $this->academicYear->id,
+                'name' => 'Annual Report Card 2026',
+                'class_id' => $this->class->id,
+                'section_id' => $this->section->id,
+                'exam_id_1' => $exam1->id,
+                'status' => 'draft',
+                'template' => 'cbse',
+                'include_graded' => 'yes'
+            ]);
+
+        $response->assertStatus(201);
+        $setupId = $response->json('report_card_setup.id');
+        $this->assertEquals('Annual Report Card 2026', $response->json('report_card_setup.name'));
+        $this->assertEquals('cbse', $response->json('report_card_setup.template'));
+        $this->assertEquals('yes', $response->json('report_card_setup.include_graded'));
+
+        // 2. Fetch setups
+        $response = $this->actingAs($this->schoolAdmin)
+            ->getJson('/api/report-card-setups');
+        $response->assertStatus(200);
+        $this->assertCount(1, $response->json('report_card_setups'));
+        $this->assertEquals('cbse', $response->json('report_card_setups.0.template'));
+        $this->assertEquals('yes', $response->json('report_card_setups.0.include_graded'));
+
+        // 3. Update report card setup
+        $response = $this->actingAs($this->schoolAdmin)
+            ->putJson("/api/report-card-setups/{$setupId}", [
+                'name' => 'Annual Report Card 2026 v2',
+                'class_id' => $this->class->id,
+                'section_id' => $this->section->id,
+                'exam_id_1' => $exam1->id,
+                'status' => 'draft',
+                'template' => 'detailed',
+                'include_graded' => 'no'
+            ]);
+        $response->assertStatus(200);
+        $this->assertEquals('Annual Report Card 2026 v2', $response->json('report_card_setup.name'));
+        $this->assertEquals('detailed', $response->json('report_card_setup.template'));
+        $this->assertEquals('no', $response->json('report_card_setup.include_graded'));
+
+        // 4. Toggle publish status
+        $response = $this->actingAs($this->schoolAdmin)
+            ->patchJson("/api/report-card-setups/{$setupId}/toggle-publish");
+        $response->assertStatus(200);
+        $this->assertEquals('published', $response->json('status'));
+
+        // 5. Delete report card setup
+        $response = $this->actingAs($this->schoolAdmin)
+            ->deleteJson("/api/report-card-setups/{$setupId}");
+        $response->assertStatus(200);
+
+        // Verify deleted
+        $response = $this->actingAs($this->schoolAdmin)
+            ->getJson('/api/report-card-setups');
+        $this->assertCount(0, $response->json('report_card_setups'));
+    }
 }

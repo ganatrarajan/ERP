@@ -43,12 +43,13 @@ class AppServiceProvider extends ServiceProvider
                 'attendance' => 'attendance',
                 'homework' => 'homework',
                 'fees' => 'fees',
-                'exams' => 'exams',
-                'library' => 'library',
-                'transport' => 'transport',
-                'hostel' => 'hostel',
-                'reports' => 'reports',
-                'settings' => 'settings',
+                'exam' => 'examinations',
+                'exam_schedule' => 'examinations',
+                'marks' => 'examinations',
+                'result' => 'examinations',
+                'report_card' => 'examinations',
+                'subject' => 'subjects',
+                'notice' => 'notices',
             ];
 
             if (isset($modulePermissionMap[$prefix])) {

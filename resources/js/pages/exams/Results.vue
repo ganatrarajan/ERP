@@ -7,30 +7,7 @@
         </div>
 
         <!-- Filter Bar -->
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm grid grid-cols-1 sm:grid-cols-5 gap-4">
-            <div>
-                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Exam <span class="text-rose-500">*</span></label>
-                <select 
-                    v-model="filters.exam_id"
-                    @change="handleExamChange"
-                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                >
-                    <option value="">Select Exam</option>
-                    <option v-for="ex in exams" :key="ex.id" :value="ex.id">{{ ex.name }}</option>
-                </select>
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Second Exam (Optional)</label>
-                <select 
-                    v-model="filters.exam_id_2"
-                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                >
-                    <option value="">None (Single Exam)</option>
-                    <option v-for="ex in exams.filter(e => e.id !== filters.exam_id)" :key="ex.id" :value="ex.id">{{ ex.name }}</option>
-                </select>
-            </div>
-
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div>
                 <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Class <span class="text-rose-500">*</span></label>
                 <select 
@@ -47,6 +24,7 @@
                 <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Section <span class="text-rose-500">*</span></label>
                 <select 
                     v-model="filters.section_id"
+                    @change="handleSectionChange"
                     class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
                 >
                     <option value="">Select Section</option>
@@ -54,10 +32,25 @@
                 </select>
             </div>
 
+            <div>
+                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Report Card Setup <span class="text-rose-500">*</span></label>
+                <select 
+                    v-model="filters.report_card_setup_id"
+                    @change="handleSetupChange"
+                    :disabled="!filters.class_id"
+                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200 disabled:opacity-50"
+                >
+                    <option value="">Select Setup</option>
+                    <option v-for="s in filteredSetups" :key="s.id" :value="s.id">
+                        {{ s.name }} ({{ s.exam1?.name }} <span v-if="s.exam2">+ {{ s.exam2?.name }}</span>)
+                    </option>
+                </select>
+            </div>
+
             <div class="flex items-end">
                 <button 
                     @click="generateResults"
-                    :disabled="!filters.exam_id || !filters.class_id || !filters.section_id || loading"
+                    :disabled="!filters.report_card_setup_id || loading"
                     class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-600/10 transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 00-2 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
@@ -140,7 +133,7 @@
                                     </svg>
                                 </span>
                             </th>
-                            <template v-if="filters.exam_id_2">
+                            <template v-if="hasSecondExam">
                                 <th class="p-4 text-center" style="width: 12%;">Exam 1 %</th>
                                 <th class="p-4 text-center" style="width: 12%;">Exam 2 %</th>
                                 <th class="p-4 text-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/40 transition-colors" style="width: 12%;" @click="sortResults('percentage')">
@@ -190,7 +183,7 @@
                             <td class="p-4 font-semibold text-slate-800 dark:text-white">
                                 {{ res.student?.first_name }} {{ res.student?.last_name }}
                             </td>
-                            <template v-if="filters.exam_id_2">
+                            <template v-if="hasSecondExam">
                                 <td class="p-4 text-center font-mono font-medium">
                                     <span v-if="res.exam1_percentage !== null">{{ res.exam1_percentage }}%</span>
                                     <span v-else class="text-slate-400">-</span>
@@ -259,7 +252,7 @@
 
         <div v-else class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-12 text-center text-slate-500 rounded-2xl shadow-sm">
             <svg class="w-16 h-16 mx-auto text-slate-300 dark:text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 00-2 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-            Please select the Exam, Class, and Section then click "Compile Results" to generate grade sheets.
+            Please select the Class, Section, and Report Card Setup then click "Compile Results" to generate grade sheets.
         </div>
     </div>
 </template>
@@ -274,11 +267,18 @@ const exams = ref([]);
 const classes = ref([]);
 const sections = ref([]);
 const results = ref([]);
+const setups = ref([]);
 
 const loading = ref(false);
 const loaded = ref(false);
 const selectedTemplate = ref('basic');
 const includeGraded = ref('no');
+
+const filters = reactive({
+    class_id: '',
+    section_id: '',
+    report_card_setup_id: ''
+});
 
 const sortKey = ref('rank');
 const sortDesc = ref(false);
@@ -323,24 +323,22 @@ const sortedResults = computed(() => {
     });
 });
 
-const filters = reactive({
-    exam_id: '',
-    exam_id_2: '',
-    class_id: '',
-    section_id: '',
-    academic_year_id: ''
+const filteredSetups = computed(() => {
+    if (!filters.class_id) return [];
+    return setups.value.filter(s => {
+        const matchClass = s.class_id === filters.class_id;
+        const matchSection = !s.section_id || !filters.section_id || s.section_id === filters.section_id;
+        return matchClass && matchSection;
+    });
 });
 
-const academicYears = ref([]);
+const selectedSetup = computed(() => {
+    return setups.value.find(s => s.id === filters.report_card_setup_id);
+});
 
-const fetchAcademicYears = async () => {
-    try {
-        const response = await window.axios.get('/api/academic-years');
-        academicYears.value = response.data.academic_years || [];
-    } catch (e) {
-        console.error(e);
-    }
-};
+const hasSecondExam = computed(() => {
+    return selectedSetup.value && selectedSetup.value.exam_id_2;
+});
 
 const fetchExams = async () => {
     try {
@@ -353,22 +351,11 @@ const fetchExams = async () => {
 
 const fetchClasses = async () => {
     try {
-        const params = { all: true };
-        if (filters.academic_year_id) {
-            params.academic_year_id = filters.academic_year_id;
-        }
-        const response = await window.axios.get('/api/classes', { params });
+        const response = await window.axios.get('/api/classes', { params: { all: true } });
         classes.value = response.data.classes || response.data;
     } catch (e) {
         window.toastr?.error('Failed to load classes.');
     }
-};
-
-const handleExamChange = async () => {
-    const exObj = exams.value.find(e => e.id === filters.exam_id);
-    filters.academic_year_id = exObj ? exObj.academic_year_id : '';
-    resetSelection(true);
-    await fetchClasses();
 };
 
 const handleClassChange = () => {
@@ -376,11 +363,24 @@ const handleClassChange = () => {
     resetSelection(false);
 };
 
+const handleSectionChange = () => {
+    resetSelection(false);
+};
+
+const handleSetupChange = () => {
+    loaded.value = false;
+    results.value = [];
+    if (selectedSetup.value) {
+        selectedTemplate.value = selectedSetup.value.template || 'basic';
+        includeGraded.value = selectedSetup.value.include_graded || 'no';
+    }
+};
+
 const resetSelection = (clearClass = false) => {
     loaded.value = false;
     results.value = [];
+    filters.report_card_setup_id = '';
     if (clearClass) {
-        filters.exam_id_2 = '';
         filters.class_id = '';
         filters.section_id = '';
         sections.value = [];
@@ -402,15 +402,21 @@ const fetchSections = async () => {
     }
 };
 
+const fetchSetups = async () => {
+    try {
+        const response = await window.axios.get('/api/report-card-setups');
+        setups.value = response.data.report_card_setups || [];
+    } catch (e) {
+        console.error('Failed to load report card setups.');
+    }
+};
+
 const generateResults = async () => {
     loading.value = true;
     loaded.value = false;
     try {
         const params = {
-            academic_year_id: filters.academic_year_id,
-            exam_id: filters.exam_id,
-            exam_id_2: filters.exam_id_2 || undefined,
-            class_id: filters.class_id,
+            report_card_setup_id: filters.report_card_setup_id,
             section_id: filters.section_id,
             include_graded: includeGraded.value
         };
@@ -427,10 +433,7 @@ const generateResults = async () => {
 
 const downloadStudentReportCard = (studentId) => {
     const queryParams = new URLSearchParams({
-        academic_year_id: filters.academic_year_id,
-        exam_id: filters.exam_id,
-        exam_id_2: filters.exam_id_2 || '',
-        class_id: filters.class_id,
+        report_card_setup_id: filters.report_card_setup_id,
         section_id: filters.section_id,
         student_id: studentId,
         template: selectedTemplate.value,
@@ -442,10 +445,7 @@ const downloadStudentReportCard = (studentId) => {
 
 const downloadClassReportCards = () => {
     const queryParams = new URLSearchParams({
-        academic_year_id: filters.academic_year_id,
-        exam_id: filters.exam_id,
-        exam_id_2: filters.exam_id_2 || '',
-        class_id: filters.class_id,
+        report_card_setup_id: filters.report_card_setup_id,
         section_id: filters.section_id,
         template: selectedTemplate.value,
         include_graded: includeGraded.value
@@ -455,8 +455,8 @@ const downloadClassReportCards = () => {
 };
 
 onMounted(() => {
-    fetchAcademicYears();
     fetchExams();
     fetchClasses();
+    fetchSetups();
 });
 </script>

@@ -176,118 +176,121 @@
                 </div>
 
                 <!-- Form -->
-                <form @submit.prevent="saveHomework" class="p-6 space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Academic Year <span class="text-rose-500">*</span></label>
-                            <select 
-                                v-model="form.academic_year_id"
-                                required
-                                @change="handleModalAcademicYearChange"
-                                class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                            >
-                                <option v-for="year in academicYears" :key="year.id" :value="year.id">{{ year.title }}</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Class <span class="text-rose-500">*</span></label>
-                            <select 
-                                v-model="form.class_id"
-                                required
-                                @change="handleModalClassChange"
-                                class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                            >
-                                <option value="">Select Class</option>
-                                <option v-for="cls in modalClasses" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Section <span class="text-rose-500">*</span></label>
-                            <select 
-                                v-model="form.section_id"
-                                required
-                                @change="handleModalSectionChange"
-                                class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                            >
-                                <option value="">Select Section</option>
-                                <option v-for="sec in modalSections" :key="sec.id" :value="sec.id">{{ sec.name }}</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Subject <span class="text-rose-500">*</span></label>
-                            <select 
-                                v-model="form.subject_id"
-                                required
-                                class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                            >
-                                <option value="">Select Subject</option>
-                                <option v-for="subj in modalSubjects" :key="subj.id" :value="subj.id">{{ subj.name }}</option>
-                            </select>
-                        </div>
-
-                        <div class="col-span-2">
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Homework Title <span class="text-rose-500">*</span></label>
-                            <input 
-                                v-model="form.title"
-                                type="text"
-                                required
-                                class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                                placeholder="e.g. Solve Chapter 3 Exercises"
-                            />
-                        </div>
-
-                        <div class="col-span-2">
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Instructions / Description <span class="text-rose-500">*</span></label>
-                            <textarea 
-                                v-model="form.description"
-                                required
-                                rows="3"
-                                class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                                placeholder="Write detailed instructions for the homework..."
-                            ></textarea>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Submission Date <span class="text-rose-500">*</span></label>
-                            <input 
-                                v-model="form.submission_date"
-                                v-datepicker
-                                type="text"
-                                placeholder="YYYY-MM-DD"
-                                required
-                                class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                            />
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Attachment</label>
-                            <input 
-                                type="file"
-                                @change="handleFileUpload"
-                                class="w-full text-sm text-slate-550 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                            />
-                            <div v-if="editingId && form.attachment && typeof form.attachment === 'string'" class="text-xs text-slate-450 mt-1 truncate">
-                                Current file: {{ form.attachment.split('/').pop() }}
+                <form @submit.prevent="saveHomework" class="flex flex-col max-h-[85vh] md:max-h-[80vh]">
+                    <!-- Scrollable Content Wrapper -->
+                    <div class="p-6 space-y-4 overflow-y-auto flex-1">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Academic Year <span class="text-rose-500">*</span></label>
+                                <select 
+                                    v-model="form.academic_year_id"
+                                    required
+                                    @change="handleModalAcademicYearChange"
+                                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                                >
+                                    <option v-for="year in academicYears" :key="year.id" :value="year.id">{{ year.title }}</option>
+                                </select>
                             </div>
-                        </div>
 
-                        <div class="col-span-2">
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Status</label>
-                            <select 
-                                v-model="form.status"
-                                class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                            >
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Class <span class="text-rose-500">*</span></label>
+                                <select 
+                                    v-model="form.class_id"
+                                    required
+                                    @change="handleModalClassChange"
+                                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                                >
+                                    <option value="">Select Class</option>
+                                    <option v-for="cls in modalClasses" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Section <span class="text-rose-500">*</span></label>
+                                <select 
+                                    v-model="form.section_id"
+                                    required
+                                    @change="handleModalSectionChange"
+                                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                                >
+                                    <option value="">Select Section</option>
+                                    <option v-for="sec in modalSections" :key="sec.id" :value="sec.id">{{ sec.name }}</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Subject <span class="text-rose-500">*</span></label>
+                                <select 
+                                    v-model="form.subject_id"
+                                    required
+                                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                                >
+                                    <option value="">Select Subject</option>
+                                    <option v-for="subj in modalSubjects" :key="subj.id" :value="subj.id">{{ subj.name }}</option>
+                                </select>
+                            </div>
+
+                            <div class="col-span-2">
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Homework Title <span class="text-rose-500">*</span></label>
+                                <input 
+                                    v-model="form.title"
+                                    type="text"
+                                    required
+                                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                                    placeholder="e.g. Solve Chapter 3 Exercises"
+                                />
+                            </div>
+
+                            <div class="col-span-2">
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Instructions / Description <span class="text-rose-500">*</span></label>
+                                <textarea 
+                                    v-model="form.description"
+                                    required
+                                    rows="3"
+                                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                                    placeholder="Write detailed instructions for the homework..."
+                                ></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Submission Date <span class="text-rose-500">*</span></label>
+                                <input 
+                                    v-model="form.submission_date"
+                                    v-datepicker
+                                    type="text"
+                                    placeholder="YYYY-MM-DD"
+                                    required
+                                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                                />
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Attachment</label>
+                                <input 
+                                    type="file"
+                                    @change="handleFileUpload"
+                                    class="w-full text-sm text-slate-550 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                                />
+                                <div v-if="editingId && form.attachment && typeof form.attachment === 'string'" class="text-xs text-slate-450 mt-1 truncate">
+                                    Current file: {{ form.attachment.split('/').pop() }}
+                                </div>
+                            </div>
+
+                            <div class="col-span-2">
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Status</label>
+                                <select 
+                                    v-model="form.status"
+                                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                                >
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Actions -->
-                    <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+                    <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3 flex-shrink-0 bg-slate-50 dark:bg-slate-900/50">
                         <button 
                             type="button" 
                             @click="closeModal"
@@ -439,6 +442,19 @@ const handleModalAcademicYearChange = async () => {
     modalSubjects.value = [];
 };
 
+const fetchModalSections = async () => {
+    if (!form.value.class_id) {
+        modalSections.value = [];
+        return;
+    }
+    try {
+        const response = await window.axios.get('/api/sections', { params: { class_id: form.value.class_id, all: true } });
+        modalSections.value = response.data.sections || response.data;
+    } catch (e) {
+        window.toastr?.error('Failed to load sections.');
+    }
+};
+
 const handleModalClassChange = async () => {
     if (!form.value.class_id) {
         modalSections.value = [];
@@ -448,8 +464,7 @@ const handleModalClassChange = async () => {
         return;
     }
     try {
-        const response = await window.axios.get('/api/sections', { params: { class_id: form.value.class_id, all: true } });
-        modalSections.value = response.data.sections || response.data;
+        await fetchModalSections();
         form.value.section_id = '';
         modalSubjects.value = [];
         form.value.subject_id = '';

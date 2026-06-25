@@ -220,19 +220,16 @@ export default {
         const loadingModules = ref(false);
         const savingModules = ref(false);
 
-        const getModuleEmoji = (slug) => {
+         const getModuleEmoji = (slug) => {
             const emojis = {
                 students: '🎓',
                 teachers: '👨‍🏫',
                 attendance: '📅',
                 homework: '📝',
                 fees: '💵',
-                exams: '✍️',
-                library: '📚',
-                transport: '🚌',
-                hostel: '🏢',
-                reports: '📊',
-                settings: '⚙️'
+                examinations: '✍️',
+                subjects: '📚',
+                notices: '🔔'
             };
             return emojis[slug] || '📁';
         };

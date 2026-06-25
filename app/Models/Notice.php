@@ -21,6 +21,12 @@ class Notice extends Model
         'is_delete'
     ];
 
+    protected $appends = ['attachment_url'];
+
+    public function getAttachmentUrlAttribute(): ?string
+    {
+        return $this->attachment ? url('/storage/' . $this->attachment . '?t=' . ($this->updated_at ? $this->updated_at->timestamp : time())) : null;
+    }
     public function school(): BelongsTo
     {
         return $this->belongsTo(School::class);

@@ -51,46 +51,10 @@ class ModuleSeeder extends Seeder
                 'description' => 'Manage fee structures, collection, invoices, and payments.',
             ],
             [
-                'name' => 'Exams',
-                'slug' => 'exams',
-                'icon' => 'academic-cap',
-                'description' => 'Manage examination schedules, marksheet generation, and results.',
-            ],
-            [
                 'name' => 'Examinations',
                 'slug' => 'examinations',
                 'icon' => 'academic-cap',
                 'description' => 'Comprehensive examination management module including schedules, marks entry, and report cards.',
-            ],
-            [
-                'name' => 'Library',
-                'slug' => 'library',
-                'icon' => 'book-open',
-                'description' => 'Manage books, issues, returns, and library membership.',
-            ],
-            [
-                'name' => 'Transport',
-                'slug' => 'transport',
-                'icon' => 'truck',
-                'description' => 'Manage school vehicles, routes, and transport allocation.',
-            ],
-            [
-                'name' => 'Hostel',
-                'slug' => 'hostel',
-                'icon' => 'home',
-                'description' => 'Manage hostel rooms, block allocations, and facilities.',
-            ],
-            [
-                'name' => 'Reports',
-                'slug' => 'reports',
-                'icon' => 'chart-bar',
-                'description' => 'Generate academic, attendance, and financial reports.',
-            ],
-            [
-                'name' => 'Settings',
-                'slug' => 'settings',
-                'icon' => 'cog',
-                'description' => 'Configure school settings, class timings, and system configurations.',
             ],
             [
                 'name' => 'Notices',
@@ -105,6 +69,10 @@ class ModuleSeeder extends Seeder
                 'description' => 'Manage school academic subjects and curriculum.',
             ],
         ];
+
+        // Delete any modules that are no longer in the default list
+        $defaultSlugs = array_column($defaultModules, 'slug');
+        Module::whereNotIn('slug', $defaultSlugs)->delete();
 
         foreach ($defaultModules as $mod) {
             Module::updateOrCreate(

@@ -178,19 +178,13 @@ class RoleController extends Controller
             'attendance' => ['attendance'],
             'homework' => ['homework'],
             'fees' => ['fee_type', 'fee_structure', 'fee_collection', 'receipt', 'ledger', 'report'],
-            'exams' => ['exams'],
-            'library' => ['library'],
-            'transport' => ['transport'],
-            'hostel' => ['hostel'],
-            'reports' => ['reports'],
-            'settings' => ['settings'],
             'subjects' => ['subject'],
             'notices' => ['notice'],
-            'examinations' => ['exam', 'exam_schedule', 'marks', 'result', 'report_card'],
+            'examinations' => ['exam', 'exam_schedule', 'marks', 'result', 'report_card', 'report_card_setup'],
         ];
 
         // Core prefixes always allowed for school users
-        $allowedPrefixes = ['user', 'role', 'permission', 'dashboard'];
+        $allowedPrefixes = ['user', 'role', 'permission', 'dashboard', 'settings'];
 
         foreach ($activeModules as $moduleSlug) {
             if (isset($modulePermissionMap[$moduleSlug])) {

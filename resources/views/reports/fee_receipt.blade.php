@@ -260,7 +260,10 @@
 <body>
 
 <div class="container">
-    @foreach(['School', 'Parent'] as $copy_type)
+    @php
+        $copies = isset($single_copy) && $single_copy ? ['Parent'] : ['School', 'Parent'];
+    @endphp
+    @foreach($copies as $copy_type)
         <div class="receipt-copy">
             <!-- Header -->
             <table class="header-table">

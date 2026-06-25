@@ -277,7 +277,7 @@
                             Reports
                         </router-link>
 
-                        <!-- <router-link 
+                        <router-link 
                             v-if="authStore.user?.school_id && authStore.hasModule('homework') && authStore.hasPermission('homework.view')" 
                             to="/homeworks" 
                             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
@@ -285,9 +285,9 @@
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                             Homework List
-                        </router-link> -->
+                        </router-link>
 
-                        <!-- <router-link 
+                        <router-link 
                             v-if="authStore.user?.school_id && authStore.hasModule('notices') && authStore.hasPermission('notice.view')" 
                             to="/notices" 
                             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
@@ -295,7 +295,7 @@
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                             Notice Board
-                        </router-link> -->
+                        </router-link>
                     </div>
                 </div>
 
@@ -373,6 +373,16 @@
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                             Result Engine
+                        </router-link>
+
+                        <router-link 
+                            v-if="authStore.hasPermission('report_card_setup.manage')" 
+                            to="/exams/report-card-setups" 
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                            :class="[isRouteActive('/exams/report-card-setups') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10' : 'text-slate-655 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200']"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            Report Card Setup
                         </router-link>
                     </div>
                 </div>
@@ -680,7 +690,8 @@ export default {
                 authStore.hasPermission('marks.view') ||
                 authStore.hasPermission('marks.create') ||
                 authStore.hasPermission('marks.edit') ||
-                authStore.hasPermission('report_card.view')
+                authStore.hasPermission('report_card.view') ||
+                authStore.hasPermission('report_card_setup.manage')
             );
         });
 

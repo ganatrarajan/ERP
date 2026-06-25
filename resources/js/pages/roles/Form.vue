@@ -151,16 +151,14 @@ export default {
             'attendance': 'Attendance Management',
             'homework': 'Homework Management',
             'fees': 'Fees Management',
-            'exams': 'Exams Management',
-            'library': 'Library Management',
-            'transport': 'Transport Management',
-            'hostel': 'Hostel Management',
-            'reports': 'Reports View',
+            'subject': 'Subject Management',
+            'notice': 'Notice Board Management',
             'exam': 'Exams, Grade Scales & Exam Types',
             'exam_schedule': 'Exam Schedules',
             'marks': 'Marks Entry',
             'result': 'Result Engine & Report Cards',
-            'report_card': 'Result Engine & Report Cards'
+            'report_card': 'Result Engine & Report Cards',
+            'report_card_setup': 'Result Engine & Report Cards'
         };
 
         const getGroupName = (permissionName) => {
@@ -300,6 +298,7 @@ export default {
                 'marks.edit': 'Edit',
                 'result.view': 'View & Process Ranks',
                 'report_card.view': 'Generate & Download PDF',
+                'report_card_setup.manage': 'Manage Setups & Publish',
 
                 // Fees Module
                 'fee_type.view': 'View Fee Types',

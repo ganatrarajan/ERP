@@ -24,24 +24,40 @@ class ReportCardController extends Controller
         $this->authorize('result.view');
 
         $request->validate([
-            'academic_year_id' => 'required|integer',
-            'exam_id' => 'required|integer',
+            'academic_year_id' => 'nullable|integer',
+            'exam_id' => 'nullable|integer',
             'exam_id_2' => 'nullable|integer',
-            'class_id' => 'required|integer',
-            'section_id' => 'required|integer',
+            'class_id' => 'nullable|integer',
+            'section_id' => 'nullable|integer',
+            'report_card_setup_id' => 'nullable|integer',
             'include_graded' => 'nullable|string|in:yes,no',
         ]);
 
+        $setup = null;
+        if ($request->filled('report_card_setup_id')) {
+            $setup = \App\Models\ReportCardSetup::findOrFail($request->report_card_setup_id);
+            $academicYearId = $setup->academic_year_id;
+            $examId = $setup->exam_id_1;
+            $examId2 = $setup->exam_id_2;
+            $classId = $setup->class_id;
+            $sectionId = $setup->section_id ?: $request->section_id;
+        } else {
+            if (!$request->filled(['academic_year_id', 'exam_id', 'class_id', 'section_id'])) {
+                return response()->json(['message' => 'The academic year, exam, class, and section fields are required when report card setup is not provided.'], 422);
+            }
+            $academicYearId = $request->academic_year_id;
+            $examId = $request->exam_id;
+            $examId2 = $request->exam_id_2;
+            $classId = $request->class_id;
+            $sectionId = $request->section_id;
+        }
+
         $user = $request->user();
         $schoolId = $user->isSuperAdmin()
-            ? \App\Models\ClassModel::where('id', $request->class_id)->value('school_id')
+            ? \App\Models\ClassModel::where('id', $classId)->value('school_id')
             : $user->school_id;
 
-        $academicYearId = $request->academic_year_id;
-        $examId = $request->exam_id;
-        $classId = $request->class_id;
-        $sectionId = $request->section_id;
-        $includeGraded = $request->input('include_graded', 'no');
+        $includeGraded = $request->input('include_graded') ?: (($setup && $setup->include_graded) ? $setup->include_graded : 'no');
 
         // Fetch students
         $recordsQuery = StudentAcademicRecord::with(['student'])
@@ -57,10 +73,11 @@ class ReportCardController extends Controller
         })->get();
 
         // Calculate results for all students in the section to rank them
-        $results = $this->calculateSectionResults($schoolId, $academicYearId, $examId, $classId, $sectionId, $records, $request->exam_id_2, $includeGraded);
+        $results = $this->calculateSectionResults($schoolId, $academicYearId, $examId, $classId, $sectionId, $records, $examId2, $includeGraded);
 
         return response()->json([
-            'results' => $results
+            'results' => $results,
+            'report_card_name' => $setup ? $setup->name : null,
         ]);
     }
 
@@ -69,19 +86,39 @@ class ReportCardController extends Controller
         $this->authorize('report_card.view');
 
         $request->validate([
-            'academic_year_id' => 'required|integer',
-            'exam_id' => 'required|integer',
+            'academic_year_id' => 'nullable|integer',
+            'exam_id' => 'nullable|integer',
             'exam_id_2' => 'nullable|integer',
-            'class_id' => 'required|integer',
-            'section_id' => 'required|integer',
+            'class_id' => 'nullable|integer',
+            'section_id' => 'nullable|integer',
             'student_id' => 'nullable|integer',
+            'report_card_setup_id' => 'nullable|integer',
             'template' => 'nullable|string|in:basic,detailed,cbse',
             'include_graded' => 'nullable|string|in:yes,no',
         ]);
 
+        $setup = null;
+        if ($request->filled('report_card_setup_id')) {
+            $setup = \App\Models\ReportCardSetup::findOrFail($request->report_card_setup_id);
+            $academicYearId = $setup->academic_year_id;
+            $examId = $setup->exam_id_1;
+            $examId2 = $setup->exam_id_2;
+            $classId = $setup->class_id;
+            $sectionId = $setup->section_id ?: $request->section_id;
+        } else {
+            if (!$request->filled(['academic_year_id', 'exam_id', 'class_id', 'section_id'])) {
+                return response()->json(['message' => 'The academic year, exam, class, and section fields are required when report card setup is not provided.'], 422);
+            }
+            $academicYearId = $request->academic_year_id;
+            $examId = $request->exam_id;
+            $examId2 = $request->exam_id_2;
+            $classId = $request->class_id;
+            $sectionId = $request->section_id;
+        }
+
         $user = $request->user();
         $schoolId = $user->isSuperAdmin()
-            ? \App\Models\ClassModel::where('id', $request->class_id)->value('school_id')
+            ? \App\Models\ClassModel::where('id', $classId)->value('school_id')
             : $user->school_id;
 
         if (!$schoolId) {
@@ -89,16 +126,11 @@ class ReportCardController extends Controller
         }
 
         $school = School::findOrFail($schoolId);
-        $academicYearId = $request->academic_year_id;
-        $examId = $request->exam_id;
-        $examId2 = $request->exam_id_2;
-        $classId = $request->class_id;
-        $sectionId = $request->section_id;
         $studentId = $request->student_id;
-        $includeGraded = $request->input('include_graded', 'no');
+        $includeGraded = $request->input('include_graded') ?: (($setup && $setup->include_graded) ? $setup->include_graded : 'no');
 
         // Determine template key
-        $templateKey = $request->input('template') ?: ($school->default_report_card_template ?: 'basic');
+        $templateKey = $request->input('template') ?: (($setup && $setup->template) ? $setup->template : ($school->default_report_card_template ?: 'basic'));
 
         // Fetch students
         $recordsQuery = StudentAcademicRecord::with(['student'])
@@ -147,7 +179,15 @@ class ReportCardController extends Controller
                 $attendanceStats = $this->getStudentAttendanceStats($schoolId, $academicYearId, $record->student_id);
                 $res['attendance'] = $attendanceStats;
                 $res['school'] = $school;
-                $res['exam'] = $exam;
+                
+                if ($setup) {
+                    $examCopy = clone $exam;
+                    $examCopy->name = $setup->name;
+                    $res['exam'] = $examCopy;
+                } else {
+                    $res['exam'] = $exam;
+                }
+                
                 $res['exam2'] = $exam2;
                 $res['class'] = $classModel;
                 $res['section'] = $sectionModel;
@@ -173,10 +213,12 @@ class ReportCardController extends Controller
 
         $pdf = Pdf::loadView('reports.' . $templateKey, $pdfData);
 
-        $filename = 'Report_Cards_' . str_replace(' ', '_', $classModel->name . '_' . $sectionModel->name) . '.pdf';
+        $baseFilename = $setup ? str_replace(' ', '_', $setup->name) : str_replace(' ', '_', $classModel->name . '_' . $sectionModel->name);
+        $filename = 'Report_Cards_' . $baseFilename . '.pdf';
         if ($studentId && count($reportCards) === 1) {
             $student = $reportCards[0]['student'];
-            $filename = 'Report_Card_' . str_replace(' ', '_', $student->first_name . '_' . $student->last_name) . '.pdf';
+            $setupPrefix = $setup ? ($setup->id . '_' . $setup->updated_at->timestamp . '_') : '';
+            $filename = 'Report_Card_' . $setupPrefix . str_replace(' ', '_', $student->first_name . '_' . $student->last_name) . '.pdf';
         }
 
         return $pdf->stream($filename);

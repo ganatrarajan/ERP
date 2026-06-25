@@ -217,6 +217,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/report-cards/students-status', [\App\Http\Controllers\Api\ReportCardController::class, 'getStudentsReportStatus'])->middleware('permission:result.view');
         Route::get('/report-cards/pdf', [\App\Http\Controllers\Api\ReportCardController::class, 'downloadPdf'])->middleware('permission:report_card.view');
 
+        // Report Card Setups
+        Route::get('/report-card-setups', [\App\Http\Controllers\Api\ReportCardSetupController::class, 'index'])->middleware('permission:report_card_setup.manage');
+        Route::post('/report-card-setups', [\App\Http\Controllers\Api\ReportCardSetupController::class, 'store'])->middleware('permission:report_card_setup.manage');
+        Route::put('/report-card-setups/{id}', [\App\Http\Controllers\Api\ReportCardSetupController::class, 'update'])->middleware('permission:report_card_setup.manage');
+        Route::patch('/report-card-setups/{id}/toggle-publish', [\App\Http\Controllers\Api\ReportCardSetupController::class, 'togglePublish'])->middleware('permission:report_card_setup.manage');
+        Route::delete('/report-card-setups/{id}', [\App\Http\Controllers\Api\ReportCardSetupController::class, 'destroy'])->middleware('permission:report_card_setup.manage');
+
         // Admit Cards
         Route::get('/admit-cards/pdf', [\App\Http\Controllers\Api\AdmitCardController::class, 'downloadPdf'])->middleware('permission:exam_schedule.view');
     });
@@ -289,10 +296,11 @@ Route::middleware(['auth:sanctum', 'mobile.context'])->prefix('mobile')->group(f
     Route::get('/attendance', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'attendance']);
     Route::get('/homework', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'homework']);
     Route::get('/notices', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'notices']);
+    Route::get('/subjects', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'subjects']);
     Route::get('/results', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'results']);
     Route::get('/report-cards', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'reportCards']);
-    Route::get('/report-card/{id}', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'reportCardUrl']);
     Route::get('/report-card/{id}/download', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'downloadReportCard']);
+    Route::get('/report-card/{id}', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'reportCardUrl']);
     Route::get('/fees', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'fees']);
     Route::get('/receipts', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'receipts']);
     Route::get('/receipt/{id}', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'receiptUrl']);

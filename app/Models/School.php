@@ -139,6 +139,7 @@ class School extends Model
                 'marks.edit',
                 'result.view',
                 'report_card.view',
+                'report_card_setup.manage',
                 // fees
                 'fee_type.view',
                 'fee_type.create',

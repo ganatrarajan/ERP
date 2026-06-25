@@ -217,6 +217,12 @@ const routes = [
         component: () => import('../pages/exams/Results.vue'),
         meta: { requiresAuth: true, permission: 'report_card.view', module: 'examinations', layout: 'app' }
     },
+    {
+        path: '/exams/report-card-setups',
+        name: 'exams.report-card-setups',
+        component: () => import('../pages/exams/ReportCardSetups.vue'),
+        meta: { requiresAuth: true, permission: 'report_card_setup.manage', module: 'examinations', layout: 'app' }
+    },
     // Fees Module
     {
         path: '/fees/fee-types',

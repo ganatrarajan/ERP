@@ -113,6 +113,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'marks.edit',
             'result.view',
             'report_card.view',
+            'report_card_setup.manage',
 
             // Fees Module Permissions
             'fee_type.view',
@@ -239,6 +240,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'marks.edit',
             'result.view',
             'report_card.view',
+            'report_card_setup.manage',
             // Fees module
             'fee_type.view',
             'fee_type.create',

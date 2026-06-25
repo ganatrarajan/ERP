@@ -357,12 +357,9 @@ export default {
                 attendance: '📅',
                 homework: '📝',
                 fees: '💵',
-                exams: '✍️',
-                library: '📚',
-                transport: '🚌',
-                hostel: '🏢',
-                reports: '📊',
-                settings: '⚙️'
+                examinations: '✍️',
+                subjects: '📚',
+                notices: '🔔'
             };
             return emojis[slug] || '📁';
         };

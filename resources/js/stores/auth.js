@@ -37,11 +37,7 @@ export const useAuthStore = defineStore('auth', {
                 'marks': 'examinations',
                 'result': 'examinations',
                 'report_card': 'examinations',
-                'library': 'library',
-                'transport': 'transport',
-                'hostel': 'hostel',
-                'reports': 'reports',
-                'settings': 'settings',
+                'report_card_setup': 'examinations',
                 'subject': 'subjects',
                 'notice': 'notices'
             };

@@ -120,7 +120,7 @@ class SchoolModuleController extends Controller
                     'exam.view', 'exam.create', 'exam.edit', 'exam.delete',
                     'exam_schedule.view', 'exam_schedule.create', 'exam_schedule.edit', 'exam_schedule.delete',
                     'marks.view', 'marks.create', 'marks.edit',
-                    'result.view', 'report_card.view'
+                    'result.view', 'report_card.view', 'report_card_setup.manage'
                 ],
                 'fees' => [
                     'fee_type.view', 'fee_type.create', 'fee_type.edit', 'fee_type.delete',

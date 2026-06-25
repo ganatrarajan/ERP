@@ -414,6 +414,8 @@ class NewModulesBackendTest extends TestCase
     {
         Storage::fake('public');
 
+        $file1 = UploadedFile::fake()->create('announcement1.jpg', 100);
+
         // 1. Create Notice
         $response = $this->actingAs($this->schoolAdmin)
             ->postJson('/api/notices', [
@@ -421,11 +423,16 @@ class NewModulesBackendTest extends TestCase
                 'description' => 'Details of the annual function.',
                 'notice_date' => '2026-06-09',
                 'target_type' => 'Entire School',
+                'attachment' => $file1,
                 'status' => 'active'
             ]);
 
         $response->assertStatus(201);
         $noticeId = $response->json('notice.id');
+        $attachmentPath1 = $response->json('notice.attachment');
+
+        $this->assertNotNull($attachmentPath1);
+        Storage::disk('public')->assertExists($attachmentPath1);
 
         // 2. List Notices
         $this->actingAs($this->schoolAdmin)
@@ -433,19 +440,28 @@ class NewModulesBackendTest extends TestCase
             ->assertStatus(200)
             ->assertJsonFragment(['title' => 'Annual Day Notice']);
 
-        // 3. Update Notice to Class Wise
-        $this->actingAs($this->schoolAdmin)
+        $file2 = UploadedFile::fake()->create('announcement2.jpg', 200);
+
+        // 3. Update Notice to Class Wise with new attachment
+        $response2 = $this->actingAs($this->schoolAdmin)
             ->postJson("/api/notices/{$noticeId}", [
                 'title' => 'Grade 10 Special Notice',
                 'description' => 'Special instruction for grade 10.',
                 'notice_date' => '2026-06-10',
                 'target_type' => 'Class Wise',
                 'class_id' => $this->class->id,
-                'status' => 'active'
-            ])
-            ->assertStatus(200)
-            ->assertJsonPath('notice.target_type', 'Class Wise')
-            ->assertJsonPath('notice.class_id', $this->class->id);
+                'attachment' => $file2,
+                'status' => 'active',
+                '_method' => 'PUT'
+            ]);
+
+        $response2->assertStatus(200);
+        $attachmentPath2 = $response2->json('notice.attachment');
+
+        $this->assertNotNull($attachmentPath2);
+        $this->assertNotEquals($attachmentPath1, $attachmentPath2);
+        Storage::disk('public')->assertMissing($attachmentPath1);
+        Storage::disk('public')->assertExists($attachmentPath2);
 
         // 4. Delete Notice
         $this->actingAs($this->schoolAdmin)
@@ -456,6 +472,7 @@ class NewModulesBackendTest extends TestCase
             'id' => $noticeId,
             'is_delete' => 1
         ]);
+        Storage::disk('public')->assertMissing($attachmentPath2);
     }
 
     public function test_holiday_crud()
