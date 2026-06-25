@@ -58,6 +58,16 @@ class StudentRepository {
     throw Exception(data['message'] ?? 'Failed to load homework feed');
   }
 
+  Future<List<SubjectModel>> getSubjects() async {
+    final response = await _dioClient.get(ApiEndpoints.subjects);
+    final data = response.data;
+    if (data is Map && data['success'] == true) {
+      final list = data['subjects'] as List? ?? [];
+      return list.map((e) => SubjectModel.fromJson(e)).toList();
+    }
+    throw Exception(data['message'] ?? 'Failed to load subjects');
+  }
+
   Future<List<NoticeModel>> getNotices({String? type}) async {
     final queryParams = <String, dynamic>{};
     if (type != null) queryParams['type'] = type;

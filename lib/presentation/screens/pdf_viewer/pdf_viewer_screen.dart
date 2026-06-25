@@ -66,15 +66,47 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
         title: Text(widget.title),
         actions: [
           if (_isReady && _totalPages > 0)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Center(
-                child: Text(
-                  "Page ${_currentPage + 1} / $_totalPages",
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
+            Center(
+              child: Text(
+                "Page ${_currentPage + 1} / $_totalPages",
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
+          IconButton(
+            icon: const Icon(Icons.share_rounded),
+            tooltip: "Share Document",
+            onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              try {
+                await _downloadService.shareDownloadedFile(widget.filename, widget.title);
+              } catch (e) {
+                messenger.showSnackBar(
+                  SnackBar(content: Text("Failed to share: ${e.toString()}"), backgroundColor: Colors.red),
+                );
+              }
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.save_alt_rounded),
+            tooltip: "Save to Downloads",
+            onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              try {
+                await _downloadService.exportToPublicDownloads(widget.filename);
+                messenger.showSnackBar(
+                  const SnackBar(
+                    content: Text("Saved to Downloads folder"),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } catch (e) {
+                messenger.showSnackBar(
+                  SnackBar(content: Text("Failed to save: ${e.toString()}"), backgroundColor: Colors.red),
+                );
+              }
+            },
+          ),
+          const SizedBox(width: 8),
         ],
       ),
       body: _buildBody(theme),

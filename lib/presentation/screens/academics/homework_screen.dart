@@ -9,6 +9,7 @@ import '../../widgets/loading_view.dart';
 import '../../widgets/error_view.dart';
 import '../../widgets/empty_view.dart';
 import '../pdf_viewer/pdf_viewer_screen.dart';
+import '../pdf_viewer/image_viewer_screen.dart';
 
 class HomeworkScreen extends StatefulWidget {
   const HomeworkScreen({super.key});
@@ -22,18 +23,45 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
   final Map<int, double> _progressMap = {};
   final Map<int, bool> _downloadedMap = {};
 
+  bool _isImage(HomeworkModel hw) {
+    final attachment = hw.attachment;
+    if (attachment == null) return false;
+    final path = attachment.toLowerCase();
+    return path.endsWith('.png') ||
+        path.endsWith('.jpg') ||
+        path.endsWith('.jpeg') ||
+        path.endsWith('.webp') ||
+        path.endsWith('.gif');
+  }
+
+  String _fileExtension(HomeworkModel hw) {
+    final attachment = hw.attachment;
+    if (attachment == null) return 'pdf';
+    final parts = attachment.split('.');
+    if (parts.length > 1) {
+      return parts.last.toLowerCase();
+    }
+    return _isImage(hw) ? 'jpg' : 'pdf';
+  }
+
+  String _localFilename(HomeworkModel hw) {
+    return 'homework_${hw.id}.${_fileExtension(hw)}';
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<HomeworkProvider>().fetchHomework();
+      final prov = context.read<HomeworkProvider>();
+      prov.fetchHomework();
+      prov.fetchSubjects();
     });
   }
 
   Future<void> _checkDownloaded(List<HomeworkModel> homeworks) async {
     for (var hw in homeworks) {
       if (hw.attachment != null) {
-        final filename = 'homework_${hw.id}.pdf';
+        final filename = _localFilename(hw);
         final isDownloaded = await _downloadService.isFileDownloaded(filename);
         if (mounted && _downloadedMap[hw.id] != isDownloaded) {
           setState(() {
@@ -48,7 +76,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
     if (hw.attachment == null) return;
 
     final hwId = hw.id;
-    final filename = 'homework_$hwId.pdf';
+    final filename = _localFilename(hw);
     final isDownloaded = _downloadedMap[hwId] ?? false;
 
     if (isDownloaded) {
@@ -56,22 +84,28 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => PdfViewerScreen(
-            title: hw.title,
-            filename: filename,
-          ),
+          builder: (context) => _isImage(hw)
+              ? ImageViewerScreen(
+                  title: hw.title,
+                  filename: filename,
+                )
+              : PdfViewerScreen(
+                  title: hw.title,
+                  filename: filename,
+                ),
         ),
       );
     } else {
+      final messenger = ScaffoldMessenger.of(context);
+      final errorColor = Theme.of(context).colorScheme.error;
+
       // Download
       setState(() {
         _progressMap[hwId] = 0.05;
       });
 
       try {
-        final absoluteUrl = hw.attachment!.startsWith('http')
-            ? hw.attachment!
-            : '${ApiEndpoints.baseUrl}/${hw.attachment}';
+        final absoluteUrl = ApiEndpoints.resolveAttachmentUrl(hw.attachment);
 
         await _downloadService.downloadFile(
           url: absoluteUrl,
@@ -90,7 +124,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
             _downloadedMap[hwId] = true;
             _progressMap.remove(hwId);
           });
-          ScaffoldMessenger.of(context).showSnackBar(
+          messenger.showSnackBar(
             SnackBar(
               content: Text("Downloaded ${hw.title} attachment successfully!"),
               backgroundColor: Colors.green,
@@ -102,16 +136,17 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
           setState(() {
             _progressMap.remove(hwId);
           });
-          ScaffoldMessenger.of(context).showSnackBar(
+          messenger.showSnackBar(
             SnackBar(
               content: Text("Failed to download attachment: ${e.toString()}"),
-              backgroundColor: Theme.of(context).colorScheme.error,
+              backgroundColor: errorColor,
             ),
           );
         }
       }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +179,12 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
 
           Expanded(
             child: RefreshIndicator(
-              onRefresh: () => hwProv.fetchHomework(),
+              onRefresh: () async {
+                await Future.wait([
+                  hwProv.fetchHomework(),
+                  hwProv.fetchSubjects(),
+                ]);
+              },
               child: _buildList(hwProv, theme),
             ),
           ),
@@ -154,6 +194,16 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
   }
 
   Widget _buildFilterBar(HomeworkProvider prov, ThemeData theme) {
+    final selectedSubject = prov.selectedSubjectId != null && prov.subjects.isNotEmpty
+        ? prov.subjects.firstWhere(
+            (s) => s.id == prov.selectedSubjectId,
+            orElse: () => SubjectModel(id: 0, name: '', code: ''),
+          )
+        : null;
+    final buttonLabel = selectedSubject != null && selectedSubject.id != 0
+        ? selectedSubject.name
+        : "Select Subject";
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
       child: Row(
@@ -186,18 +236,15 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
             ),
           ),
           const SizedBox(width: 12),
-          // Subject Filter button placeholder/mock options since subject list isn't an explicit endpoint
+          // Subject Filter button loaded dynamically
           Expanded(
             child: OutlinedButton.icon(
               icon: const Icon(Icons.subject_rounded, size: 18),
               label: Text(
-                prov.selectedSubjectId != null
-                    ? "Sub ID: ${prov.selectedSubjectId}"
-                    : "Select Subject",
+                buttonLabel,
                 overflow: TextOverflow.ellipsis,
               ),
               onPressed: () {
-                // Mock selection menu for demonstration
                 showModalBottomSheet(
                   context: context,
                   builder: (context) => SafeArea(
@@ -214,20 +261,17 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                             Navigator.pop(context);
                           },
                         ),
-                        ListTile(
-                          title: const Text("Mathematics"),
+                        ...prov.subjects.map((sub) => ListTile(
+                          title: Text(
+                            (sub.code.trim().isNotEmpty && sub.code.trim().toLowerCase() != 'null')
+                                ? "${sub.name} (${sub.code})"
+                                : sub.name,
+                          ),
                           onTap: () {
-                            prov.setSubjectFilter(2);
+                            prov.setSubjectFilter(sub.id);
                             Navigator.pop(context);
                           },
-                        ),
-                        ListTile(
-                          title: const Text("Science"),
-                          onTap: () {
-                            prov.setSubjectFilter(3);
-                            Navigator.pop(context);
-                          },
-                        ),
+                        )),
                       ],
                     ),
                   ),
@@ -347,21 +391,61 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                                 ),
                               ),
                             )
-                          : ElevatedButton.icon(
-                              onPressed: () => _handleDownloadOrOpen(hw),
-                              icon: Icon(
-                                isDownloaded ? Icons.menu_book_rounded : Icons.download_rounded,
-                                size: 16,
-                              ),
-                              label: Text(
-                                isDownloaded ? "View PDF" : "Download PDF",
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                minimumSize: Size.zero,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              ),
+                          : Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (isDownloaded) ...[
+                                  TextButton.icon(
+                                    onPressed: () async {
+                                      final messenger = ScaffoldMessenger.of(context);
+                                      try {
+                                        final filename = _localFilename(hw);
+                                        await _downloadService.exportToPublicDownloads(filename);
+                                        messenger.showSnackBar(
+                                          const SnackBar(
+                                            content: Text("Saved to Downloads folder"),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        );
+                                      } catch (e) {
+                                        messenger.showSnackBar(
+                                          SnackBar(
+                                            content: Text("Failed to save: ${e.toString()}"),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    icon: const Icon(Icons.save_alt_rounded, size: 16),
+                                    label: const Text("Save", style: TextStyle(fontSize: 12)),
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                      minimumSize: Size.zero,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                ],
+                                ElevatedButton.icon(
+                                  onPressed: () => _handleDownloadOrOpen(hw),
+                                  icon: Icon(
+                                    isDownloaded
+                                        ? (_isImage(hw) ? Icons.image_search_rounded : Icons.menu_book_rounded)
+                                        : Icons.download_rounded,
+                                    size: 16,
+                                  ),
+                                  label: Text(
+                                    isDownloaded
+                                        ? (_isImage(hw) ? "View Image" : "View PDF")
+                                        : (_isImage(hw) ? "Download Image" : "Download PDF"),
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    minimumSize: Size.zero,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  ),
+                                ),
+                              ],
                             ),
                     ] else ...[
                       const Text(

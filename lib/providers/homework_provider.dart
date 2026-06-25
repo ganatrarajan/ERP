@@ -7,6 +7,7 @@ class HomeworkProvider extends ChangeNotifier {
   final StudentRepository _studentRepository = StudentRepository();
 
   List<HomeworkModel> _homeworks = [];
+  List<SubjectModel> _subjects = [];
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -15,6 +16,7 @@ class HomeworkProvider extends ChangeNotifier {
   DateTime? _selectedDate;
 
   List<HomeworkModel> get homeworks => _homeworks;
+  List<SubjectModel> get subjects => _subjects;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   int? get selectedSubjectId => _selectedSubjectId;
@@ -22,6 +24,15 @@ class HomeworkProvider extends ChangeNotifier {
 
   String? get formattedDateFilter =>
       _selectedDate != null ? DateFormat('yyyy-MM-dd').format(_selectedDate!) : null;
+
+  Future<void> fetchSubjects() async {
+    try {
+      _subjects = await _studentRepository.getSubjects();
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Failed to fetch subjects: $e");
+    }
+  }
 
   Future<void> fetchHomework() async {
     _isLoading = true;
