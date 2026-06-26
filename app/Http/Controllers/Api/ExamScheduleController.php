@@ -154,6 +154,27 @@ class ExamScheduleController extends Controller
             return $results;
         });
 
+        try {
+            $fcmService = app(\App\Services\FcmService::class);
+            $title = "New Exam Schedule Published";
+            $body = "The exam schedule for " . $exam->name . " is now available.";
+            
+            $fcmService->sendToClass(
+                $schoolId,
+                $classId,
+                $sectionId,
+                $title,
+                $body,
+                [
+                    'type' => 'exam',
+                    'id' => $examId,
+                ],
+                $academicYearId
+            );
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("FCM Exam Schedule Notification Error: " . $e->getMessage());
+        }
+
         return response()->json([
             'message' => 'Exam schedules saved successfully.',
             'schedules' => $savedSchedules

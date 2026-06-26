@@ -291,6 +291,8 @@ Route::post('/mobile/login', [\App\Http\Controllers\Api\MobileAuthController::cl
 Route::post('/mobile/change-password', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'changePassword']);
 
 Route::middleware(['auth:sanctum', 'mobile.context'])->prefix('mobile')->group(function () {
+    Route::post('/register-device', [\App\Http\Controllers\Api\StudentDeviceTokenController::class, 'registerDevice']);
+    Route::post('/logout', [\App\Http\Controllers\Api\StudentDeviceTokenController::class, 'logout']);
     Route::get('/dashboard', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'dashboard']);
     Route::get('/profile', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'profile']);
     Route::get('/attendance', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'attendance']);

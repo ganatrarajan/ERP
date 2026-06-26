@@ -5,9 +5,15 @@ namespace App\Services;
 use App\Models\Homework;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-
 class HomeworkService
 {
+    protected FcmService $fcmService;
+
+    public function __construct(FcmService $fcmService)
+    {
+        $this->fcmService = $fcmService;
+    }
+
     /**
      * Create a new Homework.
      */
@@ -18,7 +24,7 @@ class HomeworkService
             $attachmentPath = $data['attachment']->store('homeworks', 'public');
         }
 
-        return Homework::create([
+        $homework = Homework::create([
             'school_id' => $schoolId,
             'academic_year_id' => $data['academic_year_id'],
             'class_id' => $data['class_id'],
@@ -31,6 +37,30 @@ class HomeworkService
             'created_by' => $userId,
             'status' => $data['status'] ?? 'active',
         ]);
+
+        try {
+            $homework->load('subject');
+            $subjectName = $homework->subject ? $homework->subject->name : 'N/A';
+            $title = "New Homework: " . $homework->title;
+            $body = "New assignment for " . $subjectName . ". Submission Date: " . $homework->submission_date;
+            
+            $this->fcmService->sendToClass(
+                $schoolId,
+                $homework->class_id,
+                $homework->section_id,
+                $title,
+                $body,
+                [
+                    'type' => 'homework',
+                    'id' => $homework->id,
+                ],
+                $homework->academic_year_id
+            );
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("FCM Homework Notification Error: " . $e->getMessage());
+        }
+
+        return $homework;
     }
 
     /**

@@ -177,6 +177,26 @@ class FeeCollectionController extends Controller
             return $col;
         });
 
+        try {
+            $fcmService = app(\App\Services\FcmService::class);
+            $collection->load('installment');
+            $installmentName = $collection->installment ? $collection->installment->name : 'Fee Installment';
+            $title = "Fee Payment Received";
+            $body = "A payment of " . number_format($amountPaid, 2) . " has been successfully collected for " . $installmentName . ".";
+            
+            $fcmService->sendToStudent(
+                $studentId,
+                $title,
+                $body,
+                [
+                    'type' => 'fees',
+                    'id' => $collection->id,
+                ]
+            );
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("FCM Fee Notification Error: " . $e->getMessage());
+        }
+
         return response()->json([
             'message' => 'Payment collected and receipt generated successfully',
             'collection' => $collection->load(['receipt', 'installment'])

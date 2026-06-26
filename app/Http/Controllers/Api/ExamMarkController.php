@@ -218,6 +218,24 @@ class ExamMarkController extends Controller
             return $results;
         });
 
+        try {
+            $fcmService = app(\App\Services\FcmService::class);
+            $schedule->load('exam');
+            foreach ($request->marks as $markData) {
+                $fcmService->sendToStudent(
+                    $markData['student_id'],
+                    "Exam Results Published",
+                    "Your marks for " . $subject->name . " (" . $schedule->exam->name . ") have been published.",
+                    [
+                        'type' => 'result',
+                        'id' => $examId,
+                    ]
+                );
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("FCM Exam Marks Notification Error: " . $e->getMessage());
+        }
+
         return response()->json([
             'message' => 'Exam marks saved successfully.',
             'marks' => $savedMarks

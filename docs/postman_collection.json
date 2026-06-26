@@ -1,0 +1,181 @@
+{
+	"info": {
+		"_postman_id": "c0552b0f-21f4-4279-88c9-04a44f387db2",
+		"name": "School ERP Mobile FCM API",
+		"description": "Postman collection to test Student mobile FCM device token registration and deactivation on logout.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Verify School",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"school_code\": \"SCH01\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/mobile/school/verify",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"mobile",
+						"school",
+						"verify"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Student Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"if (jsonData.success && jsonData.token) {",
+							"    pm.environment.set(\"studentToken\", jsonData.token);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"school_code\": \"SCH01\",\n    \"academic_year_id\": 1,\n    \"admission_no\": \"STUD001\",\n    \"password\": \"password123\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/mobile/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"mobile",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Device",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{studentToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firebase_token\": \"fcm_token_string_xxxxxxxxxxxx\",\n    \"device_type\": \"android\",\n    \"device_name\": \"Samsung Galaxy S24\",\n    \"app_version\": \"1.0.0\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/mobile/register-device",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"mobile",
+						"register-device"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Student Logout",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{studentToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firebase_token\": \"fcm_token_string_xxxxxxxxxxxx\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/mobile/logout",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"mobile",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://127.0.0.1:8000/api",
+			"type": "string"
+		},
+		{
+			"key": "studentToken",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
