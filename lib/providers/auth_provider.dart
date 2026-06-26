@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/services/secure_storage_service.dart';
+import '../core/services/notification_service.dart';
 import '../data/models/student_model.dart';
 import '../data/repositories/auth_repository.dart';
 import '../data/repositories/student_repository.dart';
@@ -34,6 +35,8 @@ class AuthProvider extends ChangeNotifier {
     if (token != null && studentData != null) {
       _student = StudentModel.fromJson(studentData);
       _status = AuthStatus.authenticated;
+      // Auto-register device to keep token fresh on boot
+      NotificationService.instance.registerDevice();
     } else {
       _status = AuthStatus.unauthenticated;
     }
@@ -82,6 +85,11 @@ class AuthProvider extends ChangeNotifier {
         await _secureStorage.saveStudentData(result.student!.toJson());
         _status = AuthStatus.authenticated;
         notifyListeners();
+        
+        // Request permissions on first login and register device
+        await NotificationService.instance.requestPermissionOnFirstLogin();
+        await NotificationService.instance.registerDevice();
+        
         return true;
       }
     }
@@ -130,6 +138,9 @@ class AuthProvider extends ChangeNotifier {
 
   // Clear session
   Future<void> logout() async {
+    // Deactivate device on backend first
+    await NotificationService.instance.deactivateDevice();
+    
     await _secureStorage.clearAuth();
     _student = null;
     _status = AuthStatus.unauthenticated;

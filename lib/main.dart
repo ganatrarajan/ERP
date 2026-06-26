@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'core/services/notification_service.dart';
 
 // Themes
 import 'core/theme/app_theme.dart';
@@ -20,8 +23,21 @@ import 'providers/onboarding_provider.dart';
 // Screens
 import 'presentation/screens/splash_screen.dart';
 
-void main() {
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+}
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  
+  // Set background messaging handler
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  
+  // Initialize Notification Service
+  await NotificationService.instance.init();
+  
   runApp(const EduvoraApp());
 }
 
@@ -44,6 +60,7 @@ class EduvoraApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ReportCardProvider()),
       ],
       child: MaterialApp(
+        navigatorKey: NotificationService.navigatorKey,
         title: 'EduvoraX',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../core/services/notification_service.dart';
 import '../change_password_screen.dart';
 import '../onboarding/school_code_screen.dart';
 import '../login_screen.dart';
@@ -188,6 +189,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                     );
+                  },
+                ),
+
+                const Divider(height: 1),
+                ListTile(
+                  leading: Icon(Icons.notifications_active_rounded, color: theme.colorScheme.primary),
+                  title: const Text("Push Notifications"),
+                  subtitle: const Text("Manage notification permissions"),
+                  trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+                  onTap: () async {
+                    final granted = await NotificationService.instance.requestNotificationPermission();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(granted 
+                            ? "Notifications enabled successfully!" 
+                            : "Notification permission was denied. Please enable it in system settings."),
+                          backgroundColor: granted ? Colors.green : Colors.red,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
                   },
                 ),
 

@@ -17,6 +17,8 @@ class ApiEndpoints {
   static String getAcademicYears(String code) => '$baseUrl/academic-years/$code';
   static String get login => '$baseUrl/login';
   static String get changePassword => '$baseUrl/change-password';
+  static String get registerDevice => '$baseUrl/register-device';
+  static String get logout => '$baseUrl/logout';
   
   // Authenticated
   static String get dashboard => '$baseUrl/dashboard';
