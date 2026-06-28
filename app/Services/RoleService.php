@@ -18,10 +18,25 @@ class RoleService
                 'name' => $data['name'],
                 'guard_name' => 'web',
                 'school_id' => $data['school_id'] ?? (auth()->check() ? auth()->user()->school_id : null),
+                'status' => $data['status'] ?? 'active',
             ]);
 
             if (!empty($data['permissions'])) {
                 $role->syncPermissions($data['permissions']);
+            }
+
+            // If a global role (school_id is null) is created, replicate it to all schools
+            if (is_null($role->school_id)) {
+                $schools = \App\Models\School::all();
+                foreach ($schools as $school) {
+                    Role::firstOrCreate([
+                        'name' => $role->name,
+                        'guard_name' => 'web',
+                        'school_id' => $school->id,
+                    ], [
+                        'status' => $role->status,
+                    ]);
+                }
             }
 
             return $role;
@@ -41,12 +56,40 @@ class RoleService
                 $data['name'] = $role->name;
             }
 
-            $role->update([
-                'name' => $data['name']
-            ]);
+            $updateData = [];
+            if (isset($data['name'])) {
+                $updateData['name'] = $data['name'];
+            }
+            if (isset($data['status'])) {
+                $updateData['status'] = $data['status'];
+            }
+
+            $oldName = $role->name;
+            $role->update($updateData);
 
             if (isset($data['permissions'])) {
                 $role->syncPermissions($data['permissions']);
+            }
+
+            // If it is a global role, update all copies across all schools
+            if (is_null($role->school_id)) {
+                $schools = \App\Models\School::all();
+                foreach ($schools as $school) {
+                    $schoolRole = Role::where('name', $oldName)
+                        ->where('school_id', $school->id)
+                        ->first();
+
+                    if ($schoolRole) {
+                        $schoolRole->update($updateData);
+                    } else {
+                        Role::create([
+                            'name' => $role->name,
+                            'guard_name' => 'web',
+                            'school_id' => $school->id,
+                            'status' => $role->status,
+                        ]);
+                    }
+                }
             }
 
             return $role;
@@ -61,6 +104,15 @@ class RoleService
         if (in_array($role->name, ['Super Admin', 'School Admin', 'Teacher'])) {
             throw new \Exception("Default system roles cannot be deleted.");
         }
-        $role->delete();
+
+        DB::transaction(function () use ($role) {
+            // If it is a global role, delete all copies from all schools
+            if (is_null($role->school_id)) {
+                Role::where('name', $role->name)
+                    ->whereNotNull('school_id')
+                    ->delete();
+            }
+            $role->delete();
+        });
     }
 }

@@ -15,6 +15,7 @@ class Role extends SpatieRole
         'name',
         'guard_name',
         'school_id',
+        'status',
     ];
 
     public function school(): BelongsTo

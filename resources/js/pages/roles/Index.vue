@@ -31,6 +31,17 @@
                         <div class="flex items-center gap-2">
                             <h3 class="font-bold text-slate-800 dark:text-white text-base tracking-tight">{{ role.name }}</h3>
                             <span v-if="isSystemRole(role)" class="px-1.5 py-0.5 rounded text-[9px] bg-slate-100 dark:bg-slate-950 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/10 font-bold tracking-wider uppercase">System</span>
+                            <span 
+                                v-if="authStore.isSuperAdmin && role.name !== 'Super Admin'"
+                                :class="[
+                                    'px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase border',
+                                    role.status === 'active' 
+                                        ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' 
+                                        : 'bg-rose-500/10 text-rose-500 border-rose-500/20'
+                                ]"
+                            >
+                                {{ role.status || 'active' }}
+                            </span>
                         </div>
                         
                         <div class="flex items-center gap-1.5">
@@ -39,7 +50,7 @@
                                 v-if="authStore.hasPermission('role.edit') && role.name !== 'Super Admin'"
                                 :to="`/roles/${role.id}/edit`"
                                 class="p-1 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
-                                title="Edit Role Permissions"
+                                :title="authStore.isSuperAdmin ? 'Edit Role Details' : 'Edit Role Permissions'"
                             >
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                             </router-link>

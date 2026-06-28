@@ -30,6 +30,7 @@ class StoreRoleRequest extends FormRequest
             ],
             'permissions' => 'nullable|array',
             'permissions.*' => 'string|exists:permissions,name',
+            'status' => 'nullable|string|in:active,inactive',
         ];
     }
 }

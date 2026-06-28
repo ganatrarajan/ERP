@@ -46,12 +46,11 @@ class SchoolService
                 'status' => 'active',
             ]);
 
-            // Create default roles for the new school
-            $schoolAdminRole = \App\Models\Role::firstOrCreate([
-                'name' => 'School Admin',
-                'guard_name' => 'web',
-                'school_id' => $school->id,
-            ]);
+            // Create active global roles for the new school
+            $globalRoles = \App\Models\Role::whereNull('school_id')
+                ->where('name', '!=', 'Super Admin')
+                ->where('status', 'active')
+                ->get();
 
             // Sync School Admin permissions based on selected modules
             $activeModuleSlugs = \App\Models\Module::whereIn('id', $moduleIds)
@@ -115,29 +114,36 @@ class SchoolService
                 \Spatie\Permission\Models\Permission::pluck('name')->toArray()
             );
 
-            $schoolAdminRole->syncPermissions($permissionsToSync);
+            foreach ($globalRoles as $globalRole) {
+                $schoolRole = \App\Models\Role::firstOrCreate([
+                    'name' => $globalRole->name,
+                    'guard_name' => 'web',
+                    'school_id' => $school->id,
+                ], [
+                    'status' => 'active',
+                ]);
 
-            \App\Models\Role::firstOrCreate([
-                'name' => 'Teacher',
-                'guard_name' => 'web',
-                'school_id' => $school->id,
-            ])->syncPermissions([
-                'dashboard.view',
-                'academic_year.view',
-                'class.view',
-                'section.view',
-                'student.view',
-                // examinations
-                'exam.view',
-                'exam_schedule.view',
-                'marks.view',
-                'marks.create',
-                'marks.edit',
-                'report_card.view',
-            ]);
-
-            // Assign the School Admin role
-            $schoolAdmin->assignRole($schoolAdminRole);
+                if ($globalRole->name === 'School Admin') {
+                    $schoolRole->syncPermissions($permissionsToSync);
+                    // Assign the School Admin role
+                    $schoolAdmin->assignRole($schoolRole);
+                } elseif ($globalRole->name === 'Teacher') {
+                    $schoolRole->syncPermissions([
+                        'dashboard.view',
+                        'academic_year.view',
+                        'class.view',
+                        'section.view',
+                        'student.view',
+                        // examinations
+                        'exam.view',
+                        'exam_schedule.view',
+                        'marks.view',
+                        'marks.create',
+                        'marks.edit',
+                        'report_card.view',
+                    ]);
+                }
+            }
 
             return $school;
         });

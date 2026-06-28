@@ -67,107 +67,114 @@ class School extends Model
         });
 
         static::created(function ($school) {
-            // Create default roles for this school
-            $schoolAdminRole = \App\Models\Role::firstOrCreate([
-                'name' => 'School Admin',
-                'guard_name' => 'web',
-                'school_id' => $school->id,
-            ]);
+            // Create active global roles for this school
+            $globalRoles = \App\Models\Role::whereNull('school_id')
+                ->where('name', '!=', 'Super Admin')
+                ->where('status', 'active')
+                ->get();
 
-            $schoolAdminRole->syncPermissions([
-                'dashboard.view',
-                'user.view',
-                'user.create',
-                'user.edit',
-                'user.delete',
-                'role.view',
-                'role.edit',
-                'permission.view',
-                'permission.edit',
-                'settings.view',
-                'settings.edit',
-                // Academic and student
-                'academic_year.view',
-                'academic_year.create',
-                'academic_year.edit',
-                'academic_year.delete',
-                'class.view',
-                'class.create',
-                'class.edit',
-                'class.delete',
-                'section.view',
-                'section.create',
-                'section.edit',
-                'section.delete',
-                'student.view',
-                'student.create',
-                'student.edit',
-                'student.delete',
-                'promotion.view',
-                'promotion.create',
-                // subjects
-                'subject.view',
-                'subject.create',
-                'subject.edit',
-                'subject.delete',
-                // attendance
-                'attendance.view',
-                'attendance.create',
-                'attendance.edit',
-                'attendance.delete',
-                // homework
-                'homework.view',
-                'homework.create',
-                'homework.edit',
-                'homework.delete',
-                // notices
-                'notice.view',
-                'notice.create',
-                'notice.edit',
-                'notice.delete',
-                // examinations
-                'exam.view',
-                'exam.create',
-                'exam.edit',
-                'exam.delete',
-                'exam_schedule.view',
-                'exam_schedule.create',
-                'exam_schedule.edit',
-                'exam_schedule.delete',
-                'marks.view',
-                'marks.create',
-                'marks.edit',
-                'result.view',
-                'report_card.view',
-                'report_card_setup.manage',
-                // fees
-                'fee_type.view',
-                'fee_type.create',
-                'fee_type.edit',
-                'fee_type.delete',
-                'fee_structure.view',
-                'fee_structure.create',
-                'fee_structure.edit',
-                'fee_structure.delete',
-                'fee_collection.view',
-                'fee_collection.create',
-                'fee_collection.edit',
-                'receipt.view',
-                'ledger.view',
-                'report.view',
-            ]);
+            foreach ($globalRoles as $globalRole) {
+                $schoolRole = \App\Models\Role::firstOrCreate([
+                    'name' => $globalRole->name,
+                    'guard_name' => 'web',
+                    'school_id' => $school->id,
+                ], [
+                    'status' => 'active',
+                ]);
 
-            \App\Models\Role::firstOrCreate([
-                'name' => 'Teacher',
-                'guard_name' => 'web',
-                'school_id' => $school->id,
-            ])->syncPermissions([
-                'dashboard.view',
-                'academic_year.view',
-                'class.view',
-                'section.view',
-                'student.view',
-            ]);
+                if ($globalRole->name === 'School Admin') {
+                    $schoolRole->syncPermissions([
+                        'dashboard.view',
+                        'user.view',
+                        'user.create',
+                        'user.edit',
+                        'user.delete',
+                        'role.view',
+                        'role.edit',
+                        'permission.view',
+                        'permission.edit',
+                        'settings.view',
+                        'settings.edit',
+                        // Academic and student
+                        'academic_year.view',
+                        'academic_year.create',
+                        'academic_year.edit',
+                        'academic_year.delete',
+                        'class.view',
+                        'class.create',
+                        'class.edit',
+                        'class.delete',
+                        'section.view',
+                        'section.create',
+                        'section.edit',
+                        'section.delete',
+                        'student.view',
+                        'student.create',
+                        'student.edit',
+                        'student.delete',
+                        'promotion.view',
+                        'promotion.create',
+                        // subjects
+                        'subject.view',
+                        'subject.create',
+                        'subject.edit',
+                        'subject.delete',
+                        // attendance
+                        'attendance.view',
+                        'attendance.create',
+                        'attendance.edit',
+                        'attendance.delete',
+                        // homework
+                        'homework.view',
+                        'homework.create',
+                        'homework.edit',
+                        'homework.delete',
+                        // notices
+                        'notice.view',
+                        'notice.create',
+                        'notice.edit',
+                        'notice.delete',
+                        // examinations
+                        'exam.view',
+                        'exam.create',
+                        'exam.edit',
+                        'exam.delete',
+                        'exam_schedule.view',
+                        'exam_schedule.create',
+                        'exam_schedule.edit',
+                        'exam_schedule.delete',
+                        'marks.view',
+                        'marks.create',
+                        'marks.edit',
+                        'result.view',
+                        'report_card.view',
+                        'report_card_setup.manage',
+                        // fees
+                        'fee_type.view',
+                        'fee_type.create',
+                        'fee_type.edit',
+                        'fee_type.delete',
+                        'fee_structure.view',
+                        'fee_structure.create',
+                        'fee_structure.edit',
+                        'fee_structure.delete',
+                        'fee_collection.view',
+                        'fee_collection.create',
+                        'fee_collection.edit',
+                        'receipt.view',
+                        'ledger.view',
+                        'report.view',
+                    ]);
+                } elseif ($globalRole->name === 'Teacher') {
+                    $schoolRole->syncPermissions([
+                        'dashboard.view',
+                        'academic_year.view',
+                        'class.view',
+                        'section.view',
+                        'student.view',
+                    ]);
+                }
+            }
         });
     }
 }
