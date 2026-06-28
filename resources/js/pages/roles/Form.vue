@@ -35,10 +35,23 @@
                     />
                     <p v-if="isSystemRoleName" class="text-xs text-amber-600 dark:text-amber-500 mt-2 font-semibold">System-default roles are partially protected and cannot change names.</p>
                 </div>
+
+                <!-- Status Select (Only for Super Admin) -->
+                <div v-if="authStore.isSuperAdmin && form.name !== 'Super Admin'">
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Status</label>
+                    <select 
+                        v-model="form.status"
+                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-1 focus:ring-indigo-500 transition-all"
+                    >
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Inactive roles will not be visible or assignable in schools.</p>
+                </div>
             </div>
 
             <!-- Permissions Mapping Card -->
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl space-y-6 shadow-sm">
+            <div v-if="!authStore.isSuperAdmin" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl space-y-6 shadow-sm">
                 <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-2">
                     <h3 class="text-sm font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Functional Permissions Map</h3>
                     <button 
@@ -129,7 +142,8 @@ export default {
 
         const form = ref({
             name: '',
-            permissions: []
+            permissions: [],
+            status: 'active'
         });
 
         const allPermissions = ref([]);
@@ -226,6 +240,7 @@ export default {
 
                     form.value.name = role.name;
                     form.value.permissions = role.permissions.map(p => p.name);
+                    form.value.status = role.status || 'active';
                 } catch (error) {
                     console.error(error);
                     toastStore.error('Failed to load role details.');

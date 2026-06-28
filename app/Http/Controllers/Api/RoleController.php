@@ -31,7 +31,8 @@ class RoleController extends Controller
         
         if (!$request->user()->isSuperAdmin()) {
             $query->where('name', '!=', 'Super Admin')
-                  ->where('school_id', $request->user()->school_id);
+                  ->where('school_id', $request->user()->school_id)
+                  ->where('status', 'active');
         } else {
             if ($request->has('school_id')) {
                 $query->where('school_id', $request->input('school_id'));

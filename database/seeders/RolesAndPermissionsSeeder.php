@@ -144,8 +144,19 @@ class RolesAndPermissionsSeeder extends Seeder
         $superAdminRole = Role::findOrCreate('Super Admin', 'web');
         $superAdminRole->syncPermissions(Permission::all());
 
+        $schoolAdminGlobalRole = Role::firstOrCreate([
+            'name' => 'School Admin',
+            'guard_name' => 'web',
+            'school_id' => null,
+        ]);
+        $schoolAdminGlobalRole->update(['status' => 'active']);
 
-
+        $teacherGlobalRole = Role::firstOrCreate([
+            'name' => 'Teacher',
+            'guard_name' => 'web',
+            'school_id' => null,
+        ]);
+        $teacherGlobalRole->update(['status' => 'active']);
         // 1. Create Super Admin User
         $superAdmin = User::updateOrCreate(
             ['email' => 'superadmin@erp.com'],
