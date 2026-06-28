@@ -236,9 +236,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Navigator.pop(dialogContext); // Pop the dialog
                               // Clear both auth and onboarding
                               await context.read<AuthProvider>().logout();
+                              if (!context.mounted) return;
                               await context.read<OnboardingProvider>().clearOnboarding();
-                              
-                              if (!context.mounted) return; // Check outer screen context
+                              if (!context.mounted) return;
                               Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
                                 MaterialPageRoute(builder: (_) => const SchoolCodeScreen()),
                                 (route) => false,

@@ -1,6 +1,7 @@
 class ApiEndpoints {
   // Configurable base URL
-  static String baseUrl = 'http://192.168.1.10:8000/api/mobile';
+  static String baseUrl = 'http://168.144.147.94/api/mobile';
+  // static String baseUrl = 'http://192.168.1.10:8000/api/mobile';
 
   // Extract server root from baseUrl (handles scheme, host, port)
   static String get rootUrl {

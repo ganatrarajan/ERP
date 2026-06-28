@@ -5,6 +5,7 @@ import '../../../providers/auth_provider.dart';
 import '../../../data/models/dashboard_model.dart';
 import '../../widgets/loading_view.dart';
 import '../../widgets/error_view.dart';
+import '../login_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -46,19 +47,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (context) => AlertDialog(
+                builder: (dialogContext) => AlertDialog(
                   title: const Text("Logout"),
                   content: const Text("Are you sure you want to log out of the student application?"),
                   actions: [
                     TextButton(
                       child: const Text("Cancel"),
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => Navigator.pop(dialogContext),
                     ),
                     TextButton(
                       child: const Text("Logout", style: TextStyle(color: Colors.red)),
-                      onPressed: () {
-                        Navigator.pop(context);
-                        context.read<AuthProvider>().logout();
+                      onPressed: () async {
+                        Navigator.pop(dialogContext);
+                        await context.read<AuthProvider>().logout();
+                        if (!context.mounted) return;
+                        Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+                          MaterialPageRoute(builder: (_) => const LoginScreen()),
+                          (route) => false,
+                        );
                       },
                     ),
                   ],
