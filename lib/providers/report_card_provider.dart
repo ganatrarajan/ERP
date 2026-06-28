@@ -20,7 +20,7 @@ class ReportCardProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   double getDownloadProgress(int examId) => _downloadProgress[examId] ?? 0.0;
-  bool isFileDownloaded(int examId) => _isDownloaded[examId] ?? false;
+  bool isFileDownloaded(int examId) => false;
 
   Future<void> fetchReportCards() async {
     _isLoading = true;
@@ -40,10 +40,7 @@ class ReportCardProvider extends ChangeNotifier {
 
   // Pre-check which PDF files are already saved locally
   Future<void> checkLocalDownloads() async {
-    for (var reportCard in _reportCards) {
-      final filename = 'report_card_${reportCard.id}.pdf';
-      _isDownloaded[reportCard.id] = await _downloadService.isFileDownloaded(filename);
-    }
+    _isDownloaded.clear();
     notifyListeners();
   }
 

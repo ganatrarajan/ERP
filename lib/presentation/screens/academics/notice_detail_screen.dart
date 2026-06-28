@@ -41,7 +41,18 @@ class _NoticeDetailScreenState extends State<NoticeDetailScreen> {
   }
 
   String get _localFilename {
-    return 'notice_${widget.notice.id}.$_fileExtension';
+    final attachment = widget.notice.attachment;
+    if (attachment == null || attachment.isEmpty) {
+      return 'notice_${widget.notice.id}.pdf';
+    }
+    final uri = Uri.parse(attachment);
+    final fileName = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : 'attachment';
+    final decodedFileName = Uri.decodeComponent(fileName);
+    if (decodedFileName.contains('.')) {
+      return 'notice_${widget.notice.id}_$decodedFileName';
+    } else {
+      return 'notice_${widget.notice.id}_$decodedFileName.$_fileExtension';
+    }
   }
 
   @override

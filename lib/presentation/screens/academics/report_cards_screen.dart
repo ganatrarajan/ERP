@@ -23,16 +23,11 @@ class _ReportCardsScreenState extends State<ReportCardsScreen> {
     });
   }
 
-  Future<void> _handleDownload(ReportCardProvider prov, ReportCardModel rc) async {
+  Future<void> _handleDownloadAndOpen(ReportCardProvider prov, ReportCardModel rc) async {
     try {
       final path = await prov.downloadReportCard(rc);
       if (path != null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Downloaded ${rc.examName} Report Card successfully!"),
-            backgroundColor: Colors.green,
-          ),
-        );
+        _handleView(rc);
       }
     } catch (e) {
       if (mounted) {
@@ -61,16 +56,12 @@ class _ReportCardsScreenState extends State<ReportCardsScreen> {
 
   Future<void> _handleShare(ReportCardProvider prov, ReportCardModel rc) async {
     final examId = rc.id;
-    final isDownloaded = prov.isFileDownloaded(examId);
 
     try {
-      if (!isDownloaded) {
-        // Automatically download first
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Downloading report card for sharing...")),
-        );
-        await prov.downloadReportCard(rc);
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Downloading report card for sharing...")),
+      );
+      await prov.downloadReportCard(rc);
       await prov.shareReportCard(examId, rc.examName);
     } catch (e) {
       if (mounted) {
@@ -126,7 +117,6 @@ class _ReportCardsScreenState extends State<ReportCardsScreen> {
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final rc = prov.reportCards[index];
-        final isDownloaded = prov.isFileDownloaded(rc.id);
         final downloadProgress = prov.getDownloadProgress(rc.id);
 
         return Card(
@@ -186,10 +176,11 @@ class _ReportCardsScreenState extends State<ReportCardsScreen> {
                           ),
                         ),
                       )
-                    else if (isDownloaded) ...[
+                    else ...[
                       TextButton.icon(
                         onPressed: () async {
                           try {
+                            await prov.downloadReportCard(rc);
                             await prov.exportReportCard(rc.id);
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -209,7 +200,7 @@ class _ReportCardsScreenState extends State<ReportCardsScreen> {
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton.icon(
-                        onPressed: () => _handleView(rc),
+                        onPressed: () => _handleDownloadAndOpen(prov, rc),
                         icon: const Icon(Icons.menu_book_rounded, size: 16),
                         label: const Text("View PDF", style: TextStyle(fontSize: 12)),
                         style: ElevatedButton.styleFrom(
@@ -218,17 +209,7 @@ class _ReportCardsScreenState extends State<ReportCardsScreen> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         ),
                       )
-                    ] else
-                      ElevatedButton.icon(
-                        onPressed: () => _handleDownload(prov, rc),
-                        icon: const Icon(Icons.cloud_download_rounded, size: 16),
-                        label: const Text("Download", style: TextStyle(fontSize: 12)),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                          minimumSize: Size.zero,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
-                      ),
+                    ],
                   ],
                 ),
               ],

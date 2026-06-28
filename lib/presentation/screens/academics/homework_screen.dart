@@ -22,6 +22,19 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
   final DownloadService _downloadService = DownloadService();
   final Map<int, double> _progressMap = {};
   final Map<int, bool> _downloadedMap = {};
+  List<String>? _lastAttachments;
+
+  bool _attachmentsChanged(List<HomeworkModel> homeworks) {
+    if (_lastAttachments == null || _lastAttachments!.length != homeworks.length) {
+      return true;
+    }
+    for (int i = 0; i < homeworks.length; i++) {
+      if (_lastAttachments![i] != (homeworks[i].attachment ?? '')) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   bool _isImage(HomeworkModel hw) {
     final attachment = hw.attachment;
@@ -45,7 +58,18 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
   }
 
   String _localFilename(HomeworkModel hw) {
-    return 'homework_${hw.id}.${_fileExtension(hw)}';
+    final attachment = hw.attachment;
+    if (attachment == null || attachment.isEmpty) {
+      return 'homework_${hw.id}.pdf';
+    }
+    final uri = Uri.parse(attachment);
+    final fileName = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : 'attachment';
+    final decodedFileName = Uri.decodeComponent(fileName);
+    if (decodedFileName.contains('.')) {
+      return 'homework_${hw.id}_$decodedFileName';
+    } else {
+      return 'homework_${hw.id}_$decodedFileName.${_fileExtension(hw)}';
+    }
   }
 
   @override
@@ -155,7 +179,10 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
 
     // Triggers local download cache audits whenever homework list updates
     if (hwProv.homeworks.isNotEmpty) {
-      _checkDownloaded(hwProv.homeworks);
+      if (_attachmentsChanged(hwProv.homeworks)) {
+        _lastAttachments = hwProv.homeworks.map((e) => e.attachment ?? '').toList();
+        _checkDownloaded(hwProv.homeworks);
+      }
     }
 
     return Scaffold(
