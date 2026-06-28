@@ -141,9 +141,9 @@ class _FeesScreenState extends State<FeesScreen> with SingleTickerProviderStateM
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildFeeStat("Total structure", "\$${total.toStringAsFixed(2)}", theme),
-                        _buildFeeStat("Total Paid", "\$${paid.toStringAsFixed(2)}", theme, color: Colors.green),
-                        _buildFeeStat("Pending", "\$${pending.toStringAsFixed(2)}", theme, color: Colors.orange),
+                        _buildFeeStat("Total structure", "₹${total.toStringAsFixed(2)}", theme),
+                        _buildFeeStat("Total Paid", "₹${paid.toStringAsFixed(2)}", theme, color: Colors.green),
+                        _buildFeeStat("Pending", "₹${pending.toStringAsFixed(2)}", theme, color: Colors.orange),
                       ],
                     ),
                     const SizedBox(height: 24),
@@ -163,7 +163,7 @@ class _FeesScreenState extends State<FeesScreen> with SingleTickerProviderStateM
                           style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          "\$${pending.toStringAsFixed(2)} remaining",
+                          "₹${pending.toStringAsFixed(2)} remaining",
                           style: theme.textTheme.bodyMedium,
                         ),
                       ],
@@ -246,9 +246,9 @@ class _FeesScreenState extends State<FeesScreen> with SingleTickerProviderStateM
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            _buildInstallmentCol("Amount", "\$${inst.amount}", theme),
-                            _buildInstallmentCol("Paid", "\$${inst.paid}", theme),
-                            _buildInstallmentCol("Due Balance", "\$${inst.remainingDue}", theme, color: inst.remainingDue > 0 ? Colors.red : null),
+                            _buildInstallmentCol("Amount", "₹${inst.amount}", theme),
+                            _buildInstallmentCol("Paid", "₹${inst.paid}", theme),
+                            _buildInstallmentCol("Due Balance", "₹${inst.remainingDue}", theme, color: inst.remainingDue > 0 ? Colors.red : null),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -365,7 +365,7 @@ class _FeesScreenState extends State<FeesScreen> with SingleTickerProviderStateM
                         style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        "\$${receipt.amountPaid.toStringAsFixed(2)}",
+                        "₹${receipt.amountPaid.toStringAsFixed(2)}",
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w800,
                           color: Colors.green,

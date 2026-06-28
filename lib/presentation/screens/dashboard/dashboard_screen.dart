@@ -221,7 +221,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               _buildStatCard(
                 title: "Pending Fees",
-                value: "\$${data.pendingFeeAmount.toStringAsFixed(2)}",
+                value: "₹${data.pendingFeeAmount.toStringAsFixed(2)}",
                 icon: Icons.pending_actions_rounded,
                 color: Colors.red,
                 context: context,

@@ -86,9 +86,10 @@ class AuthProvider extends ChangeNotifier {
         _status = AuthStatus.authenticated;
         notifyListeners();
         
-        // Request permissions on first login and register device
-        await NotificationService.instance.requestPermissionOnFirstLogin();
-        await NotificationService.instance.registerDevice();
+        // Request permissions on first login and register device asynchronously (non-blocking)
+        NotificationService.instance.requestPermissionOnFirstLogin().then((_) {
+          NotificationService.instance.registerDevice();
+        });
         
         return true;
       }

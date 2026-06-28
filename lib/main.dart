@@ -17,6 +17,7 @@ import 'providers/result_provider.dart';
 import 'providers/fee_provider.dart';
 import 'providers/receipt_provider.dart';
 import 'providers/report_card_provider.dart';
+import 'providers/theme_provider.dart';
 
 import 'providers/onboarding_provider.dart';
 
@@ -58,15 +59,20 @@ class EduvoraApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => FeeProvider()),
         ChangeNotifierProvider(create: (_) => ReceiptProvider()),
         ChangeNotifierProvider(create: (_) => ReportCardProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
-      child: MaterialApp(
-        navigatorKey: NotificationService.navigatorKey,
-        title: 'EduvoraX',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system, // Auto detect dark mode
-        home: const SplashScreen(),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            navigatorKey: NotificationService.navigatorKey,
+            title: 'EduvoraX',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeProvider.themeMode,
+            home: const SplashScreen(),
+          );
+        },
       ),
     );
   }

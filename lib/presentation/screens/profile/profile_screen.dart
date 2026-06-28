@@ -6,6 +6,7 @@ import '../change_password_screen.dart';
 import '../onboarding/school_code_screen.dart';
 import '../login_screen.dart';
 import '../../../providers/onboarding_provider.dart';
+import '../../../providers/theme_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -176,6 +177,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               children: [
                 ListTile(
+                  leading: Icon(Icons.palette_rounded, color: theme.colorScheme.primary),
+                  title: const Text("App Theme"),
+                  subtitle: Text(_getThemeModeName(context.watch<ThemeProvider>().themeMode)),
+                  trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+                  onTap: () => _showThemeSelector(context),
+                ),
+                const Divider(height: 1),
+                ListTile(
                   leading: Icon(Icons.lock_reset_rounded, color: theme.colorScheme.primary),
                   title: const Text("Change Password"),
                   subtitle: const Text("Reset security credential"),
@@ -290,6 +299,129 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 24),
         ],
       ),),
+    );
+  }
+
+  String _getThemeModeName(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.system:
+        return "System Default";
+      case ThemeMode.light:
+        return "Light Mode";
+      case ThemeMode.dark:
+        return "Dark Mode";
+    }
+  }
+
+  void _showThemeSelector(BuildContext context) {
+    final theme = Theme.of(context);
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (bottomSheetContext) {
+        return Consumer<ThemeProvider>(
+          builder: (context, provider, _) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      "Select Theme Mode",
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    _buildThemeOption(
+                      context: bottomSheetContext,
+                      title: "System Default",
+                      icon: Icons.brightness_auto_rounded,
+                      mode: ThemeMode.system,
+                      selectedMode: provider.themeMode,
+                      theme: theme,
+                    ),
+                    const SizedBox(height: 8),
+                    _buildThemeOption(
+                      context: bottomSheetContext,
+                      title: "Light Mode",
+                      icon: Icons.light_mode_rounded,
+                      mode: ThemeMode.light,
+                      selectedMode: provider.themeMode,
+                      theme: theme,
+                    ),
+                    const SizedBox(height: 8),
+                    _buildThemeOption(
+                      context: bottomSheetContext,
+                      title: "Dark Mode",
+                      icon: Icons.dark_mode_rounded,
+                      mode: ThemeMode.dark,
+                      selectedMode: provider.themeMode,
+                      theme: theme,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildThemeOption({
+    required BuildContext context,
+    required String title,
+    required IconData icon,
+    required ThemeMode mode,
+    required ThemeMode selectedMode,
+    required ThemeData theme,
+  }) {
+    final isSelected = mode == selectedMode;
+    return InkWell(
+      onTap: () {
+        context.read<ThemeProvider>().setThemeMode(mode);
+        Navigator.pop(context);
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 16.0),
+        decoration: BoxDecoration(
+          color: isSelected ? theme.colorScheme.primary.withOpacity(0.1) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? theme.colorScheme.primary : Colors.grey.withOpacity(0.2),
+            width: isSelected ? 1.5 : 1.0,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? theme.colorScheme.primary : theme.iconTheme.color?.withOpacity(0.7),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: isSelected ? theme.colorScheme.primary : null,
+                ),
+              ),
+            ),
+            if (isSelected)
+              Icon(
+                Icons.check_circle_rounded,
+                color: theme.colorScheme.primary,
+              ),
+          ],
+        ),
+      ),
     );
   }
 
