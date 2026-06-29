@@ -1395,6 +1395,8 @@ const fetchAcademicYears = async () => {
     }
 };
 
+const hasInitializedQuery = ref(false);
+
 const fetchClasses = async () => {
     try {
         const response = await window.axios.get('/api/classes', { 
@@ -1404,6 +1406,34 @@ const fetchClasses = async () => {
             } 
         });
         classes.value = response.data.classes || response.data;
+
+        // Auto select and load from query string if available
+        if (!hasInitializedQuery.value && route.query.class_id) {
+            const classId = parseInt(route.query.class_id);
+            if (classes.value.some(c => c.id === classId)) {
+                filters.class_id = classId;
+
+                // Load sections immediately
+                const secResponse = await window.axios.get('/api/sections', { params: { class_id: classId, all: true } });
+                sections.value = secResponse.data.sections || secResponse.data;
+
+                if (route.query.section_id) {
+                    const sectionId = parseInt(route.query.section_id);
+                    if (sections.value.some(s => s.id === sectionId)) {
+                        filters.section_id = sectionId;
+
+                        if (route.query.date) {
+                            filters.attendance_date = route.query.date;
+                        }
+
+                        if (route.query.auto === 'true') {
+                            loadStudentList();
+                        }
+                    }
+                }
+            }
+            hasInitializedQuery.value = true;
+        }
     } catch (e) {
         window.toastr?.error('Failed to load classes.');
     }
@@ -1999,6 +2029,9 @@ watch([() => currentTab.value, () => filters.academic_year_id], ([newTab, newYea
     }
     if (newTab === 'weekend_settings') {
         loadWeekendSettings();
+    }
+    if (newTab === 'staff' && route.query.auto === 'true') {
+        loadStaffList();
     }
 }, { immediate: true });
 

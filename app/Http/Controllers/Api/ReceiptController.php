@@ -40,6 +40,12 @@ class ReceiptController extends Controller
             });
         }
 
+        if ($request->has('payment_date')) {
+            $query->whereHas('collection', function ($q) use ($request) {
+                $q->whereDate('payment_date', $request->input('payment_date'));
+            });
+        }
+
         if ($request->has('student_id')) {
             $query->whereHas('collection', function ($q) use ($request) {
                 $q->where('student_id', $request->input('student_id'));

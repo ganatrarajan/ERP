@@ -122,6 +122,7 @@ class FeeReportController extends Controller
                     
                     if ($dues['has_assignment']) {
                         $data[] = [
+                            'student_id' => $rec->student_id,
                             'student_name' => $rec->student->first_name . ' ' . $rec->student->last_name,
                             'admission_no' => $rec->student->admission_no,
                             'class_name' => $rec->class ? $rec->class->name : 'N/A',

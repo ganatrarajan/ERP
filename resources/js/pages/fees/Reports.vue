@@ -9,7 +9,7 @@
             <button
                 v-if="reportData.length > 0"
                 @click="printReport"
-                class="px-4 py-2 bg-indigo-650 hover:bg-indigo-600 active:scale-95 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-1.5"
+                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-1.5"
             >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                 Print Report
@@ -152,8 +152,8 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4" v-if="summaryAggregates">
                 <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm flex items-center justify-between">
                     <div>
-                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Total Collected</span>
-                        <h3 class="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">₹{{ numberFormat(summaryAggregates.collected) }}</h3>
+                        <span class="text-[10px] font-bold text-slate-405 dark:text-slate-500 uppercase tracking-wide">{{ summaryAggregates.card1Label }}</span>
+                        <h3 class="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">₹{{ numberFormat(summaryAggregates.card1Value) }}</h3>
                     </div>
                     <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"></path></svg>
@@ -162,8 +162,8 @@
 
                 <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm flex items-center justify-between">
                     <div>
-                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Total Discounts</span>
-                        <h3 class="text-xl font-black text-indigo-600 dark:text-indigo-400 mt-1">₹{{ numberFormat(summaryAggregates.discounts) }}</h3>
+                        <span class="text-[10px] font-bold text-slate-405 dark:text-slate-500 uppercase tracking-wide">{{ summaryAggregates.card2Label }}</span>
+                        <h3 class="text-xl font-black text-indigo-600 dark:text-indigo-400 mt-1">₹{{ numberFormat(summaryAggregates.card2Value) }}</h3>
                     </div>
                     <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5a2 2 0 10-2 2h2zm0 0h4"></path></svg>
@@ -172,10 +172,10 @@
 
                 <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm flex items-center justify-between">
                     <div>
-                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Total Fines Collected</span>
-                        <h3 class="text-xl font-black text-pink-650 dark:text-pink-400 mt-1">₹{{ numberFormat(summaryAggregates.fines) }}</h3>
+                        <span class="text-[10px] font-bold text-slate-405 dark:text-slate-500 uppercase tracking-wide">{{ summaryAggregates.card3Label }}</span>
+                        <h3 class="text-xl font-black mt-1" :class="summaryAggregates.type === 'pending' ? 'text-rose-600 dark:text-rose-400' : 'text-pink-600 dark:text-pink-400'">₹{{ numberFormat(summaryAggregates.card3Value) }}</h3>
                     </div>
-                    <div class="w-10 h-10 rounded-xl bg-pink-50 dark:bg-pink-500/10 flex items-center justify-center text-pink-600 dark:text-pink-450">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" :class="summaryAggregates.type === 'pending' ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400' : 'bg-pink-50 dark:bg-pink-500/10 text-pink-600 dark:text-pink-400'">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                     </div>
                 </div>
@@ -226,37 +226,116 @@
                             </tr>
                         </tbody>
                     </table>
+                                      <!-- 2. PENDING FEES -->
+                    <div v-else-if="filters.report_type === 'pending'" class="p-6 space-y-4">
+                        <div v-if="reportData.length === 0" class="text-center text-slate-400 py-10 font-bold">
+                            No outstanding balance records found.
+                        </div>
+                        <div v-else class="space-y-4">
+                            <!-- Class Level Iteration -->
+                            <div v-for="cGroup in groupedPendingData" :key="cGroup.className" class="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm bg-slate-50/20 dark:bg-slate-900/10">
+                                <!-- Class Accordion Header -->
+                                <div 
+                                    @click="toggleClass(cGroup.className)" 
+                                    class="p-4 bg-slate-50 dark:bg-slate-900/60 hover:bg-slate-100/60 dark:hover:bg-slate-800/40 cursor-pointer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 transition-colors select-none"
+                                >
+                                    <div class="space-y-1">
+                                        <div class="flex items-center gap-2">
+                                            <span class="w-2.5 h-2.5 rounded bg-indigo-500"></span>
+                                            <h4 class="font-extrabold text-slate-800 dark:text-white uppercase tracking-wider text-sm">Class: {{ cGroup.className }}</h4>
+                                        </div>
+                                        <p class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">
+                                            Total Fee: ₹{{ numberFormat(cGroup.total_fee) }} | Paid: ₹{{ numberFormat(cGroup.total_paid) }} | Waivers: ₹{{ numberFormat(cGroup.total_discount) }}
+                                        </p>
+                                    </div>
+                                    <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+                                        <div class="text-right">
+                                            <span class="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase block tracking-wider">Pending Dues</span>
+                                            <span class="text-sm font-black text-rose-600 dark:text-rose-400">₹{{ numberFormat(cGroup.outstanding_balance) }}</span>
+                                        </div>
+                                        <svg 
+                                            :class="['w-5 h-5 text-slate-400 transition-transform duration-200', expandedClasses[cGroup.className] ? 'rotate-180' : '']" 
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        >
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </div>
+                                </div>
 
-                    <!-- 2. PENDING FEES -->
-                    <table v-else-if="filters.report_type === 'pending'" class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-50/50 dark:bg-slate-900/60">
-                                <th class="p-4 pl-6">Student Name</th>
-                                <th class="p-4">Admission No</th>
-                                <th class="p-4">Class / Section</th>
-                                <th class="p-4 text-right">Total Fees</th>
-                                <th class="p-4 text-right">Paid</th>
-                                <th class="p-4 text-right">Discount</th>
-                                <th class="p-4 text-right">Fines Paid</th>
-                                <th class="p-4 pr-6 text-right">Outstanding Balance</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
-                            <tr v-if="reportData.length === 0">
-                                <td colspan="8" class="p-10 text-center text-slate-400">No outstanding balance records found.</td>
-                            </tr>
-                            <tr v-else v-for="(row, idx) in reportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                <td class="p-4 pl-6 font-semibold text-slate-800 dark:text-white">{{ row.student_name }}</td>
-                                <td class="p-4 font-mono text-xs">{{ row.admission_no }}</td>
-                                <td class="p-4">{{ row.class_name }} {{ row.section_name ? '('+row.section_name+')' : '' }}</td>
-                                <td class="p-4 text-right">₹{{ numberFormat(row.total_fee) }}</td>
-                                <td class="p-4 text-right text-emerald-600 dark:text-emerald-450">₹{{ numberFormat(row.total_paid) }}</td>
-                                <td class="p-4 text-right text-indigo-500">₹{{ numberFormat(row.total_discount) }}</td>
-                                <td class="p-4 text-right text-pink-500">₹{{ numberFormat(row.total_fine) }}</td>
-                                <td class="p-4 pr-6 text-right font-black text-rose-600 dark:text-rose-400">₹{{ numberFormat(row.outstanding_balance) }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                <!-- Class Body (Sections list) -->
+                                <div v-show="expandedClasses[cGroup.className]" class="p-4 border-t border-slate-150 dark:border-slate-800/80 space-y-3 bg-white dark:bg-slate-900/20">
+                                    <!-- Section Level Iteration -->
+                                    <div v-for="sec in cGroup.sections" :key="sec.sectionName" class="border border-slate-150 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-50/10 dark:bg-slate-950/5">
+                                        <!-- Section Accordion Header -->
+                                        <div 
+                                            @click="toggleSection(cGroup.className + '_' + sec.sectionName)"
+                                            class="p-3 bg-slate-50/50 dark:bg-slate-950/20 hover:bg-slate-50 dark:hover:bg-slate-950/40 cursor-pointer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 transition-colors select-none"
+                                        >
+                                            <div class="space-y-0.5">
+                                                <div class="flex items-center gap-1.5">
+                                                    <span class="w-1.5 h-1.5 rounded bg-sky-500"></span>
+                                                    <h5 class="font-bold text-slate-700 dark:text-slate-200 text-xs uppercase tracking-wide">Section: {{ sec.sectionName }}</h5>
+                                                </div>
+                                                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">
+                                                    Total Fee: ₹{{ numberFormat(sec.total_fee) }} | Paid: ₹{{ numberFormat(sec.total_paid) }} | Waivers: ₹{{ numberFormat(sec.total_discount) }}
+                                                </p>
+                                            </div>
+                                            <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                                                <div class="text-right">
+                                                    <span class="text-[9px] font-bold text-slate-400 uppercase block">Pending</span>
+                                                    <span class="text-xs font-black text-rose-500">₹{{ numberFormat(sec.outstanding_balance) }}</span>
+                                                </div>
+                                                <svg 
+                                                    :class="['w-4 h-4 text-slate-400 transition-transform duration-200', expandedSections[cGroup.className + '_' + sec.sectionName] ? 'rotate-180' : '']" 
+                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                                >
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                                                </svg>
+                                            </div>
+                                        </div>
+
+                                        <!-- Section Body (Student List Table) -->
+                                        <div v-show="expandedSections[cGroup.className + '_' + sec.sectionName]" class="overflow-x-auto border-t border-slate-150 dark:border-slate-800">
+                                            <table class="w-full text-left border-collapse">
+                                                <thead>
+                                                    <tr class="border-b border-slate-150 dark:border-slate-800 text-[10px] font-bold text-slate-500 uppercase bg-slate-50/40 dark:bg-slate-950/20">
+                                                        <th class="p-3 pl-4">Student Name</th>
+                                                        <th class="p-3">Adm No</th>
+                                                        <th class="p-3 text-right">Total Assigned</th>
+                                                        <th class="p-3 text-right">Paid</th>
+                                                        <th class="p-3 text-right">Waiver</th>
+                                                        <th class="p-3 text-right">Fines Paid</th>
+                                                        <th class="p-3 text-right text-rose-500 font-bold">Outstanding</th>
+                                                        <th class="p-3 pr-4 text-right">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="divide-y divide-slate-150 dark:divide-slate-800 text-xs text-slate-600 dark:text-slate-350 bg-white dark:bg-slate-900/30">
+                                                    <tr v-for="stu in sec.students" :key="stu.admission_no" class="hover:bg-slate-50 dark:hover:bg-slate-800/10 transition-colors">
+                                                        <td class="p-3 pl-4 font-semibold text-slate-800 dark:text-white">{{ stu.student_name }}</td>
+                                                        <td class="p-3 font-mono text-[11px]">{{ stu.admission_no }}</td>
+                                                        <td class="p-3 text-right">₹{{ numberFormat(stu.total_fee) }}</td>
+                                                        <td class="p-3 text-right text-emerald-600 font-medium">₹{{ numberFormat(stu.total_paid) }}</td>
+                                                        <td class="p-3 text-right text-indigo-500">₹{{ numberFormat(stu.total_discount) }}</td>
+                                                        <td class="p-3 text-right text-pink-500">₹{{ numberFormat(stu.total_fine) }}</td>
+                                                        <td class="p-3 text-right text-rose-600 font-black">₹{{ numberFormat(stu.outstanding_balance) }}</td>
+                                                        <td class="p-3 pr-4 text-right">
+                                                            <button 
+                                                                v-if="authStore.hasPermission('fee_collection.create')"
+                                                                @click="router.push({ path: '/fees/collection', query: { student_id: stu.student_id } })"
+                                                                class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[10px] rounded-lg active:scale-95 transition-all shadow-sm cursor-pointer border-none"
+                                                            >
+                                                                Collect Payment
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- 3. INSTALLMENT WISE -->
                     <table v-else-if="filters.report_type === 'installment_wise'" class="w-full text-left border-collapse">
@@ -415,7 +494,7 @@
                                 <td class="p-4">{{ row.class_name }}</td>
                                 <td class="p-4">{{ row.installment }}</td>
                                 <td class="p-4 whitespace-nowrap">{{ formatDate(row.payment_date) }}</td>
-                                <td class="p-4 text-right font-black text-indigo-650 dark:text-indigo-400">₹{{ numberFormat(row.discount_amount) }}</td>
+                                <td class="p-4 text-right font-black text-indigo-600 dark:text-indigo-400">₹{{ numberFormat(row.discount_amount) }}</td>
                                 <td class="p-4 pr-6 text-slate-500 text-xs">{{ row.remarks || '-' }}</td>
                             </tr>
                         </tbody>
@@ -460,6 +539,7 @@
 
 <script>
 import { ref, onMounted, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import { useToastStore } from '../../stores/toast';
 
@@ -468,6 +548,8 @@ export default {
     setup() {
         const authStore = useAuthStore();
         const toastStore = useToastStore();
+        const route = useRoute();
+        const router = useRouter();
 
         const academicYears = ref([]);
         const classes = ref([]);
@@ -495,37 +577,156 @@ export default {
             return ['collection', 'pending', 'discount', 'fine', 'student_wise'].includes(rt);
         });
 
+        // Expanded state tracking for hierarchical pending dues report
+        const expandedClasses = ref({});
+        const expandedSections = ref({});
+
+        const toggleClass = (className) => {
+            expandedClasses.value[className] = !expandedClasses.value[className];
+        };
+
+        const toggleSection = (classSectionKey) => {
+            expandedSections.value[classSectionKey] = !expandedSections.value[classSectionKey];
+        };
+
+        const groupedPendingData = computed(() => {
+            if (filters.value.report_type !== 'pending' || reportData.value.length === 0) return [];
+
+            const groups = {};
+
+            reportData.value.forEach(row => {
+                const className = row.class_name || 'N/A';
+                const sectionName = row.section_name || 'N/A';
+
+                if (!groups[className]) {
+                    groups[className] = {
+                        className,
+                        total_fee: 0,
+                        total_paid: 0,
+                        total_discount: 0,
+                        outstanding_balance: 0,
+                        sections: {}
+                    };
+                }
+
+                const cGroup = groups[className];
+                cGroup.total_fee += Number(row.total_fee || 0);
+                cGroup.total_paid += Number(row.total_paid || 0);
+                cGroup.total_discount += Number(row.total_discount || 0);
+                cGroup.outstanding_balance += Number(row.outstanding_balance || 0);
+
+                if (!cGroup.sections[sectionName]) {
+                    cGroup.sections[sectionName] = {
+                        sectionName,
+                        total_fee: 0,
+                        total_paid: 0,
+                        total_discount: 0,
+                        outstanding_balance: 0,
+                        students: []
+                    };
+                }
+
+                const sGroup = cGroup.sections[sectionName];
+                sGroup.total_fee += Number(row.total_fee || 0);
+                sGroup.total_paid += Number(row.total_paid || 0);
+                sGroup.total_discount += Number(row.total_discount || 0);
+                sGroup.outstanding_balance += Number(row.outstanding_balance || 0);
+
+                sGroup.students.push(row);
+            });
+
+            return Object.values(groups).map(c => {
+                return {
+                    ...c,
+                    sections: Object.values(c.sections)
+                };
+            });
+        });
+
         // Compute aggregates dynamically from dataset
         const summaryAggregates = computed(() => {
             if (!hasGenerated.value || reportData.value.length === 0) return null;
 
-            let collected = 0;
-            let discounts = 0;
-            let fines = 0;
+            let card1Val = 0;
+            let card2Val = 0;
+            let card3Val = 0;
 
             const rt = filters.value.report_type;
 
-            reportData.value.forEach(row => {
-                if (rt === 'collection') {
-                    collected += Number(row.amount_paid || 0);
-                    discounts += Number(row.discount_amount || 0);
-                    fines += Number(row.fine_amount || 0);
-                } else if (rt === 'pending') {
-                    collected += Number(row.total_paid || 0);
-                    discounts += Number(row.total_discount || 0);
-                    fines += Number(row.total_fine || 0);
-                } else if (['installment_wise', 'class_wise', 'student_wise', 'daily', 'monthly'].includes(rt)) {
-                    collected += Number(row.total_collected || 0);
-                    discounts += Number(row.total_discount || 0);
-                    fines += Number(row.total_fine || 0);
-                } else if (rt === 'discount') {
-                    discounts += Number(row.discount_amount || 0);
-                } else if (rt === 'fine') {
-                    fines += Number(row.fine_amount || 0);
-                }
-            });
+            if (rt === 'pending') {
+                reportData.value.forEach(row => {
+                    card1Val += Number(row.total_fee || 0);
+                    card2Val += Number(row.total_paid || 0);
+                    card3Val += Number(row.outstanding_balance || 0);
+                });
+                return {
+                    type: 'pending',
+                    card1Label: 'Total Assigned Fees',
+                    card1Value: card1Val,
+                    card2Label: 'Total Collected (Paid)',
+                    card2Value: card2Val,
+                    card3Label: 'Total Outstanding Dues',
+                    card3Value: card3Val
+                };
+            } else if (rt === 'collection') {
+                reportData.value.forEach(row => {
+                    card1Val += Number(row.amount_paid || 0);
+                    card2Val += Number(row.discount_amount || 0);
+                    card3Val += Number(row.fine_amount || 0);
+                });
+                return {
+                    type: 'collection',
+                    card1Label: 'Total Collected',
+                    card1Value: card1Val,
+                    card2Label: 'Total Discounts (Waivers)',
+                    card2Value: card2Val,
+                    card3Label: 'Total Fines Collected',
+                    card3Value: card3Val
+                };
+            } else if (['installment_wise', 'class_wise', 'student_wise', 'daily', 'monthly'].includes(rt)) {
+                reportData.value.forEach(row => {
+                    card1Val += Number(row.total_collected || 0);
+                    card2Val += Number(row.total_discount || 0);
+                    card3Val += Number(row.total_fine || 0);
+                });
+                return {
+                    type: 'other',
+                    card1Label: 'Total Collected',
+                    card1Value: card1Val,
+                    card2Label: 'Total Discounts (Waivers)',
+                    card2Value: card2Val,
+                    card3Label: 'Total Fines Collected',
+                    card3Value: card3Val
+                };
+            } else if (rt === 'discount') {
+                reportData.value.forEach(row => {
+                    card2Val += Number(row.discount_amount || 0);
+                });
+                return {
+                    type: 'discount',
+                    card1Label: 'Total Collected',
+                    card1Value: 0,
+                    card2Label: 'Total Discounts (Waivers)',
+                    card2Value: card2Val,
+                    card3Label: 'Total Fines Collected',
+                    card3Value: 0
+                };
+            } else if (rt === 'fine') {
+                reportData.value.forEach(row => {
+                    card3Val += Number(row.fine_amount || 0);
+                });
+                return {
+                    type: 'fine',
+                    card1Label: 'Total Collected',
+                    card1Value: 0,
+                    card2Label: 'Total Discounts (Waivers)',
+                    card2Value: 0,
+                    card3Label: 'Total Fines Collected',
+                    card3Value: card3Val
+                };
+            }
 
-            return { collected, discounts, fines };
+            return null;
         });
 
         const fetchClasses = async () => {
@@ -754,6 +955,12 @@ export default {
 
         onMounted(async () => {
             await fetchFiltersData();
+            if (route.query.report_type) {
+                filters.value.report_type = route.query.report_type;
+            }
+            if (route.query.auto === 'true') {
+                await generateReport();
+            }
         });
 
         return {
@@ -769,6 +976,11 @@ export default {
             filters,
             showStudentFilter,
             summaryAggregates,
+            expandedClasses,
+            expandedSections,
+            toggleClass,
+            toggleSection,
+            groupedPendingData,
             handleAcademicYearChange,
             handleClassChange,
             handleSectionChange,
@@ -779,7 +991,8 @@ export default {
             printReport,
             numberFormat,
             formatDate,
-            formatMonth
+            formatMonth,
+            router
         };
     }
 }

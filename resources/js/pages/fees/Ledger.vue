@@ -9,7 +9,7 @@
             <button
                 v-if="selectedStudentId && ledgerData.transactions && ledgerData.transactions.length > 0"
                 @click="printLedger"
-                class="px-4 py-2 bg-indigo-650 hover:bg-indigo-600 active:scale-95 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-1.5"
+                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-600 active:scale-95 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-1.5"
             >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                 Print Ledger
@@ -98,7 +98,7 @@
                 </div>
                 <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm text-center">
                     <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Total Discount</span>
-                    <h3 class="text-xl font-black text-indigo-650 dark:text-indigo-400 mt-1.5">₹{{ numberFormat(ledgerData.summary?.total_discount) }}</h3>
+                    <h3 class="text-xl font-black text-indigo-600 dark:text-indigo-400 mt-1.5">₹{{ numberFormat(ledgerData.summary?.total_discount) }}</h3>
                 </div>
                 <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm text-center">
                     <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Total Fines Paid</span>
@@ -117,7 +117,7 @@
                         <h3 class="font-extrabold text-slate-800 dark:text-white text-sm uppercase tracking-wider">Account Statements</h3>
                         <p class="text-xs text-slate-400 mt-0.5">Chronological record of fee assignments, penalties, and collection credits.</p>
                     </div>
-                    <div class="text-xs text-slate-655 dark:text-slate-300 font-semibold bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-3 py-1.5 rounded-xl">
+                    <div class="text-xs text-slate-600 dark:text-slate-300 font-semibold bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-3 py-1.5 rounded-xl">
                         Student: <span class="font-bold text-indigo-600 dark:text-indigo-400">{{ ledgerData.student?.name }}</span> | Adm #: {{ ledgerData.student?.admission_no }}
                     </div>
                 </div>

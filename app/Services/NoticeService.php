@@ -118,6 +118,27 @@ class NoticeService
             'status' => $data['status'] ?? $notice->status,
         ]);
 
+        try {
+            $title = "Notice Updated: " . $notice->title;
+            $body = strip_tags($notice->description);
+            if (strlen($body) > 120) {
+                $body = substr($body, 0, 117) . "...";
+            }
+
+            $dataPayload = [
+                'type' => 'notice',
+                'id' => $notice->id,
+            ];
+
+            if ($notice->target_type === 'Class Wise' || $notice->target_type === 'Section Wise') {
+                $this->fcmService->sendToClass($notice->school_id, $notice->class_id, $notice->section_id, $title, $body, $dataPayload);
+            } else {
+                $this->fcmService->sendToSchool($notice->school_id, $title, $body, $dataPayload);
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("FCM Notice Notification Error: " . $e->getMessage());
+        }
+
         return $notice;
     }
 }
