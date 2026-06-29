@@ -144,6 +144,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $superAdminRole = Role::findOrCreate('Super Admin', 'web');
         $superAdminRole->syncPermissions(Permission::all());
 
+        // super admin
         $schoolAdminGlobalRole = Role::firstOrCreate([
             'name' => 'School Admin',
             'guard_name' => 'web',
