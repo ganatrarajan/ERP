@@ -1,82 +1,113 @@
 <template>
-    <div class="space-y-8 pb-12">
-        <!-- Welcome banner -->
-        <div class="bg-gradient-to-br from-indigo-900 via-indigo-955 to-slate-900 text-white border border-indigo-950 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-md relative overflow-hidden">
-            <!-- Sleek absolute design grid pattern on background -->
-            <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none"></div>
-            
-            <div class="relative z-10 space-y-1">
-                <span class="text-[10px] text-indigo-300 font-extrabold tracking-widest uppercase mb-1 block">
-                    {{ authStore.user?.school?.name || 'EduvoraX SaaS' }}
+    <div class="space-y-6 pb-12 text-slate-800 dark:text-slate-100 transition-colors duration-200">
+        <!-- HEADER / CONTROL PANEL -->
+        <div class="relative z-30 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 rounded-2xl p-6 shadow-sm flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            <div class="space-y-1">
+                <span class="text-[10px] text-indigo-600 dark:text-indigo-400 font-extrabold tracking-widest uppercase mb-1 block">
+                    {{ authStore.user?.school?.name || 'EduvoraX SaaS Control' }}
                 </span>
-                <h1 class="text-2xl md:text-3xl font-black tracking-tight flex items-center gap-3">
-                    Welcome back, {{ authStore.user?.name }}!
+                <h1 class="text-2xl font-black tracking-tight flex items-center gap-3">
+                    {{ greeting }}, {{ authStore.user?.name }}!
                     <span class="animate-wave origin-[70%_70%] inline-block">👋</span>
                 </h1>
-                <p class="text-xs text-indigo-200/80 mt-1 font-medium">Here is a comprehensive summary of the system and school activities.</p>
-                <div class="mt-4 flex flex-wrap gap-2 pt-1">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-white border border-white/10 backdrop-blur-xs">
-                        Role: {{ authStore.roles[0] || 'Teacher' }}
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                    <span v-if="activeAcademicYear" class="inline-flex items-center gap-1.5 font-bold text-indigo-600 dark:text-indigo-400">
+                        <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                        Academic Session: {{ activeAcademicYear.title }}
+                    </span>
+                    <span class="inline-flex items-center gap-1.5">
+                        Role: <span class="font-bold text-slate-700 dark:text-slate-300">{{ authStore.roles[0] || 'Teacher' }}</span>
                     </span>
                 </div>
             </div>
             
-            <div class="relative z-10 text-xs text-indigo-105 bg-white/5 backdrop-blur-xs p-4 rounded-xl border border-white/10 leading-relaxed max-w-xs self-stretch md:self-auto flex flex-col justify-center shadow-inner">
-                <div><strong>Last Login:</strong> {{ formattedLastLogin }}</div>
-                <div class="mt-1"><strong>System IP:</strong> 127.0.0.1 (Local)</div>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+                <!-- Global Search -->
+                <div class="relative flex-1 sm:w-64">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </span>
+                    <input 
+                        v-model="classSearchQuery" 
+                        type="text" 
+                        placeholder="Search classes or items..." 
+                        class="w-full pl-9 pr-4 py-2 text-xs font-semibold bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-400 transition-all placeholder-slate-400 dark:placeholder-slate-500 text-slate-700 dark:text-slate-200"
+                    />
+                </div>
+
+                <!-- Live Ticking Date & Time -->
+                <div class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-4 py-2 rounded-xl flex items-center gap-3 shrink-0">
+                    <svg class="w-4 h-4 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <div class="text-[11px] leading-tight font-extrabold text-slate-600 dark:text-slate-350">
+                        <div>{{ formattedTodayDate }}</div>
+                        <div class="text-indigo-600 dark:text-indigo-400 tabular-nums font-black">{{ currentClockTime }}</div>
+                    </div>
+                </div>
+
+                <!-- Notifications Bell Dropdown -->
+                <div class="relative">
+                    <button 
+                        @click="showNotifications = !showNotifications"
+                        class="p-2 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl relative transition-all duration-200 cursor-pointer text-slate-600 dark:text-slate-400"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                        <span v-if="unreadNoticeCount > 0" class="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full border border-white dark:border-slate-950 animate-ping"></span>
+                        <span v-if="unreadNoticeCount > 0" class="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full border border-white dark:border-slate-950"></span>
+                    </button>
+
+                    <!-- Notifications Dropdown Menu -->
+                    <div 
+                        v-if="showNotifications" 
+                        class="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-50 overflow-hidden animate-fade-in"
+                    >
+                        <div class="p-4 border-b border-slate-105 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950/50">
+                            <span class="text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400">Notice Bulletin</span>
+                            <span class="px-2 py-0.5 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 text-[10px] font-black rounded-full">{{ unreadNoticeCount }} New</span>
+                        </div>
+                        <div class="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
+                            <div v-if="dashboardNotices.length === 0" class="p-6 text-center text-xs text-slate-400 dark:text-slate-500 font-semibold">
+                                No notices published in this session.
+                            </div>
+                            <div 
+                                v-else
+                                v-for="item in dashboardNotices" 
+                                :key="item.timestamp"
+                                class="p-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors flex gap-3 text-xs"
+                            >
+                                <div class="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                                </div>
+                                <div class="space-y-0.5 min-w-0 flex-1">
+                                    <h4 class="font-bold text-slate-900 dark:text-white truncate">{{ item.title }}</h4>
+                                    <p class="text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed text-[11px]">{{ item.description }}</p>
+                                    <div class="flex justify-between items-center text-[10px] text-slate-400 pt-1 font-semibold">
+                                        <span>By {{ item.user_name }}</span>
+                                        <span>{{ formatRelativeTime(item.timestamp) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <router-link 
+                            v-if="authStore.hasModule('notices') && authStore.hasPermission('notice.view')"
+                            to="/notices" 
+                            class="block p-3 text-center text-xs font-bold text-indigo-600 dark:text-indigo-400 border-t border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                            @click="showNotifications = false"
+                        >
+                            View All Notices
+                        </router-link>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Segmented Navigation (Only for school scope and when multiple tabs are authorized) -->
-        <div v-if="!loading && scope === 'school' && (canViewFees || canViewAcademics)" class="flex bg-slate-100 dark:bg-slate-955 p-1 rounded-xl border border-slate-200/50 dark:border-slate-800/80 max-w-md w-full md:w-auto">
-            <button
-                @click="activeTab = 'overview'"
-                :class="[
-                    'flex-1 md:flex-initial px-5 py-2.5 text-xs font-black rounded-lg transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer',
-                    activeTab === 'overview' 
-                        ? 'bg-white dark:bg-slate-850 text-indigo-650 dark:text-indigo-400 shadow-sm' 
-                        : 'text-slate-500 hover:text-slate-700 dark:text-slate-450 dark:hover:text-slate-305'
-                ]"
-            >
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"></path></svg>
-                Overview
-            </button>
-            <button
-                v-if="canViewFees"
-                @click="activeTab = 'finance'"
-                :class="[
-                    'flex-1 md:flex-initial px-5 py-2.5 text-xs font-black rounded-lg transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer',
-                    activeTab === 'finance' 
-                        ? 'bg-white dark:bg-slate-850 text-indigo-650 dark:text-indigo-400 shadow-sm' 
-                        : 'text-slate-500 hover:text-slate-700 dark:text-slate-455 dark:hover:text-slate-300'
-                ]"
-            >
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                Finance
-            </button>
-            <button
-                v-if="canViewAcademics"
-                @click="activeTab = 'academics'"
-                :class="[
-                    'flex-1 md:flex-initial px-5 py-2.5 text-xs font-black rounded-lg transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer',
-                    activeTab === 'academics' 
-                        ? 'bg-white dark:bg-slate-850 text-indigo-650 dark:text-indigo-400 shadow-sm' 
-                        : 'text-slate-500 hover:text-slate-700 dark:text-slate-450 dark:hover:text-slate-300'
-                ]"
-            >
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path></svg>
-                Academics
-            </button>
-        </div>
-
-        <!-- Skeleton Loader -->
-        <div v-if="loading" class="space-y-8 animate-pulse">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div v-for="i in 4" :key="i" class="h-32 bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
+        <!-- SKELETON LOADER -->
+        <div v-if="loading" class="space-y-6 animate-pulse">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div v-for="i in 6" :key="i" class="h-32 bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
                     <div class="flex justify-between items-start">
                         <div class="space-y-2">
                             <div class="h-3.5 w-24 bg-slate-200 dark:bg-slate-800 rounded-md"></div>
-                            <div class="h-8 w-16 bg-slate-350 dark:bg-slate-700 rounded-md"></div>
+                            <div class="h-8 w-16 bg-slate-300 dark:bg-slate-700 rounded-md"></div>
                         </div>
                         <div class="h-10 w-10 bg-slate-200 dark:bg-slate-800 rounded-xl"></div>
                     </div>
@@ -89,31 +120,31 @@
             </div>
         </div>
 
-        <!-- Dashboard Content Areas -->
-        <div v-else class="space-y-8">
+        <!-- MAIN DASHBOARD CONTENT -->
+        <div v-else class="space-y-6">
             
-            <!-- SUPER ADMIN DASHBOARD SCOPE -->
-            <div v-if="scope === 'super_admin'" class="space-y-8 animate-fade-in">
+            <!-- A. SUPER ADMIN DASHBOARD -->
+            <div v-if="scope === 'super_admin'" class="space-y-6 animate-fade-in">
                 <!-- Stats Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div 
                         v-for="stat in stats" 
                         :key="stat.title" 
-                        class="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/80 p-6 rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-slate-300 dark:hover:border-slate-750 transition-all duration-300 group flex flex-col justify-between"
+                        class="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/80 p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-slate-350 dark:hover:border-slate-700 transition-all duration-300 group flex flex-col justify-between"
                     >
                         <div class="flex items-start justify-between">
                             <div class="space-y-2">
-                                <span class="text-[10px] font-extrabold text-slate-400 dark:text-slate-505 tracking-wider uppercase block">{{ stat.title }}</span>
-                                <h3 class="text-3xl font-black text-slate-800 dark:text-white tracking-tight tabular-nums group-hover:text-indigo-650 dark:group-hover:text-indigo-400 transition-colors">
+                                <span class="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 tracking-wider uppercase block">{{ stat.title }}</span>
+                                <h3 class="text-3xl font-black text-slate-850 dark:text-white tracking-tight tabular-nums group-hover:text-indigo-655 dark:group-hover:text-indigo-400 transition-colors">
                                     {{ stat.value }}
                                 </h3>
                             </div>
                             <div :class="[
                                 'w-10 h-10 rounded-xl flex items-center justify-center border shrink-0',
                                 stat.color === 'indigo' ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400' : '',
-                                stat.color === 'emerald' ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-405' : '',
-                                stat.color === 'rose' ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20 text-rose-600 dark:text-rose-455' : '',
-                                stat.color === 'blue' ? 'bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20 text-blue-600 dark:text-blue-450' : '',
+                                stat.color === 'emerald' ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400' : '',
+                                stat.color === 'rose' ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20 text-rose-600 dark:text-rose-400' : '',
+                                stat.color === 'blue' ? 'bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20 text-blue-600 dark:text-blue-400' : '',
                             ]">
                                 <svg v-if="stat.icon === 'AcademicCapIcon'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path></svg>
                                 <svg v-else-if="stat.icon === 'CheckCircleIcon'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -121,25 +152,25 @@
                                 <svg v-else-if="stat.icon === 'UsersIcon'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                             </div>
                         </div>
-                        <p v-if="stat.description" class="text-xs text-slate-450 dark:text-slate-500 font-medium mt-4">{{ stat.description }}</p>
+                        <p v-if="stat.description" class="text-[10px] text-slate-450 dark:text-slate-500 font-bold mt-4">{{ stat.description }}</p>
                     </div>
                 </div>
 
                 <!-- Platform Information Section -->
                 <div class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 md:p-8 rounded-2xl shadow-sm space-y-4">
-                    <h3 class="text-sm font-bold text-slate-805 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                        <svg class="w-4 h-4 text-indigo-505 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <h3 class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                        <svg class="w-4 h-4 text-indigo-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         SaaS Platform Information
                     </h3>
-                    <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-3xl">
+                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-3xl">
                         This multi-tenant School ERP Platform handles administration, course planning, fee structure, student data, and teacher rosters. As a Super Administrator, you are managing institutional setups, subscription states, and cross-tenant roles/permissions.
                     </p>
                     <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-6">
-                        <div class="flex items-center gap-2 text-indigo-650 dark:text-indigo-400 text-xs font-bold">
+                        <div class="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 text-xs font-bold">
                             <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
                             Laravel 12 API Ready
                         </div>
-                        <div class="flex items-center gap-2 text-sky-600 dark:text-sky-405 text-xs font-bold">
+                        <div class="flex items-center gap-2 text-sky-600 dark:text-sky-400 text-xs font-bold">
                             <span class="w-2 h-2 rounded-full bg-sky-500"></span>
                             Vue 3 Pinia SPA
                         </div>
@@ -147,491 +178,427 @@
                 </div>
             </div>
 
-
-            <!-- SCHOOL ADMIN / TEACHER SCOPE -->
-            <div v-else-if="scope === 'school'" class="space-y-8">
-                
-                <!-- TAB 1: OVERVIEW -->
-                <div v-if="activeTab === 'overview'" class="space-y-8 animate-fade-in">
-                    <!-- Standard Overview Stats -->
-                    <div v-if="overviewStats.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div 
-                            v-for="stat in overviewStats" 
-                            :key="stat.title" 
-                            class="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/80 p-6 rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-slate-350 dark:hover:border-slate-700 transition-all duration-300 group flex flex-col justify-between"
-                        >
-                            <div class="flex items-start justify-between">
-                                <div class="space-y-2">
-                                    <span class="text-[10px] font-extrabold text-slate-400 dark:text-slate-505 tracking-wider uppercase block text-ellipsis overflow-hidden">{{ stat.title }}</span>
-                                    <h3 class="text-3xl font-black text-slate-850 dark:text-white mt-1 tracking-tight tabular-nums group-hover:text-indigo-655 dark:group-hover:text-indigo-400 transition-colors">
-                                        {{ stat.value }}
-                                    </h3>
-                                </div>
-                                <div :class="[
-                                    'w-10 h-10 rounded-xl flex items-center justify-center border shrink-0',
-                                    stat.color === 'indigo' ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20 text-indigo-655 dark:text-indigo-400' : '',
-                                    stat.color === 'sky' ? 'bg-sky-50 dark:bg-sky-500/10 border-sky-100 dark:border-sky-500/20 text-sky-655 dark:text-sky-400' : '',
-                                    stat.color === 'emerald' ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400' : '',
-                                    stat.color === 'violet' ? 'bg-violet-50 dark:bg-violet-500/10 border-violet-100 dark:border-violet-500/20 text-violet-650 dark:text-violet-400' : '',
-                                ]">
-                                    <svg v-if="stat.icon === 'UsersIcon'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                                    <svg v-else-if="stat.icon === 'BookOpenIcon'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                                    <svg v-else-if="stat.icon === 'AcademicCapIcon'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path></svg>
-                                </div>
-                            </div>
-                            <p v-if="stat.description" class="text-xs text-slate-450 dark:text-slate-500 font-medium mt-4">{{ stat.description }}</p>
-                        </div>
-                    </div>
-
-                    <!-- Attendance Summary Rings (Only if attendance module is enabled) -->
-                    <div v-if="canViewAttendance && attendanceStats" class="space-y-4">
-                        <h3 class="text-xs font-extrabold text-slate-400 dark:text-slate-505 tracking-wider uppercase flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
-                            Today's Attendance Rates
-                        </h3>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Student Attendance Donut -->
-                            <div class="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 p-6 rounded-2xl flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
-                                <div class="space-y-2">
-                                    <h4 class="text-xs font-extrabold text-slate-400 tracking-wider uppercase">Student Attendance</h4>
-                                    <div class="text-3xl font-black text-slate-850 dark:text-white leading-none">
-                                        {{ attendanceStats.student.present }} 
-                                        <span class="text-xs font-semibold text-slate-450 dark:text-slate-500 block mt-2">Present out of {{ attendanceStats.student.present + attendanceStats.student.absent }} enrolled</span>
-                                    </div>
-                                    <div class="flex items-center gap-3 pt-2 text-[11px] font-bold">
-                                        <span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Present: {{ attendanceStats.student.present }}
-                                        </span>
-                                        <span class="inline-flex items-center gap-1 text-rose-600 dark:text-rose-455">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Absent: {{ attendanceStats.student.absent }}
-                                        </span>
-                                    </div>
-                                </div>
-                                
-                                <div class="relative w-24 h-24 flex items-center justify-center shrink-0">
-                                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                                        <defs>
-                                            <linearGradient id="studentProgressGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                <stop offset="0%" stop-color="#10B981" />
-                                                <stop offset="100%" stop-color="#06B6D4" />
-                                            </linearGradient>
-                                        </defs>
-                                        <circle cx="50" cy="50" r="40" fill="transparent" stroke="#F1F5F9" stroke-width="8" class="dark:stroke-slate-800" />
-                                        <circle cx="50" cy="50" r="40" fill="transparent" stroke="url(#studentProgressGrad)" stroke-width="8"
-                                                stroke-dasharray="251.35" :stroke-dashoffset="getStrokeDashOffset(studentAttendancePercent, 40)"
-                                                stroke-linecap="round" class="transition-all duration-1000 ease-out" />
-                                    </svg>
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center">
-                                        <span class="text-lg font-black text-slate-855 dark:text-white leading-none">{{ studentAttendancePercent }}%</span>
-                                        <span class="text-[9px] text-slate-405 dark:text-slate-500 uppercase tracking-wider font-bold mt-0.5">Rate</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Staff Attendance Donut -->
-                            <div class="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 p-6 rounded-2xl flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
-                                <div class="space-y-2">
-                                    <h4 class="text-xs font-extrabold text-slate-400 tracking-wider uppercase">Staff Attendance</h4>
-                                    <div class="text-3xl font-black text-slate-855 dark:text-white leading-none">
-                                        {{ attendanceStats.staff.present }}
-                                        <span class="text-xs font-semibold text-slate-455 dark:text-slate-500 block mt-2">Present out of {{ attendanceStats.staff.present + attendanceStats.staff.absent }} staff</span>
-                                    </div>
-                                    <div class="flex items-center gap-3 pt-2 text-[11px] font-bold">
-                                        <span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Present: {{ attendanceStats.staff.present }}
-                                        </span>
-                                        <span class="inline-flex items-center gap-1 text-rose-600 dark:text-rose-455">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Absent: {{ attendanceStats.staff.absent }}
-                                        </span>
-                                    </div>
-                                </div>
-                                
-                                <div class="relative w-24 h-24 flex items-center justify-center shrink-0">
-                                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                                        <defs>
-                                            <linearGradient id="staffProgressGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                <stop offset="0%" stop-color="#8B5CF6" />
-                                                <stop offset="100%" stop-color="#EC4899" />
-                                            </linearGradient>
-                                        </defs>
-                                        <circle cx="50" cy="50" r="40" fill="transparent" stroke="#F1F5F9" stroke-width="8" class="dark:stroke-slate-800" />
-                                        <circle cx="50" cy="50" r="40" fill="transparent" stroke="url(#staffProgressGrad)" stroke-width="8"
-                                                stroke-dasharray="251.35" :stroke-dashoffset="getStrokeDashOffset(staffAttendancePercent, 40)"
-                                                stroke-linecap="round" class="transition-all duration-1000 ease-out" />
-                                    </svg>
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center">
-                                        <span class="text-lg font-black text-slate-855 dark:text-white leading-none">{{ staffAttendancePercent }}%</span>
-                                        <span class="text-[9px] text-slate-405 dark:text-slate-500 uppercase tracking-wider font-bold mt-0.5">Rate</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Platform and Operations Section -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div :class="[
-                            (canCreateSchools || canCreateUsers) ? 'lg:col-span-2' : 'lg:col-span-3 col-span-full',
-                            'bg-white dark:bg-slate-900 border border-slate-200/85 dark:border-slate-800 p-6 md:p-8 rounded-2xl shadow-sm space-y-4'
-                        ]">
-                            <h3 class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                                <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                School Dashboard Overview
-                            </h3>
-                            <div class="space-y-4 text-sm text-slate-655 dark:text-slate-400 leading-relaxed">
-                                <p>This multi-tenant School ERP Platform handles administration, course planning, fee structure, student data, and teacher rosters. Currently, you are accessing the foundational modules: <strong>Authentication, Multi-tenancy Scoping, and Spatie Roles/Permissions</strong>.</p>
-                                <p>Security is enforced at the database layer (single database with tenant filtering via school scoping) and HTTP routing layer (using permission-based middleware and gate protection).</p>
-                                <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex gap-6">
-                                    <div class="flex items-center gap-2 text-indigo-650 dark:text-indigo-400 text-xs font-bold">
-                                        <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
-                                        Laravel 12 API Ready
-                                    </div>
-                                    <div class="flex items-center gap-2 text-sky-655 dark:text-sky-405 text-xs font-bold">
-                                        <span class="w-2 h-2 rounded-full bg-sky-500"></span>
-                                        Vue 3 + Pinia SPA
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div v-if="canCreateSchools || canCreateUsers" class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 rounded-2xl flex flex-col justify-between shadow-sm">
-                            <div>
-                                <h3 class="text-xs font-bold text-slate-505 uppercase tracking-wider mb-2">System Operations</h3>
-                                <p class="text-xs text-slate-450 dark:text-slate-400 leading-relaxed mb-6">Quick actions that correspond to your administrative permission level.</p>
-                            </div>
-                            <div class="space-y-3">
-                                <router-link 
-                                    v-slot="{ href, navigate }" 
-                                    v-if="canCreateSchools" 
-                                    to="/schools/create" 
-                                    custom
-                                >
-                                    <a :href="href" @click="navigate" class="w-full py-2.5 px-4 bg-indigo-50 dark:bg-indigo-650/10 hover:bg-indigo-100 dark:hover:bg-indigo-600/20 text-indigo-650 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20 text-xs font-bold rounded-xl transition-all flex items-center justify-between">
-                                        Register New School
-                                        <span>&rarr;</span>
-                                    </a>
-                                </router-link>
-                                <router-link 
-                                    v-slot="{ href, navigate }" 
-                                    v-if="canCreateUsers" 
-                                    to="/users/create" 
-                                    custom
-                                >
-                                    <a :href="href" @click="navigate" class="w-full py-2.5 px-4 bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-250 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-305 border border-slate-200 dark:border-slate-700/60 text-xs font-bold rounded-xl transition-all flex items-center justify-between">
-                                        Create School User
-                                        <span>&rarr;</span>
-                                    </a>
-                                </router-link>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB 2: FINANCE & COLLECTIONS -->
-                <div v-else-if="activeTab === 'finance' && canViewFees" class="space-y-8 animate-fade-in">
-                    <!-- Finance Card Stats Grid -->
+            <!-- B. SCHOOL ADMIN / TEACHER SCOPE -->
+            <div v-else-if="scope === 'school'" class="space-y-6 animate-fade-in">
+                    
+                    <!-- Section 1 - Overview Cards Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div 
-                            v-for="stat in financeStats" 
-                            :key="stat.title" 
-                            class="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/80 p-6 rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-slate-350 dark:hover:border-slate-700 transition-all duration-300 group flex flex-col justify-between"
+                        <!-- 1. Students Card -->
+                        <router-link 
+                            v-if="canViewStudents" 
+                            to="/students" 
+                            class="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/80 p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-indigo-300 dark:hover:border-indigo-800/50 transition-all duration-305 group flex flex-col justify-between"
                         >
                             <div class="flex items-start justify-between">
-                                <div class="space-y-2">
-                                    <span class="text-[10px] font-extrabold text-slate-405 dark:text-slate-505 tracking-wider uppercase block">{{ stat.title }}</span>
-                                    <h3 class="text-2xl md:text-3xl font-black text-slate-805 dark:text-white mt-1 tracking-tight group-hover:text-indigo-650 dark:group-hover:text-indigo-400 transition-colors">
-                                        {{ stat.value }}
+                                <div class="space-y-1.5">
+                                    <span class="text-[10px] font-extrabold text-slate-400 dark:text-slate-505 tracking-wider uppercase block">Students</span>
+                                    <h3 class="text-3.5xl font-black text-slate-850 dark:text-white tracking-tight tabular-nums group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                        {{ studentsCount }}
                                     </h3>
                                 </div>
-                                <div :class="[
-                                    'w-10 h-10 rounded-xl flex items-center justify-center border shrink-0',
-                                    stat.color === 'teal' ? 'bg-teal-50 dark:bg-teal-500/10 border-teal-100 dark:border-teal-500/20 text-teal-650 dark:text-teal-400' : '',
-                                    stat.color === 'emerald' ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-405' : '',
-                                    stat.color === 'amber' ? 'bg-amber-55/70 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20 text-amber-700 dark:text-amber-450' : '',
-                                    stat.color === 'rose' ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20 text-rose-600 dark:text-rose-455' : '',
-                                    stat.color === 'indigo' ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20 text-indigo-650 dark:text-indigo-400' : '',
-                                    stat.color === 'pink' ? 'bg-pink-50 dark:bg-pink-500/10 border-pink-100 dark:border-pink-500/20 text-pink-650 dark:text-pink-400' : '',
-                                ]">
-                                    <svg v-if="stat.icon === 'CheckCircleIcon'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    <svg v-else-if="stat.icon === 'DocumentTextIcon'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                    <svg v-else-if="stat.icon === 'BellIcon'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                                <div class="w-11 h-11 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                                 </div>
                             </div>
-                            <p v-if="stat.description" class="text-xs text-slate-455 dark:text-slate-500 font-medium mt-4">{{ stat.description }}</p>
-                        </div>
-                    </div>
+                            <p class="text-[10px] text-slate-450 dark:text-slate-500 font-bold mt-4">Active student enrollments &rarr;</p>
+                        </router-link>
 
-                    <!-- Custom SVG Charts Section -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        
-                        <!-- Monthly Collections Line/Area Chart -->
-                        <div class="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm flex flex-col justify-between">
-                            <div>
-                                <h3 class="text-xs font-bold text-slate-455 dark:text-slate-400 uppercase tracking-wider mb-6 flex items-center gap-2">
-                                    <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                                    Monthly Collection Trends
-                                </h3>
-                                
-                                <div v-if="monthlyTrends.length === 0" class="h-[280px] flex flex-col items-center justify-center border border-dashed border-slate-200 dark:border-slate-800/80 rounded-xl">
-                                    <svg class="w-12 h-12 text-slate-300 dark:text-slate-700 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                                    <span class="text-xs font-semibold text-slate-400 dark:text-slate-500">No collection trends recorded yet</span>
+                        <!-- 2. Teachers Card -->
+                        <router-link 
+                            v-if="canViewUsers" 
+                            :to="{ path: '/users', query: { role: 'Teacher' } }"
+                            class="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/80 p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-sky-300 dark:hover:border-sky-800/50 transition-all duration-305 group flex flex-col justify-between"
+                        >
+                            <div class="flex items-start justify-between">
+                                <div class="space-y-1.5">
+                                    <span class="text-[10px] font-extrabold text-slate-405 dark:text-slate-505 tracking-wider uppercase block">Teachers</span>
+                                    <h3 class="text-3.5xl font-black text-slate-850 dark:text-white tracking-tight tabular-nums group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
+                                        {{ teachersCount }}
+                                    </h3>
                                 </div>
-                                
-                                <div v-else class="relative h-[280px]">
-                                    <svg viewBox="0 0 600 280" class="w-full h-full overflow-visible">
-                                        <defs>
-                                            <linearGradient id="areaTrendGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                                                <stop offset="0%" stop-color="#4F46E5" stop-opacity="0.15" />
-                                                <stop offset="100%" stop-color="#4F46E5" stop-opacity="0.0" />
-                                            </linearGradient>
-                                        </defs>
-                                        
-                                        <!-- Y Grid lines -->
-                                        <g v-for="grid in gridLines" :key="grid.y">
-                                            <line x1="60" :y1="grid.y" x2="580" :y2="grid.y" stroke="rgba(226, 232, 240, 0.4)" class="dark:stroke-slate-800/30" stroke-width="1" />
-                                            <text x="50" :y="grid.y + 4" text-anchor="end" class="text-[9px] font-extrabold fill-slate-400 dark:fill-slate-505">₹{{ formatShortCurrency(grid.val) }}</text>
-                                        </g>
-                                        
-                                        <!-- Filled Area -->
-                                        <path :d="areaPathD" fill="url(#areaTrendGrad)" />
-                                        
-                                        <!-- Connection Line -->
-                                        <path :d="linePathD" fill="none" stroke="#4F46E5" stroke-width="2.5" stroke-linecap="round" class="dark:stroke-indigo-400" />
-                                        
-                                        <!-- Circle Points -->
-                                        <circle
-                                            v-for="(pt, idx) in lineChartPoints"
-                                            :key="idx"
-                                            :cx="pt.x"
-                                            :cy="pt.y"
-                                            r="5"
-                                            class="fill-indigo-650 dark:fill-indigo-400 stroke-white dark:stroke-slate-900 stroke-2 cursor-pointer transition-all duration-200"
-                                            :class="{ 'r-7 fill-indigo-500 stroke-indigo-100': hoveredTrendPoint && hoveredTrendPoint.month === pt.month }"
-                                            @mouseenter="hoveredTrendPoint = pt"
-                                            @mouseleave="hoveredTrendPoint = null"
-                                        />
-                                        
-                                        <!-- X Axis Labels -->
-                                        <text
-                                            v-for="(pt, idx) in lineChartPoints"
-                                            :key="'lbl-' + idx"
-                                            :x="pt.x"
-                                            y="262"
-                                            text-anchor="middle"
-                                            class="text-[9px] font-extrabold fill-slate-400 dark:fill-slate-500"
-                                        >
-                                            {{ pt.monthLabel }}
-                                        </text>
-                                    </svg>
-                                    
-                                    <!-- Tooltip Box -->
-                                    <div
-                                        v-if="hoveredTrendPoint"
-                                        class="absolute z-10 bg-slate-950/95 dark:bg-slate-955/95 text-white py-1.5 px-3 rounded-lg shadow-xl border border-slate-800 text-[10.5px] pointer-events-none transition-all duration-150 whitespace-nowrap"
-                                        :style="{ left: tooltipX, top: tooltipY }"
-                                    >
-                                        <div class="font-bold">{{ hoveredTrendPoint.monthLabel }}</div>
-                                        <div class="text-indigo-400 font-extrabold mt-0.5">₹{{ formatCurrency(hoveredTrendPoint.val) }}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Class Collections Horizontal Bar Chart -->
-                        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm flex flex-col justify-between">
-                            <div>
-                                <h3 class="text-xs font-bold text-slate-455 dark:text-slate-450 uppercase tracking-wider mb-6 flex items-center gap-2">
-                                    <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                                    Collection by Class
-                                </h3>
-                                
-                                <div v-if="classCollections.length === 0" class="h-[280px] flex flex-col items-center justify-center border border-dashed border-slate-200 dark:border-slate-800/80 rounded-xl">
-                                    <svg class="w-12 h-12 text-slate-330 dark:text-slate-700 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                                    <span class="text-xs font-semibold text-slate-400 dark:text-slate-500">No class records to display</span>
-                                </div>
-                                
-                                <div v-else class="overflow-y-auto max-h-[280px] pr-2">
-                                    <svg :viewBox="'0 0 600 ' + Math.max(120, 20 + classCollections.length * 40)" class="w-full overflow-visible">
-                                        <defs>
-                                            <linearGradient id="classBarGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                <stop offset="0%" stop-color="#10B981" />
-                                                <stop offset="100%" stop-color="#3B82F6" />
-                                            </linearGradient>
-                                        </defs>
-                                        <g v-for="(bar, idx) in classChartBars" :key="idx" class="group">
-                                            <!-- Class Name Label -->
-                                            <text
-                                                x="110"
-                                                :y="bar.y + 14"
-                                                text-anchor="end"
-                                                class="text-[10px] font-bold fill-slate-500 dark:fill-slate-400"
-                                            >
-                                                {{ bar.name }}
-                                            </text>
-                                            
-                                            <!-- Track background bar -->
-                                            <rect
-                                                x="120"
-                                                :y="bar.y"
-                                                width="400"
-                                                height="18"
-                                                rx="4"
-                                                class="fill-slate-100 dark:fill-slate-800/60"
-                                            />
-                                            
-                                            <!-- Gradient foreground bar -->
-                                            <rect
-                                                x="120"
-                                                :y="bar.y"
-                                                :width="bar.barWidth"
-                                                height="18"
-                                                rx="4"
-                                                fill="url(#classBarGrad)"
-                                                class="transition-all duration-500 ease-out cursor-pointer hover:opacity-90"
-                                            />
-                                            
-                                            <!-- Value Label -->
-                                            <text
-                                                :x="120 + bar.barWidth + 8"
-                                                :y="bar.y + 14"
-                                                class="text-[9.5px] font-extrabold fill-slate-700 dark:fill-slate-355"
-                                            >
-                                                ₹{{ formatShortCurrency(bar.total) }}
-                                            </text>
-                                        </g>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <!-- Recent Collections Ledger Table -->
-                    <div class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
-                        <div class="p-6 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
-                            <h3 class="text-xs font-bold text-slate-750 dark:text-slate-355 tracking-wider uppercase flex items-center gap-2">
-                                <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                                Recent Collections Ledger
-                            </h3>
-                            <router-link 
-                                v-slot="{ href, navigate }" 
-                                v-if="authStore.hasPermission('receipt.view')"
-                                to="/fees/receipts" 
-                                custom
-                            >
-                                <a :href="href" @click="navigate" class="text-xs font-bold text-indigo-650 dark:text-indigo-405 hover:underline">
-                                    View All Receipts &rarr;
-                                </a>
-                            </router-link>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse text-xs">
-                                <thead>
-                                    <tr class="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-450 font-extrabold uppercase tracking-wider">
-                                        <th class="p-4">Student Name</th>
-                                        <th class="p-4">Admission No</th>
-                                        <th class="p-4">Installment</th>
-                                        <th class="p-4">Date</th>
-                                        <th class="p-4">Payment Method</th>
-                                        <th class="p-4 text-right">Amount Paid</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
-                                    <tr v-if="recentCollections.length === 0">
-                                        <td colspan="6" class="p-8 text-center text-slate-400 dark:text-slate-500 font-semibold">
-                                            No transactions recorded in this academic session.
-                                        </td>
-                                    </tr>
-                                    <tr 
-                                        v-else
-                                        v-for="item in recentCollections" 
-                                        :key="item.id"
-                                        class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all text-slate-700 dark:text-slate-350"
-                                    >
-                                        <td class="p-4 font-bold text-slate-900 dark:text-white">{{ item.student_name }}</td>
-                                        <td class="p-4 font-semibold text-slate-505 dark:text-slate-400">{{ item.admission_no }}</td>
-                                        <td class="p-4 font-medium">{{ item.installment_name }}</td>
-                                        <td class="p-4 text-slate-500 dark:text-slate-450">{{ formatDate(item.payment_date) }}</td>
-                                        <td class="p-4">
-                                            <span :class="[
-                                                'px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border uppercase tracking-wider',
-                                                item.payment_method === 'Cash' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-450 border-emerald-150 dark:border-emerald-500/20' : '',
-                                                item.payment_method === 'Online' ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-455 border-blue-155 dark:border-blue-500/20' : '',
-                                                item.payment_method === 'Cheque' ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-450 border-amber-150 dark:border-amber-500/20' : '',
-                                                item.payment_method === 'Bank Transfer' ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-650 dark:text-indigo-455 border-indigo-155 dark:border-indigo-500/20' : '',
-                                            ]">
-                                                {{ item.payment_method }}
-                                            </span>
-                                        </td>
-                                        <td class="p-4 text-right font-black text-slate-900 dark:text-white">₹{{ formatCurrency(item.amount_paid) }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB 3: ACADEMIC INSIGHTS -->
-                <div v-else-if="activeTab === 'academics' && canViewAcademics" class="space-y-8 animate-fade-in">
-                    <!-- Academic Modules Overview -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Course & Subjects Workspace -->
-                        <div v-if="canViewSubjects" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between">
-                            <div>
-                                <div class="w-10 h-10 rounded-xl bg-violet-50 dark:bg-violet-500/10 border border-violet-100 dark:border-violet-500/20 text-violet-600 dark:text-violet-400 flex items-center justify-center mb-4">
+                                <div class="w-11 h-11 rounded-xl bg-sky-50 dark:bg-sky-500/10 border border-sky-100 dark:border-sky-500/20 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                                 </div>
-                                <h4 class="text-sm font-bold text-slate-855 dark:text-white mb-2">Academic Course Subjects</h4>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-6">Manage academic subjects, assign grades, define optional courses, and set course categories for school classes.</p>
                             </div>
-                            <router-link 
-                                v-slot="{ href, navigate }" 
-                                to="/subjects" 
-                                custom
-                            >
-                                <a :href="href" @click="navigate" class="text-xs font-bold text-violet-600 dark:text-violet-400 hover:underline flex items-center gap-1">
-                                    Go to Subjects Directory &rarr;
-                                </a>
-                            </router-link>
+                            <p class="text-[10px] text-slate-450 dark:text-slate-500 font-bold mt-4">Active teacher profiles &rarr;</p>
+                        </router-link>
+
+                        <!-- 3. Classes Card -->
+                        <router-link 
+                            v-if="authStore.hasPermission('class.view')" 
+                            to="/classes" 
+                            class="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/80 p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-emerald-300 dark:hover:border-emerald-800/50 transition-all duration-305 group flex flex-col justify-between"
+                        >
+                            <div class="flex items-start justify-between">
+                                <div class="space-y-1.5">
+                                    <span class="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 tracking-wider uppercase block">Classes</span>
+                                    <h3 class="text-3.5xl font-black text-slate-850 dark:text-white tracking-tight tabular-nums group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                        {{ classesCount }}
+                                    </h3>
+                                </div>
+                                <div class="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path></svg>
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-slate-450 dark:text-slate-500 font-bold mt-4">Configured curriculum groups &rarr;</p>
+                        </router-link>
+
+                        <!-- 4. Total Fee Assigned Card -->
+                        <router-link 
+                            v-if="canViewFees" 
+                            :to="{ path: '/fees/reports', query: { report_type: 'pending', auto: 'true' } }"
+                            class="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/80 p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-indigo-300 dark:hover:border-indigo-800/50 transition-all duration-355 group flex flex-col justify-between"
+                        >
+                            <div class="flex items-start justify-between">
+                                <div class="space-y-1.5">
+                                    <span class="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 tracking-wider uppercase block">Total Fee Assigned</span>
+                                    <h3 class="text-2.5xl font-black text-slate-850 dark:text-white tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                        {{ totalAssignedFeesValue }}
+                                    </h3>
+                                </div>
+                                <div class="w-11 h-11 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-slate-450 dark:text-slate-500 font-bold mt-4">Outstanding balance ledger &rarr;</p>
+                        </router-link>
+
+                        <!-- 5. Pending Fees Card -->
+                        <router-link 
+                            v-if="canViewFees" 
+                            :to="{ path: '/fees/reports', query: { report_type: 'pending', auto: 'true' } }"
+                            class="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/80 p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-amber-300 dark:hover:border-amber-800/50 transition-all duration-350 group flex flex-col justify-between"
+                        >
+                            <div class="flex items-start justify-between">
+                                <div class="space-y-1.5">
+                                    <span class="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 tracking-wider uppercase block">Pending Fees</span>
+                                    <h3 class="text-2.5xl font-black text-slate-850 dark:text-white tracking-tight group-hover:text-amber-655 dark:group-hover:text-amber-400 transition-colors">
+                                        {{ pendingFeesValue }}
+                                    </h3>
+                                </div>
+                                <div class="w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-slate-450 dark:text-slate-500 font-bold mt-4">Outstanding balance ledger &rarr;</p>
+                        </router-link>
+
+                        <!-- 6. Today's Collection Card -->
+                        <router-link 
+                            v-if="canViewFees" 
+                            :to="{ path: '/fees/receipts', query: { date: todayDateString } }"
+                            class="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/80 p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-pink-300 dark:hover:border-pink-800/50 transition-all duration-355 group flex flex-col justify-between"
+                        >
+                            <div class="flex items-start justify-between">
+                                <div class="space-y-1.5">
+                                    <span class="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 tracking-wider uppercase block">Today's Collection</span>
+                                    <h3 class="text-2.5xl font-black text-slate-850 dark:text-white tracking-tight group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">
+                                        {{ todayCollectionValue }}
+                                    </h3>
+                                </div>
+                                <div class="w-11 h-11 rounded-xl bg-pink-50 dark:bg-pink-500/10 border border-pink-100 dark:border-pink-500/20 text-pink-600 dark:text-pink-400 flex items-center justify-center shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-slate-450 dark:text-slate-500 font-bold mt-4">Transactions logged today &rarr;</p>
+                        </router-link>
+                    </div>
+
+                    <!-- TWO COLUMN INTERACTIVE BODY -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        
+                        <!-- LEFT COLUMN: QUICK ACTIONS -->
+                        <div class="lg:col-span-1 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 p-6 rounded-2xl shadow-sm flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-xs font-black text-slate-455 dark:text-slate-500 uppercase tracking-widest mb-2">Section 2 - Quick Shortcuts</h3>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-normal mb-5">Instantly launch forms and tasks for school workflow components.</p>
+                            </div>
+                            <div class="space-y-2.5">
+                                <router-link 
+                                    v-if="authStore.hasPermission('student.create') && authStore.hasModule('students')" 
+                                    to="/students/create" 
+                                    class="w-full py-2.5 px-4 bg-indigo-50/70 hover:bg-indigo-100 dark:bg-indigo-950/20 dark:hover:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group"
+                                >
+                                    <span class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                                        Add New Student
+                                    </span>
+                                    <span class="text-sm font-light opacity-50 group-hover:translate-x-1 transition-transform">&rarr;</span>
+                                </router-link>
+
+                                <router-link 
+                                    v-if="authStore.hasPermission('fee_collection.create') && authStore.hasModule('fees')" 
+                                    to="/fees/collection" 
+                                    class="w-full py-2.5 px-4 bg-emerald-50/70 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:hover:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group"
+                                >
+                                    <span class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 8h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        Collect Student Fee
+                                    </span>
+                                    <span class="text-sm font-light opacity-50 group-hover:translate-x-1 transition-transform">&rarr;</span>
+                                </router-link>
+
+                                <router-link 
+                                    v-if="authStore.hasPermission('user.create')" 
+                                    to="/users/create" 
+                                    class="w-full py-2.5 px-4 bg-sky-50/70 hover:bg-sky-100 dark:bg-sky-950/20 dark:hover:bg-sky-900/30 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group"
+                                >
+                                    <span class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                                        Add Teacher Account
+                                    </span>
+                                    <span class="text-sm font-light opacity-50 group-hover:translate-x-1 transition-transform">&rarr;</span>
+                                </router-link>
+
+                                <router-link 
+                                    v-if="authStore.hasPermission('attendance.create') && authStore.hasModule('attendance')" 
+                                    to="/attendance" 
+                                    class="w-full py-2.5 px-4 bg-violet-50/70 hover:bg-violet-100 dark:bg-violet-950/20 dark:hover:bg-violet-900/30 text-violet-600 dark:text-violet-400 border border-violet-100 dark:border-violet-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group"
+                                >
+                                    <span class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                                        Take Attendance Today
+                                    </span>
+                                    <span class="text-sm font-light opacity-50 group-hover:translate-x-1 transition-transform">&rarr;</span>
+                                </router-link>
+
+                                <router-link 
+                                    v-if="authStore.hasPermission('notice.create') && authStore.hasModule('notices')" 
+                                    to="/notices" 
+                                    class="w-full py-2.5 px-4 bg-amber-50/70 hover:bg-amber-100 dark:bg-amber-950/20 dark:hover:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group"
+                                >
+                                    <span class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
+                                        Publish Notice Announcement
+                                    </span>
+                                    <span class="text-sm font-light opacity-50 group-hover:translate-x-1 transition-transform">&rarr;</span>
+                                </router-link>
+
+                                <router-link 
+                                    v-if="authStore.hasPermission('report.view') && authStore.hasModule('fees')" 
+                                    to="/fees/reports" 
+                                    class="w-full py-2.5 px-4 bg-pink-50/70 hover:bg-pink-100 dark:bg-pink-950/20 dark:hover:bg-pink-900/30 text-pink-600 dark:text-pink-400 border border-pink-100 dark:border-pink-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group"
+                                >
+                                    <span class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                                        View System Reports
+                                    </span>
+                                    <span class="text-sm font-light opacity-50 group-hover:translate-x-1 transition-transform">&rarr;</span>
+                                </router-link>
+                            </div>
                         </div>
 
-                        <!-- Exam planning & timetables -->
-                        <div v-if="canViewExams || canViewSchedules" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between">
+                        <!-- RIGHT COLUMN: ATTENDANCE SUMMARY -->
+                        <div class="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 p-6 rounded-2xl shadow-sm flex flex-col justify-between">
                             <div>
-                                <div class="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-500/10 border border-sky-100 dark:border-sky-500/20 text-sky-600 dark:text-sky-400 flex items-center justify-center mb-4">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-xs font-black text-slate-455 dark:text-slate-500 uppercase tracking-widest">Section 3 - Today's Attendance Rates</h3>
                                 </div>
-                                <h4 class="text-sm font-bold text-slate-855 dark:text-white mb-2">Examinations & Marksheets</h4>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-6">Configure exam schedules, setup grading scales, publish student marks, and generate printable academic reports.</p>
+                                <div v-if="!canViewAttendance || !attendanceStats" class="h-44 flex flex-col items-center justify-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+                                    <svg class="w-10 h-10 text-slate-300 dark:text-slate-700 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    <span class="text-xs font-bold text-slate-400">Attendance tracking is inactive</span>
+                                </div>
+                                <div v-else class="space-y-6 pt-2">
+                                    <!-- Rings Grid -->
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                        <!-- Student Attendance Ring -->
+                                        <router-link 
+                                            to="/attendance?tab=mark"
+                                            class="flex items-center gap-4 bg-slate-50/50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-850 p-4 rounded-xl hover:border-indigo-300 dark:hover:border-indigo-900/60 hover:bg-slate-50 dark:hover:bg-slate-950/50 hover:shadow-sm transition-all"
+                                        >
+                                            <div class="relative w-18 h-18 flex items-center justify-center shrink-0">
+                                                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#F1F5F9" stroke-width="8" class="dark:stroke-slate-800" />
+                                                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="url(#studProgressGrad)" stroke-width="8"
+                                                            stroke-dasharray="251.35" :stroke-dashoffset="getStrokeDashOffset(studentAttendancePercent, 40)"
+                                                            stroke-linecap="round" class="transition-all duration-1000 ease-out" />
+                                                </svg>
+                                                <span class="absolute text-sm font-black text-slate-900 dark:text-white">{{ studentAttendancePercent }}%</span>
+                                            </div>
+                                            <div class="space-y-1">
+                                                <h4 class="text-xs font-black text-slate-900 dark:text-white">Students Attendance</h4>
+                                                <div class="text-[10px] text-slate-500 font-bold space-y-0.5">
+                                                    <div class="font-extrabold text-slate-700 dark:text-slate-350">Total Students: {{ (attendanceStats.student.present || 0) + (attendanceStats.student.absent || 0) }}</div>
+                                                    <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Present: {{ attendanceStats.student.present }}</div>
+                                                    <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Absent: {{ attendanceStats.student.absent }}</div>
+                                                </div>
+                                            </div>
+                                        </router-link>
+ 
+                                        <!-- Staff Attendance Ring -->
+                                        <router-link 
+                                            to="/attendance?tab=staff&auto=true"
+                                            class="flex items-center gap-4 bg-slate-50/50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-850 p-4 rounded-xl hover:border-indigo-300 dark:hover:border-indigo-900/60 hover:bg-slate-50 dark:hover:bg-slate-950/50 hover:shadow-sm transition-all"
+                                        >
+                                            <div class="relative w-18 h-18 flex items-center justify-center shrink-0">
+                                                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#F1F5F9" stroke-width="8" class="dark:stroke-slate-800" />
+                                                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="url(#staffProgressGrad)" stroke-width="8"
+                                                            stroke-dasharray="251.35" :stroke-dashoffset="getStrokeDashOffset(staffAttendancePercent, 40)"
+                                                            stroke-linecap="round" class="transition-all duration-1000 ease-out" />
+                                                </svg>
+                                                <span class="absolute text-sm font-black text-slate-900 dark:text-white">{{ staffAttendancePercent }}%</span>
+                                            </div>
+                                            <div class="space-y-1">
+                                                <h4 class="text-xs font-black text-slate-900 dark:text-white">Staff Attendance</h4>
+                                                <div class="text-[10px] text-slate-500 font-bold space-y-0.5">
+                                                    <div class="font-extrabold text-slate-700 dark:text-slate-350">Total Staff: {{ (attendanceStats.staff.present || 0) + (attendanceStats.staff.absent || 0) }}</div>
+                                                    <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-violet-500"></span> Present: {{ attendanceStats.staff.present }}</div>
+                                                    <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Absent: {{ attendanceStats.staff.absent }}</div>
+                                                </div>
+                                            </div>
+                                        </router-link>
+                                    </div>
+                                    <div class="border-t border-slate-100 dark:border-slate-800/80 pt-4">
+                                        <div class="flex justify-between items-center mb-3">
+                                            <h4 class="text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">Class-wise Attendance Rates</h4>
+                                        </div>
+                                        <div v-if="classWiseOverview.length === 0" class="text-center py-4 text-xs font-bold text-slate-400">
+                                            No class-wise data available
+                                        </div>
+                                        <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-1">
+                                            <div 
+                                                v-for="c in classWiseOverview" 
+                                                :key="c.class_id"
+                                                class="flex flex-col gap-2 p-3.5 bg-slate-50/50 dark:bg-slate-950/30 border border-slate-100 dark:border-slate-850 rounded-xl hover:border-indigo-250 dark:hover:border-indigo-900/50 hover:bg-slate-50 dark:hover:bg-slate-950/50 transition-all cursor-pointer"
+                                                @click="toggleClassExpansion(c.class_id)"
+                                            >
+                                                <div class="flex justify-between items-start text-xs">
+                                                    <span class="font-black text-slate-800 dark:text-slate-205 flex items-center gap-1.5">
+                                                        {{ c.class_name }}
+                                                        <svg class="w-3.5 h-3.5 text-slate-405 transform transition-transform duration-200" :class="{ 'rotate-180': expandedClasses.includes(c.class_id) }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                                                    </span>
+                                                    <div class="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 flex flex-col items-end gap-0.5">
+                                                        <div class="font-extrabold text-slate-705 dark:text-slate-300 mb-0.5">Total Students: {{ c.students }}</div>
+                                                        <div class="flex items-center gap-1">
+                                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {{ c.present }} Present
+                                                        </div>
+                                                        <div class="flex items-center gap-1 text-rose-600 dark:text-rose-455 font-bold">
+                                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> {{ c.absent }} Absent
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                                        <div 
+                                                            class="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                                                            :style="{ width: c.students > 0 ? (c.present / c.students * 100) + '%' : '0%' }"
+                                                        ></div>
+                                                    </div>
+                                                    <span class="text-[10px] font-black text-slate-700 dark:text-slate-350 w-8 text-right shrink-0">
+                                                        {{ c.students > 0 ? Math.round(c.present / c.students * 100) : 0 }}%
+                                                    </span>
+                                                </div>
+
+                                                <!-- Sections list breakdown (Visible only when expanded) -->
+                                                <div 
+                                                    v-if="expandedClasses.includes(c.class_id)" 
+                                                    class="mt-3 border-t border-slate-150 dark:border-slate-800/80 pt-3 space-y-2"
+                                                    @click.stop
+                                                >
+                                                    <div class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Sections Breakdown</div>
+                                                    <div v-if="!c.sections || c.sections.length === 0" class="text-[10px] text-slate-400 italic">No sections configured</div>
+                                                    <div 
+                                                        v-else
+                                                        v-for="sec in c.sections"
+                                                        :key="sec.section_id"
+                                                        @click="goToSectionAttendance(c.class_id, sec.section_id)"
+                                                        class="flex items-center justify-between p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/60 hover:border-indigo-500 dark:hover:border-indigo-500/50 hover:bg-indigo-50/20 dark:hover:bg-indigo-950/20 transition-all cursor-pointer group"
+                                                    >
+                                                        <span class="text-[11px] font-black text-slate-705 dark:text-slate-300">{{ sec.section_name }}</span>
+                                                        <div class="flex items-center gap-3">
+                                                            <div class="text-[9px] font-bold text-slate-400 flex items-center gap-2">
+                                                                <span class="font-extrabold text-slate-700 dark:text-slate-350">Total: {{ sec.students }}</span>
+                                                                <span class="text-slate-205 dark:text-slate-800">|</span>
+                                                                <span class="text-emerald-600 dark:text-emerald-450 font-black">{{ sec.present }} Present</span>
+                                                                <span class="text-slate-205 dark:text-slate-800">|</span>
+                                                                <span class="text-rose-600 dark:text-rose-455 font-black">{{ sec.absent }} Absent</span>
+                                                            </div>
+                                                            <span class="text-[9px] font-black text-indigo-600 dark:text-indigo-400 group-hover:translate-x-0.5 transition-transform">
+                                                                Manage &rarr;
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <router-link 
-                                v-slot="{ href, navigate }" 
-                                to="/exams/schedules" 
-                                custom
+                        </div>
+
+                    </div>
+
+                    <!-- Section 6 - Recent Activities Timeline -->
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-2xl shadow-sm p-6 space-y-4">
+                        <h3 class="text-xs font-black text-slate-455 dark:text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                            <svg class="w-4 h-4 text-indigo-550" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Section 6 - Recent Operational Activities
+                        </h3>
+                        <div class="relative pl-6 border-l border-slate-100 dark:border-slate-800 space-y-6">
+                            <div v-if="recentActivities.length === 0" class="py-4 text-center text-xs text-slate-400 dark:text-slate-550 font-bold">
+                                No recent activities logged.
+                            </div>
+                            <div 
+                                v-else
+                                v-for="(act, idx) in recentActivities" 
+                                :key="idx" 
+                                class="relative group"
                             >
-                                <a :href="href" @click="navigate" class="text-xs font-bold text-sky-655 dark:text-sky-400 hover:underline flex items-center gap-1">
-                                    Manage Exam Timetables &rarr;
-                                </a>
-                            </router-link>
+                                <!-- Marker Dot -->
+                                <span :class="[
+                                    'absolute -left-[31px] top-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-900 transition-all group-hover:scale-125 z-10',
+                                    act.type === 'student_added' ? 'bg-indigo-600' : '',
+                                    act.type === 'fee_collected' ? 'bg-emerald-500' : '',
+                                    act.type === 'attendance_submitted' ? 'bg-violet-500' : '',
+                                    act.type === 'teacher_added' ? 'bg-sky-500' : '',
+                                    act.type === 'notice_published' ? 'bg-amber-500' : '',
+                                ]"></span>
+                                
+                                <div class="space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="text-xs font-bold text-slate-800 dark:text-white">{{ act.title }}</h4>
+                                        <span class="text-[10px] text-slate-400 font-bold">{{ formatRelativeTime(act.timestamp) }}</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{{ act.description }}</p>
+                                    <div class="text-[10px] text-slate-400/80 font-bold">
+                                        Action Performed By: <span class="text-slate-500 dark:text-slate-400">{{ act.user_name }}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
             </div>
 
         </div>
+
+        <!-- LINEAR GRADIENT DEFS FOR CIRCLE CHARTS -->
+        <svg class="hidden w-0 h-0" aria-hidden="true" focusable="false">
+            <defs>
+                <linearGradient id="studProgressGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#4F46E5" />
+                    <stop offset="100%" stop-color="#06B6D4" />
+                </linearGradient>
+                <linearGradient id="staffProgressGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#8B5CF6" />
+                    <stop offset="100%" stop-color="#EC4899" />
+                </linearGradient>
+            </defs>
+        </svg>
     </div>
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 
 export default {
     name: 'Dashboard',
     setup() {
         const authStore = useAuthStore();
+        const router = useRouter();
         const stats = ref([]);
         const attendanceStats = ref(null);
         const loading = ref(true);
@@ -644,10 +611,50 @@ export default {
         const monthlyTrends = ref([]);
         const classCollections = ref([]);
         
+        // New fields
+        const pendingStudentsCount = ref(0);
+        const classWiseOverview = ref([]);
+        const expandedClasses = ref([]);
+        const recentActivities = ref([]);
+        const activeAcademicYear = ref(null);
+
+        const toggleClassExpansion = (classId) => {
+            if (expandedClasses.value.includes(classId)) {
+                expandedClasses.value = expandedClasses.value.filter(id => id !== classId);
+            } else {
+                expandedClasses.value.push(classId);
+            }
+        };
+
+        const goToSectionAttendance = (classId, sectionId) => {
+            router.push({
+                path: '/attendance',
+                query: {
+                    tab: 'mark',
+                    class_id: classId,
+                    section_id: sectionId,
+                    date: todayDateString.value,
+                    auto: 'true'
+                }
+            });
+        };
+
+        // Header controls
+        const classSearchQuery = ref('');
+        const showNotifications = ref(false);
+        const currentClockTime = ref('');
+
+        // Class table sorting / filtering / pagination
+        const classSortKey = ref('class_name');
+        const classSortAsc = ref(true);
+        const classFilterType = ref('all');
+        const classCurrentPage = ref(1);
+        const classItemsPerPage = ref(5);
+        
         // Tooltip state for monthly trends
         const hoveredTrendPoint = ref(null);
 
-        // Pre-calculate permissions once for reuse in the template (avoiding duplicate checks)
+        // Pre-calculate permissions once for reuse in the template
         const canViewStudents = computed(() => authStore.hasPermission('student.view'));
         const canCreateStudents = computed(() => authStore.hasPermission('student.create'));
 
@@ -684,10 +691,8 @@ export default {
             });
         });
 
-        const formattedLastLogin = computed(() => {
-            if (!authStore.user?.last_login_at) return 'First session logged';
-            const date = new Date(authStore.user.last_login_at);
-            return date.toLocaleString();
+        const todayDateString = computed(() => {
+            return new Date().toLocaleDateString('en-CA');
         });
 
         // Filter stats cards dynamically based on active modules and permissions
@@ -713,6 +718,37 @@ export default {
                 s.title.toLowerCase().includes('discount') || 
                 s.title.toLowerCase().includes('fine')
             );
+        });
+
+        // Clean stats getters for Section 1 overview cards
+        const studentsCount = computed(() => {
+            const item = stats.value.find(s => s.title.toLowerCase().includes('student'));
+            return item ? item.value : 0;
+        });
+
+        const teachersCount = computed(() => {
+            const item = stats.value.find(s => s.title.toLowerCase().includes('teacher'));
+            return item ? item.value : 0;
+        });
+
+        const classesCount = computed(() => {
+            const item = stats.value.find(s => s.title.toLowerCase().includes('class'));
+            return item ? item.value : 0;
+        });
+
+        const pendingFeesValue = computed(() => {
+            const item = stats.value.find(s => s.title.toLowerCase().includes('pending fee'));
+            return item ? item.value : '₹0.00';
+        });
+
+        const totalAssignedFeesValue = computed(() => {
+            const item = stats.value.find(s => s.title.toLowerCase().includes('total fee assigned'));
+            return item ? item.value : '₹0.00';
+        });
+
+        const todayCollectionValue = computed(() => {
+            const item = stats.value.find(s => s.title.toLowerCase().includes("today's collection"));
+            return item ? item.value : '₹0.00';
         });
 
         // Attendance progress calculations
@@ -843,6 +879,76 @@ export default {
             });
         });
 
+        // Notices list computed from recent activities
+        const dashboardNotices = computed(() => {
+            return recentActivities.value.filter(a => a.type === 'notice_published');
+        });
+
+        const unreadNoticeCount = computed(() => {
+            return Math.min(3, dashboardNotices.value.length);
+        });
+
+        // Class-wise Overview sort and filter computation
+        const filteredClasses = computed(() => {
+            let list = [...classWiseOverview.value];
+
+            // 1. Search Query (Class name)
+            if (classSearchQuery.value.trim() !== '') {
+                const q = classSearchQuery.value.toLowerCase();
+                list = list.filter(c => c.class_name.toLowerCase().includes(q));
+            }
+
+            // 2. Dropdown Filter Type
+            if (classFilterType.value === 'has_pending_fees') {
+                list = list.filter(c => c.pending_fee > 0);
+            } else if (classFilterType.value === 'low_attendance') {
+                list = list.filter(c => {
+                    const total = c.present + c.absent;
+                    if (total === 0) return false;
+                    const rate = (c.present / total) * 105;
+                    return rate < 90;
+                });
+            }
+
+            // 3. Table Column Sorting
+            list.sort((a, b) => {
+                let valA = a[classSortKey.value];
+                let valB = b[classSortKey.value];
+
+                if (classSortKey.value === 'class_name') {
+                    return classSortAsc.value 
+                        ? valA.localeCompare(valB) 
+                        : valB.localeCompare(valA);
+                } else {
+                    return classSortAsc.value 
+                        ? (valA - valB) 
+                        : (valB - valA);
+                }
+            });
+
+            return list;
+        });
+
+        const paginatedClasses = computed(() => {
+            const start = (classCurrentPage.value - 1) * classItemsPerPage.value;
+            const end = start + classItemsPerPage.value;
+            return filteredClasses.value.slice(start, end);
+        });
+
+        const classTotalPages = computed(() => {
+            return Math.ceil(filteredClasses.value.length / classItemsPerPage.value) || 1;
+        });
+
+        const setClassSort = (key) => {
+            if (classSortKey.value === key) {
+                classSortAsc.value = !classSortAsc.value;
+            } else {
+                classSortKey.value = key;
+                classSortAsc.value = true;
+            }
+            classCurrentPage.value = 1;
+        };
+
         // Currencies & Date utilities
         const formatCurrency = (val) => {
             if (val === undefined || val === null) return '0.00';
@@ -863,6 +969,23 @@ export default {
             return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
         };
 
+        const formatRelativeTime = (isoString) => {
+            if (!isoString) return '';
+            const date = new Date(isoString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffSec = Math.floor(diffMs / 1000);
+            const diffMin = Math.floor(diffSec / 60);
+            const diffHr = Math.floor(diffMin / 60);
+            const diffDays = Math.floor(diffHr / 24);
+
+            if (diffSec < 60) return 'Just now';
+            if (diffMin < 60) return `${diffMin}m ago`;
+            if (diffHr < 24) return `${diffHr}h ago`;
+            if (diffDays === 1) return 'Yesterday';
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        };
+
         const fetchStats = async () => {
             loading.value = true;
             try {
@@ -874,6 +997,12 @@ export default {
                 recentCollections.value = response.data.recent_collections || [];
                 monthlyTrends.value = response.data.monthly_trends || [];
                 classCollections.value = response.data.class_collections || [];
+                
+                // Redesigned response inputs
+                pendingStudentsCount.value = response.data.pending_students_count || 0;
+                classWiseOverview.value = response.data.class_wise_overview || [];
+                recentActivities.value = response.data.recent_activities || [];
+                activeAcademicYear.value = response.data.active_academic_year || null;
             } catch (error) {
                 console.error('Failed to load dashboard stats', error);
             } finally {
@@ -881,8 +1010,26 @@ export default {
             }
         };
 
+        const updateClock = () => {
+            const now = new Date();
+            currentClockTime.value = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+        };
+
+        let clockInterval = null;
+
         onMounted(() => {
             fetchStats();
+            updateClock();
+            clockInterval = setInterval(updateClock, 1000);
+        });
+
+        onUnmounted(() => {
+            if (clockInterval) clearInterval(clockInterval);
         });
 
         return {
@@ -896,7 +1043,6 @@ export default {
             monthlyTrends,
             classCollections,
             hoveredTrendPoint,
-            formattedLastLogin,
             overviewStats,
             financeStats,
             studentAttendancePercent,
@@ -914,6 +1060,37 @@ export default {
             formatDate,
             greeting,
             formattedTodayDate,
+            todayDateString,
+            
+            // New Reactive Refs
+            pendingStudentsCount,
+            classWiseOverview,
+            expandedClasses,
+            toggleClassExpansion,
+            goToSectionAttendance,
+            recentActivities,
+            activeAcademicYear,
+            classSearchQuery,
+            showNotifications,
+            currentClockTime,
+            classSortKey,
+            classSortAsc,
+            classFilterType,
+            classCurrentPage,
+            classItemsPerPage,
+            filteredClasses,
+            paginatedClasses,
+            classTotalPages,
+            setClassSort,
+            formatRelativeTime,
+            dashboardNotices,
+            unreadNoticeCount,
+            studentsCount,
+            teachersCount,
+            classesCount,
+            pendingFeesValue,
+            totalAssignedFeesValue,
+            todayCollectionValue,
             
             // Computed Permission Flags
             canViewStudents,

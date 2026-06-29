@@ -103,6 +103,28 @@ class HomeworkService
             'status' => $data['status'] ?? $homework->status,
         ]);
 
+        try {
+            $homework->load('subject');
+            $subjectName = $homework->subject ? $homework->subject->name : 'N/A';
+            $title = "Homework Updated: " . $homework->title;
+            $body = "Homework updated for " . $subjectName . ". Submission Date: " . $homework->submission_date;
+            
+            $this->fcmService->sendToClass(
+                $homework->school_id,
+                $homework->class_id,
+                $homework->section_id,
+                $title,
+                $body,
+                [
+                    'type' => 'homework',
+                    'id' => $homework->id,
+                ],
+                $homework->academic_year_id
+            );
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("FCM Homework Notification Error: " . $e->getMessage());
+        }
+
         return $homework;
     }
 }

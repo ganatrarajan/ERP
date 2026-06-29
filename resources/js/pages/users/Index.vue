@@ -15,15 +15,63 @@
             </router-link>
         </div>
 
+        <!-- Search & Filter Controls -->
+        <div class="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border border-slate-200/60 dark:border-slate-800 p-4 rounded-2xl shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <!-- Search Input -->
+            <div class="relative w-full sm:max-w-md">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </span>
+                <input 
+                    v-model="searchQuery" 
+                    type="text" 
+                    placeholder="Search by name, email, or mobile..." 
+                    class="w-full pl-9 pr-4 py-2 text-xs font-semibold bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-400 transition-all placeholder-slate-400 dark:placeholder-slate-500 text-slate-700 dark:text-slate-200"
+                />
+                <button 
+                    v-if="searchQuery"
+                    @click="searchQuery = ''"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 cursor-pointer"
+                >
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Filters -->
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap hidden sm:inline">Role:</span>
+                    <select 
+                        v-model="selectedRole"
+                        class="w-full sm:w-44 px-3 py-2 text-xs font-semibold bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-400 text-slate-700 dark:text-slate-200"
+                    >
+                        <option value="">All Roles</option>
+                        <option value="Super Admin">Super Admin</option>
+                        <option value="School Admin">School Admin</option>
+                        <option value="Teacher">Teacher</option>
+                    </select>
+                </div>
+                
+                <!-- Reset Button -->
+                <button 
+                    v-if="searchQuery || selectedRole"
+                    @click="resetFilters"
+                    class="px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-350 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shrink-0 border-none"
+                >
+                    Clear
+                </button>
+            </div>
+        </div>
+
         <!-- Users Table -->
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
             <div v-if="loading" class="p-6 space-y-4 animate-pulse">
                 <div v-for="i in 5" :key="i" class="h-12 bg-slate-200 dark:bg-slate-800/50 rounded-xl"></div>
             </div>
 
-            <div v-else-if="users.length === 0" class="p-12 text-center text-slate-500">
+            <div v-else-if="filteredUsers.length === 0" class="p-12 text-center text-slate-500">
                 <svg class="w-16 h-16 mx-auto text-slate-300 dark:text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                No accounts found in this directory.
+                No accounts found matching your filter criteria.
             </div>
 
             <div v-else class="overflow-x-auto">
@@ -40,7 +88,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm text-slate-705 dark:text-slate-300">
-                        <tr v-for="user in users" :key="user.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                        <tr v-for="user in filteredUsers" :key="user.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                             <td class="p-4 pl-6">
                                 <div class="flex items-center gap-3">
                                     <div class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold uppercase text-xs">
@@ -119,7 +167,8 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import { useConfirmStore } from '../../stores/confirm';
 import { useToastStore } from '../../stores/toast';
@@ -130,8 +179,30 @@ export default {
         const authStore = useAuthStore();
         const confirmStore = useConfirmStore();
         const toastStore = useToastStore();
+        const route = useRoute();
         const users = ref([]);
         const loading = ref(true);
+        const searchQuery = ref('');
+        const selectedRole = ref('');
+
+        const filteredUsers = computed(() => {
+            return users.value.filter(user => {
+                const matchSearch = !searchQuery.value || 
+                    user.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+                    user.email.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+                    (user.mobile && user.mobile.includes(searchQuery.value));
+                    
+                const matchRole = !selectedRole.value || 
+                    user.roles.some(role => role.name.toLowerCase() === selectedRole.value.toLowerCase());
+                    
+                return matchSearch && matchRole;
+            });
+        });
+
+        const resetFilters = () => {
+            searchQuery.value = '';
+            selectedRole.value = '';
+        };
 
         const fetchUsers = async () => {
             loading.value = true;
@@ -166,12 +237,19 @@ export default {
         };
 
         onMounted(() => {
+            if (route.query.role) {
+                selectedRole.value = route.query.role;
+            }
             fetchUsers();
         });
 
         return {
             authStore,
             users,
+            filteredUsers,
+            searchQuery,
+            selectedRole,
+            resetFilters,
             loading,
             handleDelete
         };

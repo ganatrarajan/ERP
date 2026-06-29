@@ -384,6 +384,7 @@
 
 <script>
 import { ref, onMounted, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import { useToastStore } from '../../stores/toast';
 
@@ -392,6 +393,7 @@ export default {
     setup() {
         const authStore = useAuthStore();
         const toastStore = useToastStore();
+        const route = useRoute();
 
         const academicYears = ref([]);
         const classes = ref([]);
@@ -641,6 +643,35 @@ export default {
 
         onMounted(async () => {
             await fetchFiltersData();
+            
+            if (route.query.student_id) {
+                const sId = route.query.student_id;
+                try {
+                    const response = await window.axios.get(`/api/students/${sId}`);
+                    const student = response.data.student;
+                    if (student) {
+                        const currentYearId = filters.value.academic_year_id;
+                        const matchingRecord = student.academic_records.find(
+                            r => r.academic_year_id === currentYearId
+                        );
+                        if (matchingRecord) {
+                            filters.value.class_id = matchingRecord.class_id;
+                            
+                            const secRes = await window.axios.get('/api/sections', {
+                                params: { class_id: matchingRecord.class_id }
+                            });
+                            sections.value = secRes.data.sections;
+                            filters.value.section_id = matchingRecord.section_id || '';
+                            
+                            await fetchStudents();
+                            selectedStudentId.value = Number(sId);
+                            await fetchStudentDues();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to auto-select student from dashboard query:', error);
+                }
+            }
         });
 
         return {

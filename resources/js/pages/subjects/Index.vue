@@ -121,7 +121,7 @@
                     <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm text-slate-700 dark:text-slate-300">
                         <tr v-for="subj in subjects" :key="subj.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                             <td class="p-4 pl-6 font-semibold text-slate-800 dark:text-white">
-                                <span class="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs border border-slate-200 dark:border-slate-700/60 text-slate-655 dark:text-slate-300 font-mono">
+                                <span class="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs border border-slate-200 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 font-mono">
                                     {{ subj.code || 'N/A' }}
                                 </span>
                             </td>
@@ -306,7 +306,7 @@
                             </div>
 
                             <div class="col-span-2 border-t border-slate-100 dark:border-slate-800/80 pt-4 mt-2">
-                                <h4 class="text-xs font-bold text-indigo-650 dark:text-indigo-400 uppercase tracking-wider mb-3">Examination & Grading Configuration</h4>
+                                <h4 class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-3">Examination & Grading Configuration</h4>
                             </div>
 
                             <div>
@@ -402,7 +402,7 @@
                         <button 
                             type="button" 
                             @click="closeModal"
-                            class="px-4 py-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-slate-655 dark:text-slate-350 text-sm font-semibold transition-colors"
+                            class="px-4 py-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-slate-600 dark:text-slate-350 text-sm font-semibold transition-colors"
                         >
                             Cancel
                         </button>

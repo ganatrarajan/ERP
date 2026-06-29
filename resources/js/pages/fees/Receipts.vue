@@ -23,8 +23,29 @@
                 </select>
             </div>
 
-            <div class="space-y-1 md:col-span-3">
-                <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Search Receipt Number</label>
+            <!-- Payment Date Filter -->
+            <div class="space-y-1">
+                <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Payment Date</label>
+                <div class="relative flex items-center">
+                    <input 
+                        v-model="filters.payment_date" 
+                        @change="fetchReceipts(1)"
+                        type="date" 
+                        class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 focus:outline-none"
+                    />
+                    <button 
+                        v-if="filters.payment_date"
+                        @click="clearDateFilter"
+                        class="absolute right-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                        title="Clear date filter"
+                    >
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="space-y-1 md:col-span-2">
+                <label class="text-[10px] font-bold text-slate-400 dark:text-slate-505 uppercase tracking-wider">Search Receipt Number</label>
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -146,6 +167,7 @@
 
 <script>
 import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import { useToastStore } from '../../stores/toast';
 
@@ -154,6 +176,7 @@ export default {
     setup() {
         const authStore = useAuthStore();
         const toastStore = useToastStore();
+        const route = useRoute();
 
         const receipts = ref([]);
         const academicYears = ref([]);
@@ -161,7 +184,8 @@ export default {
 
         const filters = ref({
             academic_year_id: '',
-            search: ''
+            search: '',
+            payment_date: ''
         });
 
         const pagination = ref({
@@ -198,7 +222,8 @@ export default {
                     params: {
                         page,
                         academic_year_id: filters.value.academic_year_id,
-                        search: filters.value.search
+                        search: filters.value.search,
+                        payment_date: filters.value.payment_date
                     }
                 });
                 receipts.value = response.data.data;
@@ -230,6 +255,11 @@ export default {
             }
         };
 
+        const clearDateFilter = () => {
+            filters.value.payment_date = '';
+            fetchReceipts(1);
+        };
+
         const printReceipt = (receipt) => {
             window.open(`/api/fee-receipts/${receipt.id}/pdf`, '_blank');
         };
@@ -249,6 +279,9 @@ export default {
 
         onMounted(async () => {
             await fetchFiltersData();
+            if (route.query.date) {
+                filters.value.payment_date = route.query.date;
+            }
             await fetchReceipts();
         });
 
@@ -264,7 +297,8 @@ export default {
             changePage,
             printReceipt,
             numberFormat,
-            formatDate
+            formatDate,
+            clearDateFilter
         };
     }
 }
