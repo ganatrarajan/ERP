@@ -16,6 +16,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
+use App\Models\StudentDocument;
+
 class StudentController extends Controller
 {
     protected StudentService $studentService;
@@ -85,6 +87,20 @@ class StudentController extends Controller
             $query->where('students.status', 'active');
         }
 
+        // Advanced Filters
+        if ($request->filled('gender')) {
+            $query->where('students.gender', $request->input('gender'));
+        }
+        if ($request->filled('category')) {
+            $query->where('students.category', $request->input('category'));
+        }
+        if ($request->filled('house')) {
+            $query->where('students.house', $request->input('house'));
+        }
+        if ($request->filled('religion')) {
+            $query->where('students.religion', $request->input('religion'));
+        }
+
         if (\Illuminate\Support\Facades\Schema::hasColumn('students', 'is_delete')) {
             $query->where('students.is_delete', 0);
         }
@@ -94,13 +110,22 @@ class StudentController extends Controller
             ->where('sections.is_delete', 0)
             ->where('ay.status', 'active')
             ->where('ay.is_delete', 0);
+            
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('students.first_name', 'like', "%{$search}%")
                   ->orWhere('students.last_name', 'like', "%{$search}%")
                   ->orWhere('students.admission_no', 'like', "%{$search}%")
-                  ->orWhere('students.mobile', 'like', "%{$search}%");
+                  ->orWhere('students.gr_no', 'like', "%{$search}%")
+                  ->orWhere('students.aadhaar_no', 'like', "%{$search}%")
+                  ->orWhere('students.pen_no', 'like', "%{$search}%")
+                  ->orWhere('students.mobile', 'like', "%{$search}%")
+                  ->orWhereHas('parent', function ($pq) use ($search) {
+                      $pq->where('father_name', 'like', "%{$search}%")
+                         ->orWhere('mother_name', 'like', "%{$search}%")
+                         ->orWhere('guardian_name', 'like', "%{$search}%");
+                  });
             });
         }
 
@@ -113,6 +138,58 @@ class StudentController extends Controller
             ->paginate($request->input('per_page', 10));
 
         return response()->json($students);
+    }
+
+    /**
+     * Get the next auto-incremented admission number.
+     */
+    public function getNextAdmissionNo(Request $request): JsonResponse
+    {
+        $this->authorize('student.view');
+        
+        $currentUser = $request->user();
+        $schoolId = $currentUser->isSuperAdmin()
+            ? ($request->input('school_id') ?: 1)
+            : $currentUser->school_id;
+
+        $prefix = 'ADM-' . date('Y') . '-';
+        
+        // Find the latest student record for the same school with similar prefix
+        $lastStudent = Student::where('school_id', $schoolId)
+            ->where('admission_no', 'like', $prefix . '%')
+            ->where('is_delete', 0)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $nextIndex = 1;
+        if ($lastStudent) {
+            $lastNo = $lastStudent->admission_no;
+            $parts = explode('-', $lastNo);
+            $lastIndex = (int) end($parts);
+            if ($lastIndex > 0) {
+                $nextIndex = $lastIndex + 1;
+            }
+        } else {
+            // Fallback: if no student with this year's prefix, look at any student to get max numeric value
+            $lastAnyStudent = Student::where('school_id', $schoolId)
+                ->where('is_delete', 0)
+                ->orderBy('id', 'desc')
+                ->first();
+            if ($lastAnyStudent) {
+                $lastNo = $lastAnyStudent->admission_no;
+                // Try to find the numeric suffix in admission_no
+                preg_match('/\d+$/', $lastNo, $matches);
+                if (!empty($matches)) {
+                    $nextIndex = ((int) $matches[0]) + 1;
+                }
+            }
+        }
+
+        $nextAdmissionNo = $prefix . str_pad($nextIndex, 4, '0', STR_PAD_LEFT);
+
+        return response()->json([
+            'next_admission_no' => $nextAdmissionNo
+        ]);
     }
 
     /**
@@ -153,9 +230,10 @@ class StudentController extends Controller
             return response()->json(['message' => 'This action is unauthorized.'], 403);
         }
 
-        // Load personal info, parent info, and full academic history sorted by year
+        // Load personal info, parent info, documents and full academic history sorted by year
         $student->load([
             'parent',
+            'documents',
             'academicRecords' => function ($q) {
                 $q->join('academic_years', 'student_academic_records.academic_year_id', '=', 'academic_years.id')
                   ->orderBy('academic_years.start_date', 'desc')
@@ -231,6 +309,7 @@ class StudentController extends Controller
             // CSV Header
             fputcsv($handle, [
                 'Admission No',
+                'GR No',
                 'First Name',
                 'Last Name',
                 'Gender',
@@ -247,6 +326,7 @@ class StudentController extends Controller
             foreach ($students as $student) {
                 fputcsv($handle, [
                     $student->admission_no,
+                    $student->gr_no,
                     $student->first_name,
                     $student->last_name,
                     $student->gender,
@@ -319,7 +399,21 @@ class StudentController extends Controller
                 'mother_email',
                 'guardian_name',
                 'guardian_mobile',
-                'address'
+                'address',
+                'gr_no',
+                'category',
+                'religion',
+                'nationality',
+                'aadhaar_no',
+                'pen_no',
+                'udise_no',
+                'house',
+                'previous_school_name',
+                'previous_school_tc_no',
+                'previous_school_tc_date',
+                'emergency_contact_name',
+                'emergency_contact_mobile',
+                'emergency_contact_email'
             ]);
 
             // Sample row 1
@@ -335,17 +429,31 @@ class StudentController extends Controller
                 $ayTitle,
                 $className,
                 $sectionName,
-                '5550101',
+                '9876543210',
                 'john.doe@example.com',
                 'Richard Doe',
-                '5550102',
+                '9876543211',
                 'richard.doe@example.com',
                 'Mary Doe',
-                '5550103',
+                '9876543212',
                 'mary.doe@example.com',
                 '',
                 '',
-                '123 School Lane'
+                '123 School Lane, Ahmedabad',
+                'GR-9876',
+                'General',
+                'Hindu',
+                'Indian',
+                '123456789012',
+                'PEN12345678',
+                'UDISE123456',
+                'Red',
+                'Bright Future High School',
+                'TC-5544',
+                '2025-04-10',
+                'Richard Doe',
+                '9876543211',
+                'richard.doe@example.com'
             ]);
 
             // Sample row 2
@@ -361,17 +469,31 @@ class StudentController extends Controller
                 $ayTitle,
                 $className,
                 $sectionName,
-                '5550201',
+                '9876543220',
                 'jane.smith@example.com',
                 'Robert Smith',
-                '5550202',
+                '9876543221',
                 'robert.smith@example.com',
                 'Sarah Smith',
-                '5550203',
+                '9876543222',
                 'sarah.smith@example.com',
                 '',
                 '',
-                '456 Learning Blvd'
+                '456 Learning Blvd, Gandhinagar',
+                'GR-9877',
+                'SEBC',
+                'Hindu',
+                'Indian',
+                '987654321098',
+                'PEN87654321',
+                'UDISE654321',
+                'Blue',
+                '',
+                '',
+                '',
+                'Robert Smith',
+                '9876543221',
+                'robert.smith@example.com'
             ]);
 
             fclose($handle);
@@ -424,21 +546,36 @@ class StudentController extends Controller
             'gender' => 3,
             'date_of_birth' => 4,
             'admission_date' => 5,
-            'roll_no' => 6,
-            'academic_year' => 7,
-            'class' => 8,
-            'section' => 9,
-            'mobile' => 10,
-            'email' => 11,
-            'father_name' => 12,
-            'father_mobile' => 13,
-            'father_email' => 14,
-            'mother_name' => 15,
-            'mother_mobile' => 16,
-            'mother_email' => 17,
-            'guardian_name' => 18,
-            'guardian_mobile' => 19,
-            'blood_group' => 21
+            'blood_group' => 6,
+            'roll_no' => 7,
+            'academic_year' => 8,
+            'class' => 9,
+            'section' => 10,
+            'mobile' => 11,
+            'email' => 12,
+            'father_name' => 13,
+            'father_mobile' => 14,
+            'father_email' => 15,
+            'mother_name' => 16,
+            'mother_mobile' => 17,
+            'mother_email' => 18,
+            'guardian_name' => 19,
+            'guardian_mobile' => 20,
+            'address' => 21,
+            'gr_no' => 22,
+            'category' => 23,
+            'religion' => 24,
+            'nationality' => 25,
+            'aadhaar_no' => 26,
+            'pen_no' => 27,
+            'udise_no' => 28,
+            'house' => 29,
+            'previous_school_name' => 30,
+            'previous_school_tc_no' => 31,
+            'previous_school_tc_date' => 32,
+            'emergency_contact_name' => 33,
+            'emergency_contact_mobile' => 34,
+            'emergency_contact_email' => 35
         ];
 
         $columnMap = [];
@@ -452,6 +589,7 @@ class StudentController extends Controller
         $errorsList = [];
         // Track seen identifiers to prevent file-internal duplicates
         $seenAdmissions = [];
+        $seenGRs = [];
         $seenRolls = [];
 
         // Load existing database records for comparison
@@ -495,6 +633,7 @@ class StudentController extends Controller
                 };
 
                 $admission_no = $val('admission_no');
+                $gr_no = $val('gr_no');
                 $first_name = $val('first_name');
                 $last_name = $val('last_name');
                 $gender = $val('gender');
@@ -516,6 +655,20 @@ class StudentController extends Controller
                 $guardian_name = $val('guardian_name');
                 $guardian_mobile = $val('guardian_mobile');
                 $address = $val('address');
+
+                $category = $val('category');
+                $religion = $val('religion');
+                $nationality = $val('nationality') ?: 'Indian';
+                $aadhaar_no = $val('aadhaar_no');
+                $pen_no = $val('pen_no');
+                $udise_no = $val('udise_no');
+                $house = $val('house');
+                $previous_school_name = $val('previous_school_name');
+                $previous_school_tc_no = $val('previous_school_tc_no');
+                $previous_school_tc_date = $val('previous_school_tc_date');
+                $emergency_contact_name = $val('emergency_contact_name');
+                $emergency_contact_mobile = $val('emergency_contact_mobile');
+                $emergency_contact_email = $val('emergency_contact_email');
 
                 if (empty($admission_no)) {
                     $rowErrors[] = "Admission number is required.";
@@ -554,6 +707,14 @@ class StudentController extends Controller
                 }
                 if (empty($section_name)) {
                     $rowErrors[] = "Section name is required.";
+                }
+
+                if (!empty($aadhaar_no) && strlen($aadhaar_no) !== 12) {
+                    $rowErrors[] = "Aadhaar Card number must be exactly 12 digits.";
+                }
+
+                if (!empty($previous_school_tc_date) && !strtotime($previous_school_tc_date)) {
+                    $rowErrors[] = "Previous school TC date format is invalid (use YYYY-MM-DD).";
                 }
 
                 $ayId = null;
@@ -604,6 +765,22 @@ class StudentController extends Controller
                         $rowErrors[] = "Admission No '{$admission_no}' already exists in this school.";
                     }
 
+                    if (!empty($gr_no)) {
+                        if (in_array($gr_no, $seenGRs)) {
+                            $rowErrors[] = "Duplicate GR No '{$gr_no}' found within this import file.";
+                        } else {
+                            $seenGRs[] = $gr_no;
+                        }
+
+                        $grExistsInDb = Student::where('school_id', $schoolId)
+                            ->where('gr_no', $gr_no)
+                            ->where('is_delete', 0)
+                            ->exists();
+                        if ($grExistsInDb) {
+                            $rowErrors[] = "GR No '{$gr_no}' already exists in this school.";
+                        }
+                    }
+
                     if (!empty($roll_no) && $ayId && $classId && $sectionId) {
                         $rollKey = "{$ayId}-{$classId}-{$sectionId}-{$roll_no}";
 
@@ -633,12 +810,13 @@ class StudentController extends Controller
                         'admission_no' => $admission_no ?: 'N/A',
                         'name' => ($first_name || $last_name) ? "{$first_name} {$last_name}" : 'N/A',
                         'errors' => $rowErrors
-                    ];
+                     ];
                     continue;
                 }
 
                 $studentData = [
                     'admission_no' => $admission_no,
+                    'gr_no' => $gr_no ?: null,
                     'first_name' => $first_name,
                     'last_name' => $last_name,
                     'gender' => $gender,
@@ -661,6 +839,19 @@ class StudentController extends Controller
                     'class_id' => $classId,
                     'section_id' => $sectionId,
                     'roll_no' => $roll_no,
+                    'category' => $category ?: null,
+                    'religion' => $religion ?: null,
+                    'nationality' => $nationality ?: 'Indian',
+                    'aadhaar_no' => $aadhaar_no ?: null,
+                    'pen_no' => $pen_no ?: null,
+                    'udise_no' => $udise_no ?: null,
+                    'house' => $house ?: null,
+                    'previous_school_name' => $previous_school_name ?: null,
+                    'previous_school_tc_no' => $previous_school_tc_no ?: null,
+                    'previous_school_tc_date' => $previous_school_tc_date ?: null,
+                    'emergency_contact_name' => $emergency_contact_name ?: null,
+                    'emergency_contact_mobile' => $emergency_contact_mobile ?: null,
+                    'emergency_contact_email' => $emergency_contact_email ?: null,
                 ];
 
                 $this->studentService->createStudent($studentData, $schoolId);
@@ -735,5 +926,293 @@ class StudentController extends Controller
             'url' => $url,
             'path' => "uploads/students/{$schoolId}/{$classId}/{$sectionId}/{$filename}"
         ], 200);
+    }
+
+    /**
+     * Upload a student document.
+     */
+    public function uploadDocument(Request $request, Student $student): JsonResponse
+    {
+        $this->authorize('student.edit');
+        
+        $request->validate([
+            'document' => 'required|file|mimes:pdf,jpeg,png,jpg,gif,webp,svg,bmp,jfif,avif,heic,heif,pjpeg,pjpg|max:4096',
+            'document_name' => 'required|string|max:255',
+        ]);
+
+        $currentUser = $request->user();
+        if (!$currentUser->isSuperAdmin() && ($currentUser->school_id !== $student->school_id)) {
+            return response()->json(['message' => 'This action is unauthorized.'], 403);
+        }
+
+        $file = $request->file('document');
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $cleanName = preg_replace('/[^A-Za-z0-9\-]/', '_', $originalName);
+        $filename = time() . '_' . $cleanName . '.' . $file->getClientOriginalExtension();
+        
+        $schoolId = $student->school_id;
+        $destinationPath = public_path("uploads/students/{$schoolId}/{$student->id}/documents");
+        
+        if (!file_exists($destinationPath)) {
+            mkdir($destinationPath, 0755, true);
+        }
+        
+        $file->move($destinationPath, $filename);
+        
+        $path = "uploads/students/{$schoolId}/{$student->id}/documents/{$filename}";
+
+        $document = \App\Models\StudentDocument::create([
+            'school_id' => $schoolId,
+            'student_id' => $student->id,
+            'document_name' => $request->input('document_name'),
+            'document_path' => $path,
+        ]);
+
+        return response()->json([
+            'message' => 'Document uploaded successfully.',
+            'document' => $document
+        ]);
+    }
+
+    /**
+     * Delete a student document.
+     */
+    public function deleteDocument(Request $request, Student $student, $documentId): JsonResponse
+    {
+        $this->authorize('student.edit');
+        
+        $currentUser = $request->user();
+        if (!$currentUser->isSuperAdmin() && ($currentUser->school_id !== $student->school_id)) {
+            return response()->json(['message' => 'This action is unauthorized.'], 403);
+        }
+
+        $document = \App\Models\StudentDocument::where('student_id', $student->id)
+            ->where('id', $documentId)
+            ->firstOrFail();
+
+        $fullPath = public_path($document->document_path);
+        if (file_exists($fullPath)) {
+            unlink($fullPath);
+        }
+
+        $document->delete();
+
+        return response()->json([
+            'message' => 'Document deleted successfully.'
+        ]);
+    }
+
+    /**
+     * Custom dynamic student report builder.
+     */
+    public function report(Request $request)
+    {
+        $this->authorize('student.view');
+        $currentUser = $request->user();
+
+        $query = Student::query()
+            ->select(
+                'students.*', 
+                'sar.roll_no', 
+                'sar.academic_year_id',
+                'sar.class_id',
+                'sar.section_id',
+                'classes.name as class_name', 
+                'sections.name as section_name', 
+                'ay.title as academic_year_title'
+            )
+            ->join('student_academic_records as sar', 'students.id', '=', 'sar.student_id')
+            ->join('classes', 'sar.class_id', '=', 'classes.id')
+            ->join('sections', 'sar.section_id', '=', 'sections.id')
+            ->join('academic_years as ay', 'sar.academic_year_id', '=', 'ay.id')
+            ->with(['parent']);
+
+        // Scope to school
+        if (!$currentUser->isSuperAdmin()) {
+            $query->where('students.school_id', $currentUser->school_id);
+        } elseif ($request->has('school_id')) {
+            $query->where('students.school_id', $request->input('school_id'));
+        }
+
+        // Apply filters
+        if ($request->filled('academic_year_id')) {
+            $query->where('sar.academic_year_id', $request->input('academic_year_id'));
+        }
+        if ($request->filled('class_id')) {
+            $query->where('sar.class_id', $request->input('class_id'));
+        }
+        if ($request->filled('section_id')) {
+            $query->where('sar.section_id', $request->input('section_id'));
+        }
+        if ($request->filled('status')) {
+            $query->where('students.status', $request->input('status'));
+        } else {
+            $query->where('students.status', 'active');
+        }
+        if ($request->filled('gender')) {
+            $query->where('students.gender', $request->input('gender'));
+        }
+        if ($request->filled('category')) {
+            $query->where('students.category', $request->input('category'));
+        }
+        if ($request->filled('house')) {
+            $query->where('students.house', $request->input('house'));
+        }
+        if ($request->filled('religion')) {
+            $query->where('students.religion', $request->input('religion'));
+        }
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn('students', 'is_delete')) {
+            $query->where('students.is_delete', 0);
+        }
+        $query->where('classes.status', 'active')
+            ->where('classes.is_delete', 0)
+            ->where('sections.status', 'active')
+            ->where('sections.is_delete', 0)
+            ->where('ay.status', 'active')
+            ->where('ay.is_delete', 0);
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('students.first_name', 'like', "%{$search}%")
+                  ->orWhere('students.last_name', 'like', "%{$search}%")
+                  ->orWhere('students.admission_no', 'like', "%{$search}%")
+                  ->orWhere('students.gr_no', 'like', "%{$search}%")
+                  ->orWhere('students.mobile', 'like', "%{$search}%");
+            });
+        }
+
+        $students = $query->orderBy('classes.name')
+            ->orderBy('sections.name')
+            ->orderBy('sar.roll_no')
+            ->get();
+
+        $columns = $request->input('columns');
+        if (empty($columns)) {
+            $columns = ['admission_no', 'gr_no', 'first_name', 'last_name', 'class_name', 'section_name', 'roll_no'];
+        } elseif (is_string($columns)) {
+            $columns = explode(',', $columns);
+        }
+
+        $columnMap = [
+            'admission_no' => 'Admission No',
+            'gr_no' => 'GR No',
+            'first_name' => 'First Name',
+            'last_name' => 'Last Name',
+            'roll_no' => 'Roll No',
+            'class_name' => 'Class',
+            'section_name' => 'Section',
+            'academic_year_title' => 'Session',
+            'gender' => 'Gender',
+            'date_of_birth' => 'DOB',
+            'blood_group' => 'Blood Group',
+            'category' => 'Category',
+            'religion' => 'Religion',
+            'nationality' => 'Nationality',
+            'aadhaar_no' => 'Aadhaar No',
+            'pen_no' => 'PEN No',
+            'udise_no' => 'UDISE No',
+            'house' => 'House',
+            'mobile' => 'Student Mobile',
+            'email' => 'Student Email',
+            'address' => 'Address',
+            'father_name' => 'Father Name',
+            'father_mobile' => 'Father Mobile',
+            'mother_name' => 'Mother Name',
+            'mother_mobile' => 'Mother Mobile',
+            'guardian_name' => 'Guardian Name',
+            'guardian_mobile' => 'Guardian Mobile',
+            'emergency_contact_name' => 'Emerg. Contact Name',
+            'emergency_contact_mobile' => 'Emerg. Contact Phone',
+            'previous_school_name' => 'Prev. School',
+            'admission_date' => 'Admission Date',
+            'status' => 'Status'
+        ];
+
+        if ($request->input('export') === 'csv') {
+            return $this->exportCustomCSV($students, $columns, $columnMap);
+        }
+
+        if ($request->input('export') === 'pdf') {
+            $school = $currentUser->school ?: School::first();
+            return $this->exportCustomPDF($students, $columns, $columnMap, $school);
+        }
+
+        return response()->json([
+            'students' => $students,
+            'columns' => $columns,
+            'columnMap' => $columnMap
+        ]);
+    }
+
+    /**
+     * Export dynamic report to CSV.
+     */
+    protected function exportCustomCSV($students, $columns, $columnMap): StreamedResponse
+    {
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="student_custom_report_' . date('Ymd_His') . '.csv"',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        return new StreamedResponse(function () use ($students, $columns, $columnMap) {
+            $handle = fopen('php://output', 'w');
+
+            // Header row
+            $headerRow = [];
+            foreach ($columns as $col) {
+                $headerRow[] = $columnMap[$col] ?? ucfirst(str_replace('_', ' ', $col));
+            }
+            fputcsv($handle, $headerRow);
+
+            foreach ($students as $student) {
+                $row = [];
+                foreach ($columns as $col) {
+                    if (in_array($col, [
+                        'admission_no', 'gr_no', 'first_name', 'last_name', 'gender', 'blood_group', 
+                        'category', 'religion', 'nationality', 'aadhaar_no', 'pen_no', 'udise_no', 
+                        'house', 'mobile', 'email', 'address', 'previous_school_name', 'previous_school_tc_no',
+                        'emergency_contact_name', 'emergency_contact_mobile', 'emergency_contact_email', 'status'
+                    ])) {
+                        $row[] = $student->$col;
+                    } elseif ($col === 'date_of_birth') {
+                        $row[] = $student->date_of_birth ? $student->date_of_birth->format('Y-m-d') : '';
+                    } elseif ($col === 'admission_date') {
+                        $row[] = $student->admission_date ? $student->admission_date->format('Y-m-d') : '';
+                    } elseif (in_array($col, ['roll_no', 'class_name', 'section_name', 'academic_year_title'])) {
+                        $row[] = $student->$col;
+                    } elseif (in_array($col, [
+                        'father_name', 'father_mobile', 'father_email', 'mother_name', 'mother_mobile', 
+                        'mother_email', 'guardian_name', 'guardian_mobile'
+                    ])) {
+                        $row[] = $student->parent ? $student->parent->$col : '';
+                    } else {
+                        $row[] = '';
+                    }
+                }
+                fputcsv($handle, $row);
+            }
+
+            fclose($handle);
+        }, 200, $headers);
+    }
+
+    /**
+     * Export dynamic report to PDF.
+     */
+    protected function exportCustomPDF($students, $columns, $columnMap, $school)
+    {
+        $html = view('reports.students_custom', compact('students', 'columns', 'columnMap', 'school'))->render();
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html);
+        if (count($columns) > 6) {
+            $pdf->setPaper('a4', 'landscape');
+        } else {
+            $pdf->setPaper('a4', 'portrait');
+        }
+        return $pdf->download('student_custom_report_' . date('Ymd_His') . '.pdf');
     }
 }

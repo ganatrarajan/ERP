@@ -4,7 +4,7 @@
         <div class="relative z-30 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 rounded-2xl p-6 shadow-sm flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             <div class="space-y-1">
                 <span class="text-[10px] text-indigo-600 dark:text-indigo-400 font-extrabold tracking-widest uppercase mb-1 block">
-                    {{ authStore.user?.school?.name || 'EduvoraX SaaS Control' }}
+                    {{ authStore.user?.school?.name || 'EduvoraX ERP SaaS Control' }}
                 </span>
                 <h1 class="text-2xl font-black tracking-tight flex items-center gap-3">
                     {{ greeting }}, {{ authStore.user?.name }}!

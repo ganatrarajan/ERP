@@ -32,27 +32,56 @@ class UpdateStudentRequest extends FormRequest
                     }
                 }),
             ],
+            'gr_no' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::unique('students')->where(function ($query) {
+                    $schoolId = $this->input('school_id') ?? $this->user()->school_id;
+                    $query->where('school_id', $schoolId)
+                        ->where('is_delete', 0);
+                    
+                    $student = $this->route('student');
+                    $studentId = $student instanceof \App\Models\Student ? $student->id : $student;
+                    if ($studentId) {
+                        $query->where('id', '!=', $studentId);
+                    }
+                }),
+            ],
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'gender' => 'required|string|in:Male,Female,Other',
             'date_of_birth' => 'required|date',
             'blood_group' => 'nullable|string|max:20',
-            'mobile' => 'nullable|string|max:20',
+            'mobile' => 'nullable|digits:10',
             'email' => 'nullable|email|max:255',
             'address' => 'nullable|string',
             'photo' => 'nullable|string|max:2048',
             'admission_date' => 'required|date',
             'status' => 'nullable|in:active,inactive',
+            'house' => 'nullable|string|max:255',
+            'category' => 'nullable|string|max:255',
+            'religion' => 'nullable|string|max:255',
+            'nationality' => 'nullable|string|max:255',
+            'aadhaar_no' => 'nullable|digits:12',
+            'pen_no' => 'nullable|string|max:20',
+            'udise_no' => 'nullable|string|max:20',
+            'previous_school_name' => 'nullable|string|max:255',
+            'previous_school_tc_no' => 'nullable|string|max:255',
+            'previous_school_tc_date' => 'nullable|date',
+            'emergency_contact_name' => 'nullable|string|max:255',
+            'emergency_contact_mobile' => 'nullable|digits:10',
+            'emergency_contact_email' => 'nullable|email|max:255',
 
             // Parent Info
             'father_name' => 'nullable|string|max:255',
-            'father_mobile' => 'nullable|string|max:20',
+            'father_mobile' => 'nullable|digits:10',
             'father_email' => 'nullable|email|max:255',
             'mother_name' => 'nullable|string|max:255',
-            'mother_mobile' => 'nullable|string|max:20',
+            'mother_mobile' => 'nullable|digits:10',
             'mother_email' => 'nullable|email|max:255',
             'guardian_name' => 'nullable|string|max:255',
-            'guardian_mobile' => 'nullable|string|max:20',
+            'guardian_mobile' => 'nullable|digits:10',
 
             // Academic Record
             'academic_year_id' => 'required|integer',

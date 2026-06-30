@@ -103,11 +103,17 @@ Route::middleware('auth')->group(function () {
         Route::post('/students/upload-photo', [StudentController::class, 'uploadPhoto'])->middleware('permission:student.create|student.edit');
 
         // Students
+        Route::get('/students/next-admission-no', [StudentController::class, 'getNextAdmissionNo'])->middleware('permission:student.view');
+        Route::get('/students/reports', [StudentController::class, 'report'])->middleware('permission:student.view');
         Route::get('/students', [StudentController::class, 'index'])->middleware('permission:student.view');
         Route::post('/students', [StudentController::class, 'store'])->middleware('permission:student.create');
         Route::get('/students/{student}', [StudentController::class, 'show'])->middleware('permission:student.view');
         Route::put('/students/{student}', [StudentController::class, 'update'])->middleware('permission:student.edit');
         Route::delete('/students/{student}', [StudentController::class, 'destroy'])->middleware('permission:student.delete');
+
+        // Student Documents
+        Route::post('/students/{student}/documents', [StudentController::class, 'uploadDocument'])->middleware('permission:student.edit');
+        Route::delete('/students/{student}/documents/{document}', [StudentController::class, 'deleteDocument'])->middleware('permission:student.edit');
 
         // Student Promotions
         Route::get('/promotions/logs', [PromotionController::class, 'index'])->middleware('permission:promotion.view');

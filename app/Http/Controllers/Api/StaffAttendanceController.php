@@ -208,7 +208,7 @@ class StaffAttendanceController extends Controller
             'total' => $attendances->count(),
         ];
 
-        $schoolName = $currentUser->school ? $currentUser->school->name : 'School ERP';
+        $schoolName = $currentUser->school ? $currentUser->school->name : 'EduvoraX ERP';
         
         $currentYear = \App\Models\AcademicYear::where('school_id', $staff->school_id)
             ->where('is_current', true)
@@ -396,7 +396,7 @@ class StaffAttendanceController extends Controller
             ];
         })->sortBy('name')->values();
 
-        $schoolName = $currentUser->school ? $currentUser->school->name : 'School ERP';
+        $schoolName = $currentUser->school ? $currentUser->school->name : 'EduvoraX ERP';
         
         $currentYear = \App\Models\AcademicYear::where('school_id', $schoolId)
             ->where('is_current', true)

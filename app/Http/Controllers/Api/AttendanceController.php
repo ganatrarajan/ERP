@@ -480,7 +480,7 @@ class AttendanceController extends Controller
             ];
         })->sortBy('roll_no')->values();
 
-        $schoolName = $currentUser->school ? $currentUser->school->name : 'School ERP';
+        $schoolName = $currentUser->school ? $currentUser->school->name : 'EduvoraX ERP';
         $classModel = ClassModel::find($classId);
         $sectionModel = Section::find($sectionId);
         $academicYearModel = \App\Models\AcademicYear::find($academicYearId);
@@ -540,7 +540,7 @@ class AttendanceController extends Controller
             'total' => $attendances->count(),
         ];
 
-        $schoolName = $currentUser->school ? $currentUser->school->name : 'School ERP';
+        $schoolName = $currentUser->school ? $currentUser->school->name : 'EduvoraX ERP';
         $academicYearModel = \App\Models\AcademicYear::find($academicYearId);
 
         $pdfData = [
