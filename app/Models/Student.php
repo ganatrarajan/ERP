@@ -15,17 +15,31 @@ class Student extends Authenticatable
     protected $fillable = [
         'school_id',
         'admission_no',
+        'gr_no',
         'first_name',
         'last_name',
         'gender',
+        'category',
+        'religion',
+        'nationality',
+        'aadhaar_no',
+        'pen_no',
+        'udise_no',
         'date_of_birth',
         'blood_group',
         'mobile',
         'email',
         'address',
+        'previous_school_name',
+        'previous_school_tc_no',
+        'previous_school_tc_date',
+        'emergency_contact_name',
+        'emergency_contact_mobile',
+        'emergency_contact_email',
         'photo',
         'admission_date',
         'status',
+        'house',
         'is_delete',
         'password',
         'password_changed',
@@ -39,6 +53,7 @@ class Student extends Authenticatable
     protected $casts = [
         'date_of_birth' => 'date',
         'admission_date' => 'date',
+        'previous_school_tc_date' => 'date',
         'password_changed' => 'integer',
     ];
 
@@ -102,5 +117,10 @@ class Student extends Authenticatable
             ->join('academic_years', 'student_academic_records.academic_year_id', '=', 'academic_years.id')
             ->where('academic_years.is_current', true)
             ->select('student_academic_records.*');
-    }
+     }
+
+     public function documents(): HasMany
+     {
+         return $this->hasMany(StudentDocument::class, 'student_id');
+     }
 }

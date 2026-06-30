@@ -6,7 +6,7 @@
                 <div class="w-16 h-16 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-3xl font-extrabold shadow-lg shadow-indigo-500/20 mb-3">
                     Ω
                 </div>
-                <h2 class="text-2xl font-bold tracking-tight text-white">School ERP SaaS</h2>
+                <h2 class="text-2xl font-bold tracking-tight text-white">EduvoraX ERP</h2>
                 <p class="text-sm text-slate-400 mt-1">Enterprise Management Portal</p>
             </div>
             <slot />

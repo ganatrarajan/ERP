@@ -6,7 +6,7 @@
     <meta name="description" content="A comprehensive, multi-tenant School ERP System offering complete student management, fee collection, attendance tracking, and examination management.">
     <meta name="keywords" content="School ERP, Student Management, Fee Management, Attendance, School Software">
     
-    <title>EduvoraX School ERP | Complete Institutional Management</title>
+    <title>EduvoraX ERP | Complete Institutional Management</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -134,11 +134,11 @@
                                 <div class="w-3 h-3 rounded-full bg-amber-400"></div>
                                 <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
                             </div>
-                            <div class="text-xs font-semibold text-slate-400">EduvoraX Web Admin Panel</div>
+                            <div class="text-xs font-semibold text-slate-400">EduvoraX ERP Web Admin Panel</div>
                             <div class="w-12"></div>
                         </div>
                         <!-- Mock Content Image -->
-                        <img src="/images/dashboard_preview.png" alt="EduvoraX Dashboard UI Preview" class="w-full h-auto object-cover opacity-95" />
+                        <img src="/images/dashboard_preview.png" alt="EduvoraX ERP Dashboard UI Preview" class="w-full h-auto object-cover opacity-95" />
                     </div>
                 </div>
             </div>
@@ -361,7 +361,7 @@
                 <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black text-xs tracking-wider">
                     EVX
                 </div>
-                <span class="text-xl font-bold text-white tracking-tight">EduvoraX</span>
+                <span class="text-xl font-bold text-white tracking-tight">EduvoraX ERP</span>
             </div>
             <p class="text-slate-500 text-sm font-medium">
                 &copy; {{ date('Y') }} School Management Systems. All rights reserved.

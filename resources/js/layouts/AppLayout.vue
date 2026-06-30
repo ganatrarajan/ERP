@@ -11,7 +11,7 @@
                     Ω
                 </div>
                 <div>
-                    <h1 class="text-sm font-bold text-slate-800 dark:text-white tracking-wide leading-none">School ERP</h1>
+                    <h1 class="text-sm font-bold text-slate-800 dark:text-white tracking-wide leading-none">EduvoraX ERP</h1>
                     <span class="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold tracking-widest uppercase">SaaS Engine</span>
                 </div>
             </div>

@@ -12,7 +12,7 @@
             </div>
             <router-link 
                 to="/students"
-                class="px-4 py-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors"
+                class="px-4 py-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-55 dark:hover:bg-slate-800 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors"
             >
                 Back to Directory
             </router-link>
@@ -40,7 +40,7 @@
                         'w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm border-2 transition-colors',
                         currentStep === step.number 
                             ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-500/20' 
-                            : (currentStep > step.number ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-450')
+                            : (currentStep > step.number ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400')
                     ]">
                         <svg v-if="currentStep > step.number" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                         <span v-else>{{ step.number }}</span>
@@ -59,221 +59,317 @@
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
             <form @submit.prevent="submitForm">
                 
-                <!-- STEP 1: Personal Details -->
+                <!-- STEP 1: Personal & General Details -->
                 <div v-show="currentStep === 1" class="p-6 space-y-6">
-                    <h3 class="text-lg font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">
-                        Personal Information
-                    </h3>
+                    <!-- Section 1.1: Admission & Identity Info -->
+                    <div>
+                        <h3 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-2 mb-4">
+                            1. Admission & Identity Info
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Admission Number -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Admission No <span class="text-rose-500">*</span></label>
+                                <input 
+                                    v-model="form.admission_no" 
+                                    type="text" 
+                                    required 
+                                    placeholder="e.g. ADM-2026-001"
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                />
+                            </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Admission Number -->
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Admission No <span class="text-rose-500">*</span></label>
-                            <input 
-                                v-model="form.admission_no" 
-                                type="text" 
-                                required 
-                                placeholder="e.g. ADM-2026-001"
-                                class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
-                            />
+                            <!-- GR Number (General Register) -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">GR Number (General Register)</label>
+                                <input 
+                                    v-model="form.gr_no" 
+                                    type="text" 
+                                    placeholder="e.g. GR-9876"
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                />
+                            </div>
+
+                            <!-- Admission Date -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Admission Date <span class="text-rose-500">*</span></label>
+                                <input 
+                                    v-model="form.admission_date" 
+                                    v-datepicker
+                                    type="text"
+                                    placeholder="YYYY-MM-DD"
+                                    required 
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                />
+                            </div>
+
+                            <!-- House -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">House</label>
+                                <select 
+                                    v-model="form.house" 
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                >
+                                    <option value="">No House Assigned</option>
+                                    <option value="Red">Red</option>
+                                    <option value="Green">Green</option>
+                                    <option value="Blue">Blue</option>
+                                    <option value="Yellow">Yellow</option>
+                                </select>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Status</label>
+                                <select 
+                                    v-model="form.status" 
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                >
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
                         </div>
+                    </div>
 
-                        <!-- Admission Date -->
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Admission Date <span class="text-rose-500">*</span></label>
-                            <input 
-                                v-model="form.admission_date" 
-                                v-datepicker
-                                type="text"
-                                placeholder="YYYY-MM-DD"
-                                required 
-                                class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
-                            />
-                        </div>
+                    <!-- Section 1.2: Personal Details -->
+                    <div>
+                        <h3 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-2 mb-4">
+                            2. Personal & Contact Details
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- First Name -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">First Name <span class="text-rose-500">*</span></label>
+                                <input 
+                                    v-model="form.first_name" 
+                                    type="text" 
+                                    required 
+                                    placeholder="e.g. John"
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                />
+                            </div>
 
-                        <!-- Status -->
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Status</label>
-                            <select 
-                                v-model="form.status" 
-                                class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
-                            >
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
-                        </div>
+                            <!-- Last Name -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Last Name <span class="text-rose-500">*</span></label>
+                                <input 
+                                    v-model="form.last_name" 
+                                    type="text" 
+                                    required 
+                                    placeholder="e.g. Doe"
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                />
+                            </div>
 
-                        <!-- First Name -->
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">First Name <span class="text-rose-500">*</span></label>
-                            <input 
-                                v-model="form.first_name" 
-                                type="text" 
-                                required 
-                                placeholder="e.g. John"
-                                class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
-                            />
-                        </div>
+                            <!-- Date of Birth -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Date of Birth <span class="text-rose-500">*</span></label>
+                                <input 
+                                    v-model="form.date_of_birth" 
+                                    v-datepicker
+                                    type="text"
+                                    placeholder="YYYY-MM-DD"
+                                    required 
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                />
+                            </div>
 
-                        <!-- Last Name -->
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Last Name <span class="text-rose-500">*</span></label>
-                            <input 
-                                v-model="form.last_name" 
-                                type="text" 
-                                required 
-                                placeholder="e.g. Doe"
-                                class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
-                            />
-                        </div>
+                            <!-- Gender -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Gender <span class="text-rose-500">*</span></label>
+                                <select 
+                                    v-model="form.gender" 
+                                    required 
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                >
+                                    <option value="" disabled>Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
 
-                        <!-- Date of Birth -->
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Date of Birth <span class="text-rose-500">*</span></label>
-                            <input 
-                                v-model="form.date_of_birth" 
-                                v-datepicker
-                                type="text"
-                                placeholder="YYYY-MM-DD"
-                                required 
-                                class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
-                            />
-                        </div>
+                            <!-- Blood Group -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Blood Group</label>
+                                <input 
+                                    v-model="form.blood_group" 
+                                    type="text" 
+                                    placeholder="e.g. O+"
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                />
+                            </div>
 
-                        <!-- Gender -->
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Gender <span class="text-rose-500">*</span></label>
-                            <select 
-                                v-model="form.gender" 
-                                required 
-                                class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
-                            >
-                                <option value="" disabled>Select Gender</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
+                            <!-- Mobile -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Student Mobile</label>
+                                <input 
+                                    v-model="form.mobile" 
+                                    type="text" 
+                                    maxlength="10"
+                                    @input="form.mobile = form.mobile.replace(/\D/g, '')"
+                                    placeholder="e.g. 9876543210"
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                />
+                            </div>
 
-                        <!-- Blood Group -->
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Blood Group</label>
-                            <input 
-                                v-model="form.blood_group" 
-                                type="text" 
-                                placeholder="e.g. O+"
-                                class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
-                            />
-                        </div>
+                            <!-- Email -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Student Email</label>
+                                <input 
+                                    v-model="form.email" 
+                                    type="email" 
+                                    placeholder="e.g. john.doe@school.com"
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                />
+                            </div>
 
-                        <!-- Photo Upload -->
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Student Photo</label>
-                            <div class="flex items-center gap-3">
-                                <!-- Photo Preview -->
-                                <div class="relative w-11 h-11 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex items-center justify-center overflow-hidden group shadow-sm flex-shrink-0">
-                                    <img 
-                                        v-if="form.photo" 
-                                        :src="form.photo" 
-                                        class="w-full h-full object-cover"
-                                    />
-                                    <svg v-else class="w-5 h-5 text-slate-400 dark:text-slate-550" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                    </svg>
-                                    <button 
-                                        v-if="form.photo" 
-                                        type="button" 
-                                        @click="clearPhoto"
-                                        class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white text-[10px] font-bold"
-                                    >
-                                        Clear
-                                    </button>
-                                </div>
-
-                                <!-- File Select Trigger -->
-                                <div class="flex-1">
-                                    <input 
-                                        type="file" 
-                                        ref="photoInput"
-                                        @change="onPhotoSelected"
-                                        accept="image/*"
-                                        class="hidden"
-                                    />
-                                    <button 
-                                        type="button" 
-                                        @click="$refs.photoInput.click()"
-                                        :disabled="uploadingPhoto"
-                                        class="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors flex items-center justify-center gap-1.5"
-                                    >
-                                        <svg v-if="uploadingPhoto" class="animate-spin h-3.5 w-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            <!-- Photo Upload -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Student Photo</label>
+                                <div class="flex items-center gap-3">
+                                    <div class="relative w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex items-center justify-center overflow-hidden group shadow-sm flex-shrink-0">
+                                        <img v-if="form.photo" :src="form.photo" class="w-full h-full object-cover" />
+                                        <svg v-else class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                         </svg>
-                                        <svg v-else class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
-                                        </svg>
-                                        {{ uploadingPhoto ? 'Uploading...' : 'Upload JPG/PNG' }}
-                                    </button>
+                                        <button v-if="form.photo" type="button" @click="clearPhoto" class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white text-[9px] font-bold">Clear</button>
+                                    </div>
+                                    <div class="flex-1">
+                                        <input type="file" ref="photoInput" @change="onPhotoSelected" accept="image/*" class="hidden" />
+                                        <button 
+                                            type="button" 
+                                            @click="$refs.photoInput.click()"
+                                            :disabled="uploadingPhoto"
+                                            class="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors flex items-center justify-center gap-1"
+                                        >
+                                            Upload
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Mobile -->
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Student Mobile</label>
-                            <input 
-                                v-model="form.mobile" 
-                                type="text" 
-                                placeholder="e.g. +1 (555) 123-4567"
-                                class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
-                            />
-                        </div>
-
-                        <!-- Email -->
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Student Email</label>
-                            <input 
-                                v-model="form.email" 
-                                type="email" 
-                                placeholder="e.g. john.doe@school.com"
-                                class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
-                            />
+                        
+                        <!-- Address -->
+                        <div class="space-y-1 mt-4">
+                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Residential Address</label>
+                            <textarea 
+                                v-model="form.address" 
+                                rows="2"
+                                placeholder="e.g. 123 Main St, City, State"
+                                class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all resize-none"
+                            ></textarea>
                         </div>
                     </div>
 
-                    <!-- Address -->
-                    <div class="space-y-1">
-                        <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Residential Address</label>
-                        <textarea 
-                            v-model="form.address" 
-                            rows="2"
-                            placeholder="e.g. 123 Main St, City, Country"
-                            class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all resize-none"
-                        ></textarea>
+                    <!-- Section 1.3: Demographics & Government IDs -->
+                    <div>
+                        <h3 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-2 mb-4">
+                            3. Demographics & Government Identifiers
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Aadhaar Card No -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Aadhaar Card No (12 Digits)</label>
+                                <input 
+                                    v-model="form.aadhaar_no" 
+                                    type="text" 
+                                    maxlength="12"
+                                    @input="form.aadhaar_no = form.aadhaar_no.replace(/\D/g, '')"
+                                    placeholder="e.g. 123456789012"
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                />
+                            </div>
+
+                            <!-- PEN (Personal Education Number) -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">PEN (Personal Education Number - UDISE+)</label>
+                                <input 
+                                    v-model="form.pen_no" 
+                                    type="text" 
+                                    placeholder="e.g. PEN-123456789"
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                />
+                            </div>
+
+                            <!-- Student National UDISE ID -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">National UDISE Student ID</label>
+                                <input 
+                                    v-model="form.udise_no" 
+                                    type="text" 
+                                    placeholder="e.g. UDISE-98765"
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                />
+                            </div>
+
+                            <!-- Caste / Category -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Caste Category</label>
+                                <select 
+                                    v-model="form.category" 
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                >
+                                    <option value="">Select Category</option>
+                                    <option value="General">General/Open</option>
+                                    <option value="SEBC">SEBC/OBC</option>
+                                    <option value="SC">SC</option>
+                                    <option value="ST">ST</option>
+                                    <option value="EWS">EWS</option>
+                                </select>
+                            </div>
+
+                            <!-- Religion -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Religion</label>
+                                <select 
+                                    v-model="form.religion" 
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                >
+                                    <option value="">Select Religion</option>
+                                    <option value="Hindu">Hindu</option>
+                                    <option value="Muslim">Muslim</option>
+                                    <option value="Christian">Christian</option>
+                                    <option value="Sikh">Sikh</option>
+                                    <option value="Jain">Jain</option>
+                                    <option value="Buddhist">Buddhist</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <!-- Nationality -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Nationality</label>
+                                <input 
+                                    v-model="form.nationality" 
+                                    type="text" 
+                                    placeholder="e.g. Indian"
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- STEP 2: Parents Information -->
+                <!-- STEP 2: Parents & Emergency Contacts -->
                 <div v-show="currentStep === 2" class="p-6 space-y-6">
                     <h3 class="text-lg font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">
-                        Parental & Guardian Information
+                        Parental & Emergency Information
                     </h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Father's Info -->
                         <div class="space-y-4 p-4 border border-slate-100 dark:border-slate-800/80 rounded-xl bg-slate-50/50 dark:bg-slate-900/40">
                             <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Father Details</h4>
-                            
                             <div class="space-y-1">
                                 <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Father's Name</label>
                                 <input v-model="form.father_name" type="text" placeholder="e.g. Richard Doe" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none" />
                             </div>
-
                             <div class="space-y-1">
                                 <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Father's Mobile</label>
-                                <input v-model="form.father_mobile" type="text" placeholder="e.g. +1 (555) 987-6543" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none" />
+                                <input v-model="form.father_mobile" type="text" maxlength="10" @input="form.father_mobile = form.father_mobile.replace(/\D/g, '')" placeholder="e.g. 9876543211" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none" />
                             </div>
-
                             <div class="space-y-1">
                                 <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Father's Email</label>
                                 <input v-model="form.father_email" type="email" placeholder="e.g. richard.doe@email.com" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none" />
@@ -283,17 +379,14 @@
                         <!-- Mother's Info -->
                         <div class="space-y-4 p-4 border border-slate-100 dark:border-slate-800/80 rounded-xl bg-slate-50/50 dark:bg-slate-900/40">
                             <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Mother Details</h4>
-
                             <div class="space-y-1">
                                 <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Mother's Name</label>
                                 <input v-model="form.mother_name" type="text" placeholder="e.g. Mary Doe" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none" />
                             </div>
-
                             <div class="space-y-1">
                                 <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Mother's Mobile</label>
-                                <input v-model="form.mother_mobile" type="text" placeholder="e.g. +1 (555) 876-5432" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none" />
+                                <input v-model="form.mother_mobile" type="text" maxlength="10" @input="form.mother_mobile = form.mother_mobile.replace(/\D/g, '')" placeholder="e.g. 9876543212" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none" />
                             </div>
-
                             <div class="space-y-1">
                                 <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Mother's Email</label>
                                 <input v-model="form.mother_email" type="email" placeholder="e.g. mary.doe@email.com" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none" />
@@ -302,84 +395,146 @@
                     </div>
 
                     <!-- Guardian Details -->
-                    <div class="p-4 border border-slate-100 dark:border-slate-800/80 rounded-xl bg-slate-50/50 dark:bg-slate-900/40 space-y-4">
-                        <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Guardian Details (If other than Parents)</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="p-4 border border-slate-100 dark:border-slate-800/80 rounded-xl bg-slate-50/50 dark:bg-slate-900/40 space-y-4">
+                            <h4 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Guardian Details (Alternative)</h4>
                             <div class="space-y-1">
                                 <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Guardian's Name</label>
                                 <input v-model="form.guardian_name" type="text" placeholder="e.g. Uncle Bob" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none" />
                             </div>
                             <div class="space-y-1">
                                 <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Guardian's Mobile</label>
-                                <input v-model="form.guardian_mobile" type="text" placeholder="e.g. +1 (555) 765-4321" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none" />
+                                <input v-model="form.guardian_mobile" type="text" maxlength="10" @input="form.guardian_mobile = form.guardian_mobile.replace(/\D/g, '')" placeholder="e.g. 9876543213" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none" />
+                            </div>
+                        </div>
+
+                        <!-- Emergency Contact (NEW) -->
+                        <div class="p-4 border border-slate-100 dark:border-slate-800/80 rounded-xl bg-slate-50/50 dark:bg-slate-900/40 space-y-4">
+                            <h4 class="text-sm font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">Emergency Contact Person</h4>
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Contact Name <span class="text-rose-500">*</span></label>
+                                <input v-model="form.emergency_contact_name" type="text" placeholder="e.g. Grandma Smith" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none" />
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Contact Mobile <span class="text-rose-500">*</span></label>
+                                <input v-model="form.emergency_contact_mobile" type="text" maxlength="10" @input="form.emergency_contact_mobile = form.emergency_contact_mobile.replace(/\D/g, '')" placeholder="e.g. 9876543214" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none" />
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Contact Email</label>
+                                <input v-model="form.emergency_contact_email" type="email" placeholder="e.g. emergency@contact.com" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none" />
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- STEP 3: Academic Information -->
+                <!-- STEP 3: Academic & Enrollment Details -->
                 <div v-show="currentStep === 3" class="p-6 space-y-6">
-                    <h3 class="text-lg font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">
-                        Academic Placement
-                    </h3>
+                    <!-- Academic Placement -->
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-2">
+                            1. Class Placement & Session
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Academic Year -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Academic Year <span class="text-rose-500">*</span></label>
+                                <select 
+                                    v-model="form.academic_year_id" 
+                                    required
+                                    @change="onAcademicYearChange"
+                                    class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                >
+                                    <option value="" disabled>Select Academic Year</option>
+                                    <option v-for="year in academicYears" :key="year.id" :value="year.id">
+                                        {{ year.title }} <span v-if="year.is_current">(Current)</span>
+                                    </option>
+                                </select>
+                            </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Academic Year -->
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Academic Year <span class="text-rose-500">*</span></label>
-                            <select 
-                                v-model="form.academic_year_id" 
-                                required
-                                @change="onAcademicYearChange"
-                                class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
-                            >
-                                <option value="" disabled>Select Academic Year</option>
-                                <option v-for="year in academicYears" :key="year.id" :value="year.id">
-                                    {{ year.title }} <span v-if="year.is_current">(Current)</span>
-                                </option>
-                            </select>
+                            <!-- Class -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Class <span class="text-rose-500">*</span></label>
+                                <select 
+                                    v-model="form.class_id" 
+                                    required
+                                    @change="onClassChange"
+                                    class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                >
+                                    <option value="" disabled>Select Class</option>
+                                    <option v-for="cls in filteredClasses" :key="cls.id" :value="cls.id">
+                                        {{ cls.name }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Section -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Section <span class="text-rose-500">*</span></label>
+                                <select 
+                                    v-model="form.section_id" 
+                                    required
+                                    class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                >
+                                    <option value="" disabled>Select Section</option>
+                                    <option v-for="sec in filteredSections" :key="sec.id" :value="sec.id">
+                                        {{ sec.name }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Roll Number -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Roll Number</label>
+                                <input 
+                                    v-model="form.roll_no" 
+                                    type="text" 
+                                    placeholder="e.g. 05"
+                                    class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                />
+                            </div>
                         </div>
+                    </div>
 
-                        <!-- Class -->
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Class <span class="text-rose-500">*</span></label>
-                            <select 
-                                v-model="form.class_id" 
-                                required
-                                @change="onClassChange"
-                                class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
-                            >
-                                <option value="" disabled>Select Class</option>
-                                <option v-for="cls in filteredClasses" :key="cls.id" :value="cls.id">
-                                    {{ cls.name }}
-                                </option>
-                            </select>
-                        </div>
+                    <!-- Previous School Details (GSEB/CBSE TC transfer verification) -->
+                    <div class="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <h3 class="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 pb-2">
+                            2. Previous School History & Transfer Certificate (T.C.)
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Previous School Name -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Previous School Name</label>
+                                <input 
+                                    v-model="form.previous_school_name" 
+                                    type="text" 
+                                    placeholder="e.g. Sharda Mandir High School"
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                />
+                            </div>
 
-                        <!-- Section -->
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Section <span class="text-rose-500">*</span></label>
-                            <select 
-                                v-model="form.section_id" 
-                                required
-                                class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
-                            >
-                                <option value="" disabled>Select Section</option>
-                                <option v-for="sec in filteredSections" :key="sec.id" :value="sec.id">
-                                    {{ sec.name }}
-                                </option>
-                            </select>
-                        </div>
+                            <!-- TC Number -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">T.C. (Transfer Certificate) No.</label>
+                                <input 
+                                    v-model="form.previous_school_tc_no" 
+                                    type="text" 
+                                    placeholder="e.g. TC-5544"
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                />
+                            </div>
 
-                        <!-- Roll Number -->
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Roll Number</label>
-                            <input 
-                                v-model="form.roll_no" 
-                                type="text" 
-                                placeholder="e.g. 05"
-                                class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
-                            />
+                            <!-- TC Date -->
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">T.C. Issue Date</label>
+                                <input 
+                                    v-model="form.previous_school_tc_date" 
+                                    v-datepicker
+                                    type="text"
+                                    placeholder="YYYY-MM-DD"
+                                    class="w-full px-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 focus:outline-none transition-all"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -405,22 +560,22 @@
                             v-if="currentStep < 3"
                             type="button" 
                             @click="nextStep"
-                            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl active:scale-95 transition-all"
+                            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-bold rounded-xl shadow-md transition-all"
                         >
                             Next Step
                         </button>
                         
                         <button 
                             v-else
-                            type="submit" 
+                            type="submit"
                             :disabled="submitting || !isCurrentYear"
-                            class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold rounded-xl shadow-lg shadow-indigo-600/10 active:scale-95 disabled:scale-100 disabled:opacity-50 transition-all flex items-center gap-1.5"
+                            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/10 disabled:opacity-50 disabled:scale-100 transition-all"
                         >
-                            <span v-if="submitting">Saving Placement...</span>
-                            <span v-else>{{ isEdit ? 'Update Details' : 'Finalize Admission' }}</span>
+                            {{ submitting ? 'Saving...' : (isEdit ? 'Save Changes' : 'Confirm Admission') }}
                         </button>
                     </div>
                 </div>
+
             </form>
         </div>
     </div>
@@ -447,9 +602,9 @@ export default {
         const serverError = ref('');
 
         const steps = [
-            { number: 1, title: 'Personal info', subtitle: 'Identity details' },
-            { number: 2, title: 'Parent details', subtitle: 'Guardian data' },
-            { number: 3, title: 'Academic details', subtitle: 'Class placement' }
+            { number: 1, title: 'Personal & General', subtitle: 'Identity & Caste details' },
+            { number: 2, title: 'Parents & Emergency', subtitle: 'Guardian & Emergency contact' },
+            { number: 3, title: 'Academic & History', subtitle: 'Placement & previous school' }
         ];
 
         // Master list of metadata
@@ -465,6 +620,7 @@ export default {
         const form = ref({
             // Student Master
             admission_no: '',
+            gr_no: '',
             first_name: '',
             last_name: '',
             gender: '',
@@ -476,6 +632,13 @@ export default {
             photo: '',
             admission_date: new Date().toISOString().substring(0, 10),
             status: 'active',
+            house: '',
+            category: '',
+            religion: '',
+            nationality: 'Indian',
+            aadhaar_no: '',
+            pen_no: '',
+            udise_no: '',
 
             // Parent details
             father_name: '',
@@ -487,11 +650,21 @@ export default {
             guardian_name: '',
             guardian_mobile: '',
 
+            // Emergency Contact details
+            emergency_contact_name: '',
+            emergency_contact_mobile: '',
+            emergency_contact_email: '',
+
             // Academic details
             academic_year_id: '',
             class_id: '',
             section_id: '',
-            roll_no: ''
+            roll_no: '',
+
+            // Previous School details
+            previous_school_name: '',
+            previous_school_tc_no: '',
+            previous_school_tc_date: ''
         });
 
         const fetchMetadata = async () => {
@@ -568,6 +741,7 @@ export default {
 
                 // Load basic info
                 form.value.admission_no = student.admission_no;
+                form.value.gr_no = student.gr_no || '';
                 form.value.first_name = student.first_name;
                 form.value.last_name = student.last_name;
                 form.value.gender = student.gender;
@@ -579,6 +753,13 @@ export default {
                 form.value.photo = student.photo || '';
                 form.value.admission_date = student.admission_date ? student.admission_date.substring(0, 10) : '';
                 form.value.status = student.status;
+                form.value.house = student.house || '';
+                form.value.category = student.category || '';
+                form.value.religion = student.religion || '';
+                form.value.nationality = student.nationality || 'Indian';
+                form.value.aadhaar_no = student.aadhaar_no || '';
+                form.value.pen_no = student.pen_no || '';
+                form.value.udise_no = student.udise_no || '';
 
                 // Load parent info
                 if (student.parent) {
@@ -591,6 +772,16 @@ export default {
                     form.value.guardian_name = student.parent.guardian_name || '';
                     form.value.guardian_mobile = student.parent.guardian_mobile || '';
                 }
+
+                // Load Emergency contact
+                form.value.emergency_contact_name = student.emergency_contact_name || '';
+                form.value.emergency_contact_mobile = student.emergency_contact_mobile || '';
+                form.value.emergency_contact_email = student.emergency_contact_email || '';
+
+                // Load Previous School TC details
+                form.value.previous_school_name = student.previous_school_name || '';
+                form.value.previous_school_tc_no = student.previous_school_tc_no || '';
+                form.value.previous_school_tc_date = student.previous_school_tc_date ? student.previous_school_tc_date.substring(0, 10) : '';
 
                 // Load current academic year record (first one in history)
                 if (student.academic_records && student.academic_records.length > 0) {
@@ -620,6 +811,35 @@ export default {
             if (currentStep.value === 1) {
                 if (!form.value.admission_no || !form.value.first_name || !form.value.last_name || !form.value.date_of_birth || !form.value.gender) {
                     serverError.value = 'Please complete all required fields (*).';
+                    return;
+                }
+                if (form.value.mobile && form.value.mobile.length !== 10) {
+                    serverError.value = 'Student mobile number must be exactly 10 digits.';
+                    return;
+                }
+                if (form.value.aadhaar_no && form.value.aadhaar_no.length !== 12) {
+                    serverError.value = 'Aadhaar Card number must be exactly 12 digits.';
+                    return;
+                }
+            } else if (currentStep.value === 2) {
+                if (!form.value.emergency_contact_name || !form.value.emergency_contact_mobile) {
+                    serverError.value = 'Emergency Contact Name and Mobile number are required.';
+                    return;
+                }
+                if (form.value.emergency_contact_mobile && form.value.emergency_contact_mobile.length !== 10) {
+                    serverError.value = 'Emergency contact mobile number must be exactly 10 digits.';
+                    return;
+                }
+                if (form.value.father_mobile && form.value.father_mobile.length !== 10) {
+                    serverError.value = 'Father mobile number must be exactly 10 digits.';
+                    return;
+                }
+                if (form.value.mother_mobile && form.value.mother_mobile.length !== 10) {
+                    serverError.value = 'Mother mobile number must be exactly 10 digits.';
+                    return;
+                }
+                if (form.value.guardian_mobile && form.value.guardian_mobile.length !== 10) {
+                    serverError.value = 'Guardian mobile number must be exactly 10 digits.';
                     return;
                 }
             }
@@ -702,6 +922,15 @@ export default {
             form.value.photo = '';
         };
 
+        const fetchNextAdmissionNo = async () => {
+            try {
+                const response = await window.axios.get('/api/students/next-admission-no');
+                form.value.admission_no = response.data.next_admission_no || '';
+            } catch (error) {
+                console.error('Failed to generate next admission no', error);
+            }
+        };
+
         onMounted(async () => {
             if (route.params.id) {
                 isEdit.value = true;
@@ -709,6 +938,8 @@ export default {
             await fetchMetadata();
             if (isEdit.value) {
                 await loadStudentForEdit();
+            } else {
+                await fetchNextAdmissionNo();
             }
         });
 

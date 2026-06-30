@@ -1,6 +1,6 @@
-# EduvoraX School ERP - Backend & API
+# EduvoraX ERP - Backend & API
 
-This repository contains the backend engine for the EduvoraX School ERP system and the mobile application API. It is built using Laravel 11 and Vue 3 (Inertia.js).
+This repository contains the backend engine for the EduvoraX ERP system and the mobile application API. It is built using Laravel 11 and Vue 3 (Inertia.js).
 
 Follow these instructions to set up and run this project on a new device.
 
