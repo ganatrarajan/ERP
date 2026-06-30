@@ -99,7 +99,7 @@
                     <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</label>
                     <select 
                         v-model="filters.status" 
-                        @change="fetchStudents(1)"
+                        @change="handleFilterChange"
                         class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
                     >
                         <option value="">All Statuses</option>
@@ -116,7 +116,7 @@
                             v-model="filters.search" 
                             type="text" 
                             placeholder="Name, GR No, Aadhaar..." 
-                            @input="debouncedSearch"
+                            @input="handleSearchInput"
                             class="w-full pl-8 pr-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
                         />
                         <svg class="w-4 h-4 text-slate-400 absolute left-2.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -142,7 +142,7 @@
                         <label class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Gender</label>
                         <select 
                             v-model="filters.gender" 
-                            @change="fetchStudents(1)"
+                            @change="handleFilterChange"
                             class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200"
                         >
                             <option value="">All Genders</option>
@@ -157,7 +157,7 @@
                         <label class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Caste Category</label>
                         <select 
                             v-model="filters.category" 
-                            @change="fetchStudents(1)"
+                            @change="handleFilterChange"
                             class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200"
                         >
                             <option value="">All Categories</option>
@@ -174,7 +174,7 @@
                         <label class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">House</label>
                         <select 
                             v-model="filters.house" 
-                            @change="fetchStudents(1)"
+                            @change="handleFilterChange"
                             class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200"
                         >
                             <option value="">All Houses</option>
@@ -190,7 +190,7 @@
                         <label class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Religion</label>
                         <select 
                             v-model="filters.religion" 
-                            @change="fetchStudents(1)"
+                            @change="handleFilterChange"
                             class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200"
                         >
                             <option value="">All Religions</option>
@@ -219,7 +219,7 @@
                 <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Select class/section dropdown filters or type a search query to load student listing.</p>
             </div>
 
-            <div v-else-if="students.length === 0" class="p-12 text-center text-slate-500">
+            <div v-else-if="filteredStudents.length === 0" class="p-12 text-center text-slate-500">
                 <svg class="w-16 h-16 mx-auto text-slate-300 dark:text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                 No student admission records found matching filters.
             </div>
@@ -228,22 +228,73 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-xs uppercase border-b border-slate-200 dark:border-slate-800">
-                            <th class="p-4 pl-6">Roll No</th>
-                            <th class="p-4">Student</th>
-                            <th class="p-4">Admission / GR No</th>
-                            <th class="p-4">Class / Section</th>
-                            <th class="p-4">Category / House</th>
-                            <th class="p-4">Status</th>
+                            <!-- Roll No -->
+                            <th @click="handleSort('roll_no')" class="p-4 pl-6 cursor-pointer select-none hover:bg-slate-100/60 dark:hover:bg-slate-800/80 transition-colors">
+                                <div class="flex items-center gap-1.5">
+                                    <span>Roll No</span>
+                                    <span class="text-[10px] text-slate-400 dark:text-slate-650 shrink-0">
+                                        <span v-if="sortBy === 'roll_no' && sortDirection === 'asc'">▲</span>
+                                        <span v-else-if="sortBy === 'roll_no' && sortDirection === 'desc'">▼</span>
+                                        <span v-else class="opacity-40">▲▼</span>
+                                    </span>
+                                </div>
+                            </th>
+                            <!-- Student -->
+                            <th @click="handleSort('first_name')" class="p-4 cursor-pointer select-none hover:bg-slate-100/60 dark:hover:bg-slate-800/80 transition-colors">
+                                <div class="flex items-center gap-1.5">
+                                    <span>Student</span>
+                                    <span class="text-[10px] text-slate-400 dark:text-slate-650 shrink-0">
+                                        <span v-if="sortBy === 'first_name' && sortDirection === 'asc'">▲</span>
+                                        <span v-else-if="sortBy === 'first_name' && sortDirection === 'desc'">▼</span>
+                                        <span v-else class="opacity-40">▲▼</span>
+                                    </span>
+                                </div>
+                            </th>
+                            <!-- Admission / GR No -->
+                            <th @click="handleSort('admission_no')" class="p-4 cursor-pointer select-none hover:bg-slate-100/60 dark:hover:bg-slate-800/80 transition-colors">
+                                <div class="flex items-center gap-1.5">
+                                    <span>Admission / GR No</span>
+                                    <span class="text-[10px] text-slate-400 dark:text-slate-650 shrink-0">
+                                        <span v-if="sortBy === 'admission_no' && sortDirection === 'asc'">▲</span>
+                                        <span v-else-if="sortBy === 'admission_no' && sortDirection === 'desc'">▼</span>
+                                        <span v-else class="opacity-40">▲▼</span>
+                                    </span>
+                                </div>
+                            </th>
+                            <!-- Class / Section -->
+                            <th @click="handleSort('class_name')" class="p-4 cursor-pointer select-none hover:bg-slate-100/60 dark:hover:bg-slate-800/80 transition-colors">
+                                <div class="flex items-center gap-1.5">
+                                    <span>Class / Section</span>
+                                    <span class="text-[10px] text-slate-400 dark:text-slate-650 shrink-0">
+                                        <span v-if="sortBy === 'class_name' && sortDirection === 'asc'">▲</span>
+                                        <span v-else-if="sortBy === 'class_name' && sortDirection === 'desc'">▼</span>
+                                        <span v-else class="opacity-40">▲▼</span>
+                                    </span>
+                                </div>
+                            </th>
+                            <!-- Category / House -->
+                            <th class="p-4 select-none">Category / House</th>
+                            <!-- Status -->
+                            <th @click="handleSort('status')" class="p-4 cursor-pointer select-none hover:bg-slate-100/60 dark:hover:bg-slate-800/80 transition-colors">
+                                <div class="flex items-center gap-1.5">
+                                    <span>Status</span>
+                                    <span class="text-[10px] text-slate-400 dark:text-slate-650 shrink-0">
+                                        <span v-if="sortBy === 'status' && sortDirection === 'asc'">▲</span>
+                                        <span v-else-if="sortBy === 'status' && sortDirection === 'desc'">▼</span>
+                                        <span v-else class="opacity-40">▲▼</span>
+                                    </span>
+                                </div>
+                            </th>
                             <th class="p-4 pr-6 text-right print:hidden">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr 
-                            v-for="std in students" 
+                            v-for="std in paginatedStudents" 
                             :key="std.id" 
                             class="border-b border-slate-100 dark:border-slate-800/80 hover:bg-slate-50/50 dark:hover:bg-slate-900/40 text-slate-700 dark:text-slate-350 transition-colors"
                         >
-                            <td class="p-4 pl-6 font-bold text-xs">
+                            <td class="p-4 pl-6 font-bold text-xs !text-slate-700 !dark:text-slate-300">
                                 {{ std.roll_no || 'N/A' }}
                             </td>
                             <td class="p-4">
@@ -262,12 +313,12 @@
                                 <div class="font-bold text-slate-800 dark:text-slate-200">Adm: {{ std.admission_no }}</div>
                                 <div v-if="std.gr_no" class="text-[10px] text-indigo-600 dark:text-indigo-400 mt-0.5">GR No: {{ std.gr_no }}</div>
                             </td>
-                            <td class="p-4 text-xs font-medium">
+                            <td class="p-4 text-xs font-medium !text-slate-700 !dark:text-slate-300">
                                 {{ std.class_name }} — {{ std.section_name }}
                             </td>
-                            <td class="p-4 text-xs font-medium">
+                            <td class="p-4 text-xs font-medium !text-slate-700 !dark:text-slate-300">
                                 <div>{{ std.category || 'General' }}</div>
-                                <div class="text-[10px] text-slate-400 mt-0.5" v-if="std.house">House: {{ std.house }}</div>
+                                <div class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5" v-if="std.house">House: {{ std.house }}</div>
                             </td>
                             <td class="p-4">
                                 <span :class="[
@@ -282,7 +333,7 @@
                                     <!-- View/Profile -->
                                     <router-link 
                                         :to="`/students/${std.id}`"
-                                        class="p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-350 rounded-lg border border-slate-200 dark:border-slate-700/60 transition-colors"
+                                        class="p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 !text-slate-700 !dark:text-slate-300 rounded-lg border border-slate-200 dark:border-slate-700/60 transition-colors"
                                         title="View Profile"
                                     >
                                         <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
@@ -291,7 +342,7 @@
                                     <!-- Documents Folder Access -->
                                     <router-link 
                                         :to="`/students/${std.id}?tab=documents`"
-                                        class="p-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 text-indigo-650 dark:text-indigo-400 rounded-lg border border-indigo-200/50 dark:border-slate-700/60 transition-colors"
+                                        class="p-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 !text-indigo-600 !dark:text-indigo-400 rounded-lg border border-indigo-200/50 dark:border-slate-700/60 transition-colors"
                                         title="Student Documents"
                                     >
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
@@ -301,7 +352,7 @@
                                     <router-link 
                                         v-if="authStore.hasPermission('student.edit') && isCurrentYear"
                                         :to="`/students/${std.id}/edit`"
-                                        class="p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg border border-slate-200 dark:border-slate-700/60 transition-colors"
+                                        class="p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 !text-slate-700 !dark:text-slate-300 rounded-lg border border-slate-200 dark:border-slate-700/60 transition-colors"
                                         title="Edit Student"
                                     >
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
@@ -311,7 +362,7 @@
                                     <button 
                                         v-if="authStore.hasPermission('student.delete') && isCurrentYear"
                                         @click="handleDelete(std)"
-                                        class="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 rounded-lg transition-colors"
+                                        class="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 !text-rose-600 !dark:text-rose-400 border border-rose-500/20 rounded-lg transition-colors"
                                         title="Delete Admission Record"
                                     >
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -324,22 +375,59 @@
             </div>
 
             <!-- Server-Side Pagination -->
-            <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between print:hidden">
-                <span class="text-xs text-slate-500 dark:text-slate-400">
-                    Showing {{ pagination.from || 0 }} to {{ pagination.to || 0 }} of {{ pagination.total || 0 }} entries
-                </span>
-                <div class="flex items-center gap-1.5">
+            <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
+                <div class="flex items-center gap-4">
+                    <!-- Page Size Selector -->
+                    <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                        <span>Show</span>
+                        <select 
+                            v-model="perPage" 
+                            @change="currentPage = 1" 
+                            class="px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold focus:outline-none text-[11px]"
+                        >
+                            <option :value="10">10</option>
+                            <option :value="25">25</option>
+                            <option :value="50">50</option>
+                            <option :value="100">100</option>
+                        </select>
+                        <span>entries</span>
+                    </div>
+
+                    <span class="text-xs text-slate-500 dark:text-slate-400">
+                        Showing {{ pagination.from || 0 }} to {{ pagination.to || 0 }} of {{ pagination.total || 0 }} entries
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-1">
+                    <!-- Previous -->
                     <button 
-                        :disabled="!pagination.prev_page_url" 
-                        @click="fetchStudents(pagination.current_page - 1)"
-                        class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-50 transition-all bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                        :disabled="currentPage === 1" 
+                        @click="currentPage--"
+                        class="px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-50 transition-all bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-750"
                     >
                         Previous
                     </button>
+
+                    <!-- Numeric Pages Loop -->
                     <button 
-                        :disabled="!pagination.next_page_url" 
-                        @click="fetchStudents(pagination.current_page + 1)"
-                        class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-50 transition-all bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                        v-for="page in pageNumbers" 
+                        :key="page"
+                        @click="currentPage = page"
+                        :class="[
+                            'px-2.5 py-1.5 text-xs font-semibold rounded-lg border transition-all',
+                            currentPage === page 
+                                ? 'bg-indigo-600 border-indigo-600 dark:bg-indigo-500 dark:border-indigo-500 text-white shadow-sm shadow-indigo-600/20' 
+                                : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80'
+                        ]"
+                    >
+                        {{ page }}
+                    </button>
+
+                    <!-- Next -->
+                    <button 
+                        :disabled="currentPage === pagination.last_page" 
+                        @click="currentPage++"
+                        class="px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-50 transition-all bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-750"
                     >
                         Next
                     </button>
@@ -644,7 +732,7 @@ export default {
         const confirmStore = useConfirmStore();
         const toastStore = useToastStore();
 
-        const students = ref([]);
+        const allStudents = ref([]);
         const academicYears = ref([]);
         const advancedFiltersOpen = ref(false);
 
@@ -699,8 +787,13 @@ export default {
         };
 
         const loading = ref(true);
-        const pagination = ref({});
-        
+        const currentPage = ref(1);
+
+        // Sorting and Page Size states
+        const sortBy = ref('id');
+        const sortDirection = ref('desc');
+        const perPage = ref(10);
+
         const filters = ref({
             academic_year_id: '',
             class_id: '',
@@ -752,22 +845,22 @@ export default {
             filters.value.section_id = '';
             filteredSections.value = [];
             await fetchClasses();
-            fetchStudents(1);
+            fetchStudents();
         };
 
         const onClassChange = async () => {
             filters.value.section_id = '';
             await fetchSections();
-            fetchStudents(1);
+            fetchStudents();
         };
 
-        const fetchStudents = async (page = 1) => {
+        const fetchStudents = async () => {
             // Save filters state to sessionStorage whenever we list/load
             sessionStorage.setItem('student_filters', JSON.stringify(filters.value));
 
             if (!filters.value.class_id && !filters.value.section_id && !filters.value.search) {
-                students.value = [];
-                pagination.value = {};
+                allStudents.value = [];
+                currentPage.value = 1;
                 loading.value = false;
                 return;
             }
@@ -776,27 +869,16 @@ export default {
             try {
                 const response = await window.axios.get('/api/students', {
                     params: {
-                        page,
+                        per_page: -1, // Fetch all records for client-side datatable
                         academic_year_id: filters.value.academic_year_id,
                         class_id: filters.value.class_id,
                         section_id: filters.value.section_id,
-                        status: filters.value.status,
-                        search: filters.value.search,
-                        gender: filters.value.gender,
-                        category: filters.value.category,
-                        house: filters.value.house,
-                        religion: filters.value.religion
+                        status: '' // Fetch both active & inactive so client can toggle
                     }
                 });
-                students.value = response.data.data;
-                pagination.value = {
-                    current_page: response.data.current_page,
-                    from: response.data.from,
-                    to: response.data.to,
-                    total: response.data.total,
-                    prev_page_url: response.data.prev_page_url,
-                    next_page_url: response.data.next_page_url
-                };
+                const data = response.data.data || response.data;
+                allStudents.value = Array.isArray(data) ? data : [];
+                currentPage.value = 1;
             } catch (error) {
                 console.error(error);
                 toastStore.error('Failed to load students.');
@@ -805,12 +887,138 @@ export default {
             }
         };
 
-        const debouncedSearch = () => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                fetchStudents(1);
-            }, 300);
+        const handleSearchInput = () => {
+            currentPage.value = 1;
+            // If class or section is selected, we filter client-side (no API call).
+            // If neither class nor section is selected, we must call the server to query matching records!
+            if (!filters.value.class_id && !filters.value.section_id) {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    fetchStudents();
+                }, 300);
+            }
         };
+
+        const handleFilterChange = () => {
+            currentPage.value = 1;
+            // Trigger server search if searching without selecting class/section
+            if (!filters.value.class_id && !filters.value.section_id && filters.value.search) {
+                fetchStudents();
+            }
+        };
+
+        const filteredStudents = computed(() => {
+            return allStudents.value.filter(std => {
+                // Status filter
+                if (filters.value.status && std.status !== filters.value.status) {
+                    return false;
+                }
+
+                // Search query filter
+                if (filters.value.search) {
+                    const query = filters.value.search.toLowerCase().trim();
+                    if (query) {
+                        const matchFirst = std.first_name?.toLowerCase().includes(query);
+                        const matchLast = std.last_name?.toLowerCase().includes(query);
+                        const matchAdm = std.admission_no?.toLowerCase().includes(query);
+                        const matchGr = std.gr_no?.toLowerCase().includes(query);
+                        const matchEmail = std.email?.toLowerCase().includes(query);
+                        const matchFather = std.parent?.father_name?.toLowerCase().includes(query);
+                        const matchMother = std.parent?.mother_name?.toLowerCase().includes(query);
+                        
+                        if (!matchFirst && !matchLast && !matchAdm && !matchGr && !matchEmail && !matchFather && !matchMother) {
+                            return false;
+                        }
+                    }
+                }
+                
+                // Advanced filter: Gender
+                if (filters.value.gender && std.gender !== filters.value.gender) {
+                    return false;
+                }
+                
+                // Advanced filter: Category
+                if (filters.value.category && std.category !== filters.value.category) {
+                    return false;
+                }
+                
+                // Advanced filter: House
+                if (filters.value.house && std.house !== filters.value.house) {
+                    return false;
+                }
+                
+                // Advanced filter: Religion
+                if (filters.value.religion && std.religion !== filters.value.religion) {
+                    return false;
+                }
+                
+                return true;
+            });
+        });
+
+        const sortedStudents = computed(() => {
+            const list = [...filteredStudents.value];
+            const field = sortBy.value;
+            const dir = sortDirection.value === 'asc' ? 1 : -1;
+            
+            list.sort((a, b) => {
+                let valA, valB;
+                if (field === 'roll_no') {
+                    valA = a.roll_no ? Number(a.roll_no) : 0;
+                    valB = b.roll_no ? Number(b.roll_no) : 0;
+                    if (isNaN(valA) || isNaN(valB)) {
+                        valA = String(a.roll_no || '').toLowerCase();
+                        valB = String(b.roll_no || '').toLowerCase();
+                    }
+                } else if (field === 'first_name') {
+                    valA = `${a.first_name} ${a.last_name}`.toLowerCase();
+                    valB = `${b.first_name} ${b.last_name}`.toLowerCase();
+                } else if (field === 'admission_no') {
+                    valA = String(a.admission_no || '').toLowerCase();
+                    valB = String(b.admission_no || '').toLowerCase();
+                } else if (field === 'class_name') {
+                    valA = `${a.class_name} ${a.section_name}`.toLowerCase();
+                    valB = `${b.class_name} ${b.section_name}`.toLowerCase();
+                } else if (field === 'status') {
+                    valA = String(a.status || '').toLowerCase();
+                    valB = String(b.status || '').toLowerCase();
+                } else {
+                    valA = Number(a.id);
+                    valB = Number(b.id);
+                }
+                
+                if (valA < valB) return -1 * dir;
+                if (valA > valB) return 1 * dir;
+                return 0;
+            });
+            
+            return list;
+        });
+
+        const paginatedStudents = computed(() => {
+            const start = (currentPage.value - 1) * perPage.value;
+            const end = start + perPage.value;
+            return sortedStudents.value.slice(start, end);
+        });
+
+        const pagination = computed(() => {
+            const total = sortedStudents.value.length;
+            const from = total > 0 ? (currentPage.value - 1) * perPage.value + 1 : 0;
+            const to = Math.min(total, currentPage.value * perPage.value);
+            const lastPage = Math.ceil(total / perPage.value) || 1;
+            
+            return {
+                current_page: currentPage.value,
+                from,
+                to,
+                total,
+                last_page: lastPage,
+                prev_page_url: currentPage.value > 1 ? '#' : null,
+                next_page_url: currentPage.value < lastPage ? '#' : null
+            };
+        });
+
+        const students = computed(() => paginatedStudents.value);
 
         const handleDelete = async (std) => {
             const confirmed = await confirmStore.show({
@@ -948,6 +1156,27 @@ export default {
             selectedReportColumns.value = [...tempReportColumns.value];
             fetchReportPreview();
         };
+
+        const handleSort = (column) => {
+            if (sortBy.value === column) {
+                sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortBy.value = column;
+                sortDirection.value = 'asc';
+            }
+        };
+
+        const pageNumbers = computed(() => {
+            const pages = [];
+            const lastPage = pagination.value.last_page || 1;
+            const current = pagination.value.current_page || 1;
+            let start = Math.max(1, current - 2);
+            let end = Math.min(lastPage, current + 2);
+            for (let i = start; i <= end; i++) {
+                pages.push(i);
+            }
+            return pages;
+        });
 
         const fetchReportPreview = async () => {
             loadingReportPreview.value = true;
@@ -1110,7 +1339,6 @@ export default {
             pagination,
             filters,
             advancedFiltersOpen,
-            debouncedSearch,
             handleDelete,
             onAcademicYearChange,
             onClassChange,
@@ -1148,7 +1376,20 @@ export default {
             applyReportColumns,
             exportReportExcel,
             exportReportPDF,
-            printReport
+            printReport,
+
+            // Datatable additions
+            sortBy,
+            sortDirection,
+            perPage,
+            pageNumbers,
+            handleSort,
+            allStudents,
+            currentPage,
+            filteredStudents,
+            paginatedStudents,
+            handleSearchInput,
+            handleFilterChange
         };
     }
 }

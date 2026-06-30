@@ -485,7 +485,7 @@
                 <!-- Header -->
                 <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/20">
                     <h3 class="font-extrabold text-slate-800 dark:text-white text-sm flex items-center gap-2">
-                        <svg class="w-4 h-4 text-indigo-650" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                         Document Preview: {{ activePreviewDoc?.document_name }}
                     </h3>
                     <button @click="closePreviewModal" class="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
@@ -511,9 +511,9 @@
                         ></iframe>
                     </div>
                     <!-- Fallback / Unsupported preview -->
-                    <div v-else class="text-center py-10 text-slate-500 text-xs">
+                    <div class="text-center py-10 text-slate-500 text-xs">
                         Preview is not supported for this file format. 
-                        <a :href="`/${activePreviewDoc?.document_path}`" :download="activePreviewDoc?.document_name" class="text-indigo-650 dark:text-indigo-400 font-bold underline mt-2 block">Download to view</a>
+                        <a :href="`/${activePreviewDoc?.document_path}`" :download="activePreviewDoc?.document_name" class="text-indigo-600 dark:text-indigo-400 font-bold underline mt-2 block">Download to view</a>
                     </div>
                 </div>
 
@@ -524,7 +524,7 @@
                         <a 
                             :href="`/${activePreviewDoc?.document_path}`" 
                             :download="activePreviewDoc?.document_name"
-                            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl active:scale-95 transition-all flex items-center gap-1.5"
+                            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-650 text-white text-xs font-bold rounded-xl active:scale-95 transition-all flex items-center gap-1.5"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                             Download File

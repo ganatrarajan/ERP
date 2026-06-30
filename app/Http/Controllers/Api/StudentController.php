@@ -83,7 +83,7 @@ class StudentController extends Controller
         }
         if ($request->filled('status')) {
             $query->where('students.status', $request->input('status'));
-        } else {
+        } elseif ($request->input('per_page') != -1) {
             $query->where('students.status', 'active');
         }
 
@@ -129,12 +129,36 @@ class StudentController extends Controller
             });
         }
 
+        // Sorting parameters mapping
+        $sortBy = $request->input('sort_by', 'id');
+        $sortOrder = $request->input('sort_direction', 'desc');
+        
+        $sortMap = [
+            'id' => 'students.id',
+            'roll_no' => 'sar.roll_no',
+            'admission_no' => 'students.admission_no',
+            'gr_no' => 'students.gr_no',
+            'first_name' => 'students.first_name',
+            'name' => 'students.first_name',
+            'status' => 'students.status',
+            'class_name' => 'classes.name',
+            'section_name' => 'sections.name',
+        ];
+        
+        $orderColumn = $sortMap[$sortBy] ?? 'students.id';
+        $orderDirection = in_array(strtolower($sortOrder), ['asc', 'desc']) ? $sortOrder : 'desc';
+
         // Check if CSV export is requested
         if ($request->input('export') === 'csv') {
-            return $this->exportCSV($query->get());
+            return $this->exportCSV($query->orderBy($orderColumn, $orderDirection)->get());
         }
 
-        $students = $query->orderBy('students.id', 'desc')
+        if ($request->input('per_page') == -1) {
+            $students = $query->orderBy($orderColumn, $orderDirection)->get();
+            return response()->json(['data' => $students, 'total' => count($students)]);
+        }
+
+        $students = $query->orderBy($orderColumn, $orderDirection)
             ->paginate($request->input('per_page', 10));
 
         return response()->json($students);
