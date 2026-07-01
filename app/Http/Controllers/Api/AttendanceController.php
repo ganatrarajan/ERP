@@ -498,7 +498,7 @@ class AttendanceController extends Controller
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('attendance.report_pdf', $pdfData)
             ->setPaper('a4', 'landscape');
 
-        return $pdf->download('Attendance_Report_' . $monthStr . '.pdf');
+        return $pdf->stream('Attendance_Report_' . $monthStr . '.pdf');
     }
 
     /**
@@ -553,6 +553,6 @@ class AttendanceController extends Controller
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('attendance.student_individual_report_pdf', $pdfData);
 
-        return $pdf->download('Student_Attendance_Report_' . str_replace(' ', '_', $student->first_name . '_' . $student->last_name) . '.pdf');
+        return $pdf->stream('Student_Attendance_Report_' . str_replace(' ', '_', $student->first_name . '_' . $student->last_name) . '.pdf');
     }
 }

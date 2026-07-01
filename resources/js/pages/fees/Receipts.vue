@@ -9,12 +9,11 @@
         </div>
 
         <!-- Filters Block -->
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 p-5 rounded-2xl shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 p-5 rounded-2xl shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <div class="space-y-1">
                 <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Academic Session</label>
                 <select 
                     v-model="filters.academic_year_id" 
-                    @change="fetchReceipts(1)"
                     class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 focus:outline-none"
                 >
                     <option v-for="year in academicYears" :key="year.id" :value="year.id">
@@ -29,7 +28,6 @@
                 <div class="relative flex items-center">
                     <input 
                         v-model="filters.payment_date" 
-                        @change="fetchReceipts(1)"
                         type="date" 
                         class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 focus:outline-none"
                     />
@@ -44,7 +42,7 @@
                 </div>
             </div>
 
-            <div class="space-y-1 md:col-span-2">
+            <div class="space-y-1">
                 <label class="text-[10px] font-bold text-slate-400 dark:text-slate-505 uppercase tracking-wider">Search Receipt Number</label>
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
@@ -52,13 +50,51 @@
                     </span>
                     <input 
                         v-model="filters.search" 
-                        @input="handleSearch"
                         type="text" 
-                        placeholder="Search by receipt number (e.g. REC-1-000001)..." 
+                        placeholder="Search by receipt number..." 
                         class="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100"
                     />
                 </div>
             </div>
+
+            <div>
+                <button 
+                    type="button"
+                    @click="fetchReceipts(1)"
+                    class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-600/10 transition-all flex items-center justify-center gap-1.5 cursor-pointer h-[38px]"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    Search Receipts
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Filters for Payment Methods -->
+        <div class="flex items-center gap-1.5 flex-wrap">
+            <button 
+                @click="setPaymentMethodFilter('')"
+                :class="[
+                    'px-4 py-2 text-xs font-bold rounded-xl border transition-all active:scale-95 cursor-pointer',
+                    !filters.payment_method 
+                        ? 'bg-indigo-600 border-indigo-650 text-white shadow-sm' 
+                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800/80 text-slate-600 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-800/60'
+                ]"
+            >
+                All Methods
+            </button>
+            <button 
+                v-for="method in ['Cash', 'UPI', 'Cheque', 'Bank Transfer']" 
+                :key="method"
+                @click="setPaymentMethodFilter(method)"
+                :class="[
+                    'px-4 py-2 text-xs font-bold rounded-xl border transition-all active:scale-95 cursor-pointer',
+                    filters.payment_method === method 
+                        ? 'bg-indigo-600 border-indigo-650 text-white shadow-sm' 
+                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800/80 text-slate-655 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-800/60'
+                ]"
+            >
+                {{ method }}
+            </button>
         </div>
 
         <!-- Table Listing -->
@@ -181,11 +217,13 @@ export default {
         const receipts = ref([]);
         const academicYears = ref([]);
         const loading = ref(true);
+        const hasSearched = ref(false);
 
         const filters = ref({
             academic_year_id: '',
             search: '',
-            payment_date: ''
+            payment_date: '',
+            payment_method: ''
         });
 
         const pagination = ref({
@@ -217,13 +255,15 @@ export default {
         const fetchReceipts = async (page = 1) => {
             if (!filters.value.academic_year_id) return;
             loading.value = true;
+            hasSearched.value = true;
             try {
                 const response = await window.axios.get('/api/fee-receipts', {
                     params: {
                         page,
                         academic_year_id: filters.value.academic_year_id,
                         search: filters.value.search,
-                        payment_date: filters.value.payment_date
+                        payment_date: filters.value.payment_date,
+                        payment_method: filters.value.payment_method
                     }
                 });
                 receipts.value = response.data.data;
@@ -242,6 +282,13 @@ export default {
             }
         };
 
+        const setPaymentMethodFilter = (method) => {
+            filters.value.payment_method = method;
+            if (hasSearched.value) {
+                fetchReceipts(1);
+            }
+        };
+
         const handleSearch = () => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
@@ -257,7 +304,9 @@ export default {
 
         const clearDateFilter = () => {
             filters.value.payment_date = '';
-            fetchReceipts(1);
+            if (hasSearched.value) {
+                fetchReceipts(1);
+            }
         };
 
         const printReceipt = (receipt) => {
@@ -265,7 +314,7 @@ export default {
         };
 
         const numberFormat = (val) => {
-            return Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return Number(val || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         };
 
         const formatDate = (dateString) => {
@@ -290,9 +339,11 @@ export default {
             receipts,
             academicYears,
             loading,
+            hasSearched,
             filters,
             pagination,
             fetchReceipts,
+            setPaymentMethodFilter,
             handleSearch,
             changePage,
             printReceipt,

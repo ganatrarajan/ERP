@@ -61,10 +61,22 @@ const routes = [
         meta: { requiresAuth: true, permission: 'user.create', layout: 'app' }
     },
     {
+        path: '/users/reports',
+        name: 'users.reports',
+        component: () => import('../pages/users/Reports.vue'),
+        meta: { requiresAuth: true, permission: 'user.view', layout: 'app' }
+    },
+    {
         path: '/users/:id/edit',
         name: 'users.edit',
         component: () => import('../pages/users/Form.vue'),
         meta: { requiresAuth: true, permission: 'user.edit', layout: 'app' }
+    },
+    {
+        path: '/users/:id',
+        name: 'users.show',
+        component: () => import('../pages/users/Show.vue'),
+        meta: { requiresAuth: true, permission: 'user.view', layout: 'app' }
     },
     {
         path: '/roles',
@@ -95,6 +107,19 @@ const routes = [
         name: 'password-resets.index',
         component: () => import('../pages/password-resets/Index.vue'),
         meta: { requiresAuth: true, layout: 'app' }
+    },
+    // Teacher Assignments
+    {
+        path: '/assignments',
+        name: 'assignments.index',
+        component: () => import('../pages/assignments/Index.vue'),
+        meta: { requiresAuth: true, permission: 'user.view', layout: 'app' }
+    },
+    {
+        path: '/assignments/reports',
+        name: 'assignments.reports',
+        component: () => import('../pages/assignments/Reports.vue'),
+        meta: { requiresAuth: true, permission: 'user.view', layout: 'app' }
     },
     // Academic Management
     {

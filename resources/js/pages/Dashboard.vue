@@ -313,78 +313,133 @@
                                 <h3 class="text-xs font-black text-slate-455 dark:text-slate-500 uppercase tracking-widest mb-2">Section 2 - Quick Shortcuts</h3>
                                 <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-normal mb-5">Instantly launch forms and tasks for school workflow components.</p>
                             </div>
-                            <div class="space-y-2.5">
-                                <router-link 
-                                    v-if="authStore.hasPermission('student.create') && authStore.hasModule('students')" 
-                                    to="/students/create" 
-                                    class="w-full py-2.5 px-4 bg-indigo-50/70 hover:bg-indigo-100 dark:bg-indigo-950/20 dark:hover:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group"
-                                >
-                                    <span class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
-                                        Add New Student
-                                    </span>
-                                    <span class="text-sm font-light opacity-50 group-hover:translate-x-1 transition-transform">&rarr;</span>
-                                </router-link>
+                            <div class="space-y-5 mt-2">
+                                <!-- Student Management Group -->
+                                <div v-if="(authStore.hasPermission('student.create') && authStore.hasModule('students')) || (authStore.hasPermission('attendance.create') && authStore.hasModule('attendance'))" class="space-y-2">
+                                    <div class="flex items-center gap-1.5 pb-1 border-b border-slate-100 dark:border-slate-800/60 mb-2">
+                                        <span class="w-1 h-3 rounded bg-indigo-500"></span>
+                                        <h4 class="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Student Management</h4>
+                                    </div>
+                                    
+                                    <router-link 
+                                        v-if="authStore.hasPermission('student.create') && authStore.hasModule('students')" 
+                                        to="/students/create" 
+                                        class="w-full py-2.5 px-4 bg-indigo-50/70 hover:bg-indigo-100 dark:bg-indigo-950/20 dark:hover:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group animate-fade-in"
+                                    >
+                                        <span class="flex items-center gap-2">
+                                            <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                                            Add New Student
+                                        </span>
+                                        <span class="text-sm font-light opacity-50 group-hover:translate-x-1 transition-transform">&rarr;</span>
+                                    </router-link>
 
-                                <router-link 
-                                    v-if="authStore.hasPermission('fee_collection.create') && authStore.hasModule('fees')" 
-                                    to="/fees/collection" 
-                                    class="w-full py-2.5 px-4 bg-emerald-50/70 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:hover:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group"
-                                >
-                                    <span class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 8h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                        Collect Student Fee
-                                    </span>
-                                    <span class="text-sm font-light opacity-50 group-hover:translate-x-1 transition-transform">&rarr;</span>
-                                </router-link>
+                                    <router-link 
+                                        v-if="authStore.hasPermission('attendance.create') && authStore.hasModule('attendance')" 
+                                        to="/attendance" 
+                                        class="w-full py-2.5 px-4 bg-violet-50/70 hover:bg-violet-100 dark:bg-violet-950/20 dark:hover:bg-violet-900/30 text-violet-600 dark:text-violet-400 border border-violet-100 dark:border-violet-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group animate-fade-in"
+                                    >
+                                        <span class="flex items-center gap-2">
+                                            <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                                            Take Attendance Today
+                                        </span>
+                                        <span class="text-sm font-light opacity-50 group-hover:translate-x-1 transition-transform">&rarr;</span>
+                                    </router-link>
+                                </div>
 
-                                <router-link 
-                                    v-if="authStore.hasPermission('user.create')" 
-                                    to="/users/create" 
-                                    class="w-full py-2.5 px-4 bg-sky-50/70 hover:bg-sky-100 dark:bg-sky-950/20 dark:hover:bg-sky-900/30 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group"
-                                >
-                                    <span class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
-                                        Add Teacher Account
-                                    </span>
-                                    <span class="text-sm font-light opacity-50 group-hover:translate-x-1 transition-transform">&rarr;</span>
-                                </router-link>
+                                <!-- Staff & Teacher Management Group -->
+                                <div v-if="authStore.hasPermission('user.create') || canViewUsers" class="space-y-2">
+                                    <div class="flex items-center gap-1.5 pb-1 border-b border-slate-100 dark:border-slate-800/60 mb-2">
+                                        <span class="w-1 h-3 rounded bg-sky-500"></span>
+                                        <h4 class="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Staff & Teacher Management</h4>
+                                    </div>
+                                    
+                                    <router-link 
+                                        v-if="authStore.hasPermission('user.create')" 
+                                        to="/users/create?role=Teacher" 
+                                        class="w-full py-2.5 px-4 bg-sky-50/70 hover:bg-sky-100 dark:bg-sky-950/20 dark:hover:bg-sky-900/30 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group animate-fade-in"
+                                    >
+                                        <span class="flex items-center gap-2">
+                                            <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                                            Add Teacher Account
+                                        </span>
+                                        <span class="text-sm font-light opacity-50 group-hover:translate-x-1 transition-transform">&rarr;</span>
+                                    </router-link>
 
-                                <router-link 
-                                    v-if="authStore.hasPermission('attendance.create') && authStore.hasModule('attendance')" 
-                                    to="/attendance" 
-                                    class="w-full py-2.5 px-4 bg-violet-50/70 hover:bg-violet-100 dark:bg-violet-950/20 dark:hover:bg-violet-900/30 text-violet-600 dark:text-violet-400 border border-violet-100 dark:border-violet-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group"
-                                >
-                                    <span class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                                        Take Attendance Today
-                                    </span>
-                                    <span class="text-sm font-light opacity-50 group-hover:translate-x-1 transition-transform">&rarr;</span>
-                                </router-link>
+                                    <router-link 
+                                        v-if="canViewUsers" 
+                                        to="/users" 
+                                        class="w-full py-2.5 px-4 bg-indigo-50/70 hover:bg-indigo-100 dark:bg-indigo-950/20 dark:hover:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group animate-fade-in"
+                                    >
+                                        <span class="flex items-center gap-2">
+                                            <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                            Staff Documents Directory
+                                        </span>
+                                        <span class="text-sm font-light opacity-50 group-hover:translate-x-1 transition-transform">&rarr;</span>
+                                    </router-link>
 
-                                <router-link 
-                                    v-if="authStore.hasPermission('notice.create') && authStore.hasModule('notices')" 
-                                    to="/notices" 
-                                    class="w-full py-2.5 px-4 bg-amber-50/70 hover:bg-amber-100 dark:bg-amber-950/20 dark:hover:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group"
-                                >
-                                    <span class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
-                                        Publish Notice Announcement
-                                    </span>
-                                    <span class="text-sm font-light opacity-50 group-hover:translate-x-1 transition-transform">&rarr;</span>
-                                </router-link>
+                                    <router-link 
+                                        v-if="canViewUsers" 
+                                        to="/assignments" 
+                                        class="w-full py-2.5 px-4 bg-sky-50/70 hover:bg-sky-100 dark:bg-sky-950/20 dark:hover:bg-sky-900/30 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group animate-fade-in"
+                                    >
+                                        <span class="flex items-center gap-2">
+                                            <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                                            Teacher Class Assignments
+                                        </span>
+                                        <span class="text-sm font-light opacity-50 group-hover:translate-x-1 transition-transform">&rarr;</span>
+                                    </router-link>
+                                </div>
 
-                                <router-link 
-                                    v-if="authStore.hasPermission('report.view') && authStore.hasModule('fees')" 
-                                    to="/fees/reports" 
-                                    class="w-full py-2.5 px-4 bg-pink-50/70 hover:bg-pink-100 dark:bg-pink-950/20 dark:hover:bg-pink-900/30 text-pink-600 dark:text-pink-400 border border-pink-100 dark:border-pink-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group"
-                                >
-                                    <span class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                                        View System Reports
-                                    </span>
-                                    <span class="text-sm font-light opacity-50 group-hover:translate-x-1 transition-transform">&rarr;</span>
-                                </router-link>
+                                <!-- Finance & Fees Group -->
+                                <div v-if="authStore.hasPermission('fee_collection.create') && authStore.hasModule('fees')" class="space-y-2">
+                                    <div class="flex items-center gap-1.5 pb-1 border-b border-slate-100 dark:border-slate-800/60 mb-2">
+                                        <span class="w-1 h-3 rounded bg-emerald-500"></span>
+                                        <h4 class="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Finance & Fees</h4>
+                                    </div>
+                                    
+                                    <router-link 
+                                        to="/fees/collection" 
+                                        class="w-full py-2.5 px-4 bg-emerald-50/70 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:hover:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group animate-fade-in"
+                                    >
+                                        <span class="flex items-center gap-2">
+                                            <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 8h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                            Collect Student Fee
+                                        </span>
+                                        <span class="text-sm font-light opacity-50 group-hover:translate-x-1 transition-transform">&rarr;</span>
+                                    </router-link>
+                                </div>
+
+                                <!-- Communication & Reports Group -->
+                                <div v-if="(authStore.hasPermission('notice.create') && authStore.hasModule('notices')) || (authStore.hasPermission('report.view') && authStore.hasModule('fees'))" class="space-y-2">
+                                    <div class="flex items-center gap-1.5 pb-1 border-b border-slate-100 dark:border-slate-800/60 mb-2">
+                                        <span class="w-1 h-3 rounded bg-amber-500"></span>
+                                        <h4 class="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Communication & Reports</h4>
+                                    </div>
+                                    
+                                    <router-link 
+                                        v-if="authStore.hasPermission('notice.create') && authStore.hasModule('notices')" 
+                                        to="/notices" 
+                                        class="w-full py-2.5 px-4 bg-amber-50/70 hover:bg-amber-100 dark:bg-amber-950/20 dark:hover:bg-amber-900/30 text-amber-600 dark:text-amber-455 border border-amber-100 dark:border-amber-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group animate-fade-in"
+                                    >
+                                        <span class="flex items-center gap-2">
+                                            <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
+                                            Publish Notice Announcement
+                                        </span>
+                                        <span class="text-sm font-light opacity-50 group-hover:translate-x-1 transition-transform">&rarr;</span>
+                                    </router-link>
+
+                                    <router-link 
+                                        v-if="authStore.hasPermission('report.view') && authStore.hasModule('fees')" 
+                                        to="/fees/reports" 
+                                        class="w-full py-2.5 px-4 bg-pink-50/70 hover:bg-pink-100 dark:bg-pink-950/20 dark:hover:bg-pink-900/30 text-pink-600 dark:text-pink-400 border border-pink-100 dark:border-pink-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group animate-fade-in"
+                                    >
+                                        <span class="flex items-center gap-2">
+                                            <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                                            Generate Fees Report
+                                        </span>
+                                        <span class="text-sm font-light opacity-50 group-hover:translate-x-1 transition-transform">&rarr;</span>
+                                    </router-link>
+                                </div>
                             </div>
                         </div>
 

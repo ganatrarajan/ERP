@@ -252,7 +252,9 @@ class StudentFeeAssignmentController extends Controller
             'fee_structure_id' => 'required|exists:fee_structures,id',
             'assigned_date' => 'required|date',
             'remarks' => 'nullable|string',
-            'overwrite_existing' => 'boolean'
+            'overwrite_existing' => 'boolean',
+            'student_ids' => 'nullable|array',
+            'student_ids.*' => 'exists:students,id'
         ]);
 
         $academicYearId = $request->input('academic_year_id');
@@ -261,6 +263,7 @@ class StudentFeeAssignmentController extends Controller
         $assignedDate = $request->input('assigned_date');
         $remarks = $request->input('remarks');
         $overwrite = $request->boolean('overwrite_existing', false);
+        $studentIds = $request->input('student_ids');
 
         // Validate the fee structure belongs to the class, school, and academic year
         $feeStructure = FeeStructure::where('id', $feeStructureId)
@@ -281,14 +284,19 @@ class StudentFeeAssignmentController extends Controller
         }
 
         // Fetch active students in class for the year
-        $records = StudentAcademicRecord::where('school_id', $schoolId)
+        $recordsQuery = StudentAcademicRecord::where('school_id', $schoolId)
             ->where('academic_year_id', $academicYearId)
             ->where('class_id', $classId)
-            ->where('status', 'active')
-            ->get();
+            ->where('status', 'active');
+
+        if (!empty($studentIds)) {
+            $recordsQuery->whereIn('student_id', $studentIds);
+        }
+
+        $records = $recordsQuery->get();
 
         if ($records->isEmpty()) {
-            return response()->json(['message' => 'No active students found in the selected class.'], 404);
+            return response()->json(['message' => 'No active students found matching the assignment target.'], 404);
         }
 
         $count = DB::transaction(function () use ($records, $schoolId, $academicYearId, $feeStructureId, $assignedDate, $remarks, $overwrite) {
