@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\SchoolController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\TeacherAssignmentController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ImpersonationController;
@@ -56,7 +57,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/modules', [SchoolModuleController::class, 'systemModules']);
 
     // Users
+    Route::post('/users/upload-photo', [UserController::class, 'uploadPhoto']);
+    Route::get('/users/reports', [UserController::class, 'report']);
+    Route::post('/users/{user}/documents', [UserController::class, 'uploadDocument']);
+    Route::delete('/users/{user}/documents/{document}', [UserController::class, 'deleteDocument']);
     Route::apiResource('users', UserController::class);
+
+    // Teacher Assignments
+    Route::post('/teacher-assignments/bulk', [TeacherAssignmentController::class, 'bulkStore'])
+        ->middleware('permission:user.edit');
+    Route::post('/teacher-assignments/bulk-delete', [TeacherAssignmentController::class, 'bulkDestroy'])
+        ->middleware('permission:user.edit');
+    Route::apiResource('teacher-assignments', TeacherAssignmentController::class);
 
     // Roles & Permissions
     Route::get('/permissions', [RoleController::class, 'permissions'])

@@ -23,7 +23,23 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'school_id',
+        'employee_id',
         'name',
+        'gender',
+        'dob',
+        'aadhaar_no',
+        'pan_no',
+        'address',
+        'emergency_contact_name',
+        'emergency_contact_mobile',
+        'profile_photo',
+        'teacher_code',
+        'qualification',
+        'experience',
+        'joining_date',
+        'department',
+        'designation',
+        'employment_type',
         'email',
         'mobile',
         'password',
@@ -64,6 +80,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'last_login_at' => 'datetime',
+            'dob' => 'date',
+            'joining_date' => 'date',
         ];
     }
 
@@ -89,6 +107,22 @@ class User extends Authenticatable
     public function isImpersonated(): bool
     {
         return session()->has('impersonator_user_id');
+    }
+
+    /**
+     * Get documents associated with this user.
+     */
+    public function documents(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(UserDocument::class);
+    }
+
+    /**
+     * Get class/subject assignments associated with this teacher.
+     */
+    public function assignments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TeacherAssignment::class, 'teacher_id');
     }
 
     /**
