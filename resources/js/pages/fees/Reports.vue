@@ -134,6 +134,26 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Column selection checkboxes -->
+            <div v-if="availableColumns.length > 0" class="pt-4 border-t border-slate-100 dark:border-slate-800/80">
+                <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-2">Display Columns</span>
+                <div class="flex flex-wrap gap-x-4 gap-y-2">
+                    <label 
+                        v-for="col in availableColumns" 
+                        :key="col.key" 
+                        class="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-350 font-semibold cursor-pointer select-none hover:text-indigo-650 dark:hover:text-indigo-400 transition-colors"
+                    >
+                        <input 
+                            type="checkbox" 
+                            :value="col.key" 
+                            v-model="selectedColumns" 
+                            class="rounded border-slate-300 text-indigo-650 h-3.5 w-3.5 focus:ring-indigo-500" 
+                        />
+                        {{ col.label }}
+                    </label>
+                </div>
+            </div>
         </div>
 
         <!-- Report Statements Result -->
@@ -183,11 +203,19 @@
 
             <!-- Report Grid Table -->
             <div id="print-report-area" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
-                <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <h3 class="font-extrabold text-slate-800 dark:text-white text-sm uppercase tracking-wider">Report Output: {{ getReportTitle() }}</h3>
                         <p class="text-xs text-slate-400 mt-0.5">Academic session: {{ getSessionTitle() }} | Dates: {{ filters.start_date || 'Inception' }} to {{ filters.end_date || 'Present' }}</p>
                     </div>
+                    <button 
+                        @click="printReport"
+                        type="button"
+                        class="print:hidden px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-indigo-650 dark:text-indigo-400 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-xs transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer ml-auto shrink-0"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        Print / Download PDF
+                    </button>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -195,34 +223,34 @@
                     <table v-if="filters.report_type === 'collection'" class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-50/50 dark:bg-slate-900/60">
-                                <th class="p-4 pl-6">Receipt #</th>
-                                <th class="p-4">Student Name</th>
-                                <th class="p-4">Class</th>
-                                <th class="p-4">Installment</th>
-                                <th class="p-4">Date</th>
-                                <th class="p-4">Method</th>
-                                <th class="p-4 text-right">Amount Paid</th>
-                                <th class="p-4 text-right">Discount</th>
-                                <th class="p-4 text-right">Fine</th>
+                                <th class="p-4 pl-6" v-if="selectedColumns.includes('receipt_number')">Receipt #</th>
+                                <th class="p-4" v-if="selectedColumns.includes('student_name')">Student Name</th>
+                                <th class="p-4" v-if="selectedColumns.includes('class_name')">Class</th>
+                                <th class="p-4" v-if="selectedColumns.includes('installment')">Installment</th>
+                                <th class="p-4" v-if="selectedColumns.includes('payment_date')">Date</th>
+                                <th class="p-4" v-if="selectedColumns.includes('payment_method')">Method</th>
+                                <th class="p-4 text-right" v-if="selectedColumns.includes('amount_paid')">Amount Paid</th>
+                                <th class="p-4 text-right" v-if="selectedColumns.includes('discount_amount')">Discount</th>
+                                <th class="p-4 text-right" v-if="selectedColumns.includes('fine_amount')">Fine</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
                             <tr v-if="reportData.length === 0">
-                                <td colspan="9" class="p-10 text-center text-slate-400">No collection records found.</td>
+                                <td colspan="100" class="p-10 text-center text-slate-400">No collection records found.</td>
                             </tr>
                             <tr v-else v-for="(row, idx) in reportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                <td class="p-4 pl-6 font-mono text-xs">{{ row.receipt_number }}</td>
-                                <td class="p-4 font-semibold text-slate-800 dark:text-white">
+                                <td class="p-4 pl-6 font-mono text-xs" v-if="selectedColumns.includes('receipt_number')">{{ row.receipt_number }}</td>
+                                <td class="p-4 font-semibold text-slate-800 dark:text-white" v-if="selectedColumns.includes('student_name')">
                                     {{ row.student_name }}
                                     <div class="text-[10px] text-slate-400 font-mono">Adm #: {{ row.admission_no }}</div>
                                 </td>
-                                <td class="p-4">{{ row.class_name }}</td>
-                                <td class="p-4">{{ row.installment }}</td>
-                                <td class="p-4 whitespace-nowrap">{{ formatDate(row.payment_date) }}</td>
-                                <td class="p-4">{{ row.payment_method }}</td>
-                                <td class="p-4 text-right font-medium text-emerald-600 dark:text-emerald-400">₹{{ numberFormat(row.amount_paid) }}</td>
-                                <td class="p-4 text-right text-indigo-500">₹{{ numberFormat(row.discount_amount) }}</td>
-                                <td class="p-4 text-right text-pink-500">₹{{ numberFormat(row.fine_amount) }}</td>
+                                <td class="p-4" v-if="selectedColumns.includes('class_name')">{{ row.class_name }}</td>
+                                <td class="p-4" v-if="selectedColumns.includes('installment')">{{ row.installment }}</td>
+                                <td class="p-4 whitespace-nowrap" v-if="selectedColumns.includes('payment_date')">{{ formatDate(row.payment_date) }}</td>
+                                <td class="p-4" v-if="selectedColumns.includes('payment_method')">{{ row.payment_method }}</td>
+                                <td class="p-4 text-right font-medium text-emerald-600 dark:text-emerald-400" v-if="selectedColumns.includes('amount_paid')">₹{{ numberFormat(row.amount_paid) }}</td>
+                                <td class="p-4 text-right text-indigo-500" v-if="selectedColumns.includes('discount_amount')">₹{{ numberFormat(row.discount_amount) }}</td>
+                                <td class="p-4 text-right text-pink-500" v-if="selectedColumns.includes('fine_amount')">₹{{ numberFormat(row.fine_amount) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -299,25 +327,25 @@
                                             <table class="w-full text-left border-collapse">
                                                 <thead>
                                                     <tr class="border-b border-slate-150 dark:border-slate-800 text-[10px] font-bold text-slate-500 uppercase bg-slate-50/40 dark:bg-slate-950/20">
-                                                        <th class="p-3 pl-4">Student Name</th>
-                                                        <th class="p-3">Adm No</th>
-                                                        <th class="p-3 text-right">Total Assigned</th>
-                                                        <th class="p-3 text-right">Paid</th>
-                                                        <th class="p-3 text-right">Waiver</th>
-                                                        <th class="p-3 text-right">Fines Paid</th>
-                                                        <th class="p-3 text-right text-rose-500 font-bold">Outstanding</th>
+                                                        <th class="p-3 pl-4" v-if="selectedColumns.includes('student_name')">Student Name</th>
+                                                        <th class="p-3" v-if="selectedColumns.includes('admission_no')">Adm No</th>
+                                                        <th class="p-3 text-right" v-if="selectedColumns.includes('total_fee')">Total Assigned</th>
+                                                        <th class="p-3 text-right" v-if="selectedColumns.includes('total_paid')">Paid</th>
+                                                        <th class="p-3 text-right" v-if="selectedColumns.includes('total_discount')">Waiver</th>
+                                                        <th class="p-3 text-right" v-if="selectedColumns.includes('total_fine')">Fines Paid</th>
+                                                        <th class="p-3 text-right text-rose-500 font-bold" v-if="selectedColumns.includes('outstanding_balance')">Outstanding</th>
                                                         <th class="p-3 pr-4 text-right">Actions</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody class="divide-y divide-slate-150 dark:divide-slate-800 text-xs text-slate-600 dark:text-slate-350 bg-white dark:bg-slate-900/30">
                                                     <tr v-for="stu in sec.students" :key="stu.admission_no" class="hover:bg-slate-50 dark:hover:bg-slate-800/10 transition-colors">
-                                                        <td class="p-3 pl-4 font-semibold text-slate-800 dark:text-white">{{ stu.student_name }}</td>
-                                                        <td class="p-3 font-mono text-[11px]">{{ stu.admission_no }}</td>
-                                                        <td class="p-3 text-right">₹{{ numberFormat(stu.total_fee) }}</td>
-                                                        <td class="p-3 text-right text-emerald-600 font-medium">₹{{ numberFormat(stu.total_paid) }}</td>
-                                                        <td class="p-3 text-right text-indigo-500">₹{{ numberFormat(stu.total_discount) }}</td>
-                                                        <td class="p-3 text-right text-pink-500">₹{{ numberFormat(stu.total_fine) }}</td>
-                                                        <td class="p-3 text-right text-rose-600 font-black">₹{{ numberFormat(stu.outstanding_balance) }}</td>
+                                                        <td class="p-3 pl-4 font-semibold text-slate-800 dark:text-white" v-if="selectedColumns.includes('student_name')">{{ stu.student_name }}</td>
+                                                        <td class="p-3 font-mono text-[11px]" v-if="selectedColumns.includes('admission_no')">{{ stu.admission_no }}</td>
+                                                        <td class="p-3 text-right" v-if="selectedColumns.includes('total_fee')">₹{{ numberFormat(stu.total_fee) }}</td>
+                                                        <td class="p-3 text-right text-emerald-600 font-medium" v-if="selectedColumns.includes('total_paid')">₹{{ numberFormat(stu.total_paid) }}</td>
+                                                        <td class="p-3 text-right text-indigo-500" v-if="selectedColumns.includes('total_discount')">₹{{ numberFormat(stu.total_discount) }}</td>
+                                                        <td class="p-3 text-right text-pink-500" v-if="selectedColumns.includes('total_fine')">₹{{ numberFormat(stu.total_fine) }}</td>
+                                                        <td class="p-3 text-right text-rose-600 font-black" v-if="selectedColumns.includes('outstanding_balance')">₹{{ numberFormat(stu.outstanding_balance) }}</td>
                                                         <td class="p-3 pr-4 text-right">
                                                             <button 
                                                                 v-if="authStore.hasPermission('fee_collection.create')"
@@ -336,30 +364,29 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- 3. INSTALLMENT WISE -->
+                                         <!-- 3. INSTALLMENT WISE -->
                     <table v-else-if="filters.report_type === 'installment_wise'" class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-50/50 dark:bg-slate-900/60">
-                                <th class="p-4 pl-6">Installment Name</th>
-                                <th class="p-4">Due Date</th>
-                                <th class="p-4 text-center">Txns Count</th>
-                                <th class="p-4 text-right">Total Collected</th>
-                                <th class="p-4 text-right">Total Discounts</th>
-                                <th class="p-4 pr-6 text-right">Total Fines</th>
+                                <th class="p-4 pl-6" v-if="selectedColumns.includes('installment_name')">Installment Name</th>
+                                <th class="p-4" v-if="selectedColumns.includes('due_date')">Due Date</th>
+                                <th class="p-4 text-center" v-if="selectedColumns.includes('transactions_count')">Txns Count</th>
+                                <th class="p-4 text-right" v-if="selectedColumns.includes('total_collected')">Total Collected</th>
+                                <th class="p-4 text-right" v-if="selectedColumns.includes('total_discount')">Total Discounts</th>
+                                <th class="p-4 pr-6 text-right" v-if="selectedColumns.includes('total_fine')">Total Fines</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
                             <tr v-if="reportData.length === 0">
-                                <td colspan="6" class="p-10 text-center text-slate-400">No installment records found.</td>
+                                <td colspan="100" class="p-10 text-center text-slate-400">No installment records found.</td>
                             </tr>
                             <tr v-else v-for="(row, idx) in reportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                <td class="p-4 pl-6 font-semibold text-slate-850 dark:text-white">{{ row.installment_name }}</td>
-                                <td class="p-4">{{ formatDate(row.due_date) }}</td>
-                                <td class="p-4 text-center font-mono">{{ row.transactions_count }}</td>
-                                <td class="p-4 text-right font-bold text-emerald-600">₹{{ numberFormat(row.total_collected) }}</td>
-                                <td class="p-4 text-right text-indigo-500">₹{{ numberFormat(row.total_discount) }}</td>
-                                <td class="p-4 pr-6 text-right text-pink-500">₹{{ numberFormat(row.total_fine) }}</td>
+                                <td class="p-4 pl-6 font-semibold text-slate-800 dark:text-white" v-if="selectedColumns.includes('installment_name')">{{ row.installment_name }}</td>
+                                <td class="p-4" v-if="selectedColumns.includes('due_date')">{{ formatDate(row.due_date) }}</td>
+                                <td class="p-4 text-center font-mono" v-if="selectedColumns.includes('transactions_count')">{{ row.transactions_count }}</td>
+                                <td class="p-4 text-right font-bold text-emerald-600" v-if="selectedColumns.includes('total_collected')">₹{{ numberFormat(row.total_collected) }}</td>
+                                <td class="p-4 text-right text-indigo-500" v-if="selectedColumns.includes('total_discount')">₹{{ numberFormat(row.total_discount) }}</td>
+                                <td class="p-4 pr-6 text-right text-pink-500" v-if="selectedColumns.includes('total_fine')">₹{{ numberFormat(row.total_fine) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -368,23 +395,23 @@
                     <table v-else-if="filters.report_type === 'class_wise'" class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-50/50 dark:bg-slate-900/60">
-                                <th class="p-4 pl-6">Class Name</th>
-                                <th class="p-4 text-center">Txns Count</th>
-                                <th class="p-4 text-right">Total Collected</th>
-                                <th class="p-4 text-right">Total Discounts</th>
-                                <th class="p-4 pr-6 text-right">Total Fines</th>
+                                <th class="p-4 pl-6" v-if="selectedColumns.includes('class_name')">Class Name</th>
+                                <th class="p-4 text-center" v-if="selectedColumns.includes('transactions_count')">Txns Count</th>
+                                <th class="p-4 text-right" v-if="selectedColumns.includes('total_collected')">Total Collected</th>
+                                <th class="p-4 text-right" v-if="selectedColumns.includes('total_discount')">Total Discounts</th>
+                                <th class="p-4 pr-6 text-right" v-if="selectedColumns.includes('total_fine')">Total Fines</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
                             <tr v-if="reportData.length === 0">
-                                <td colspan="5" class="p-10 text-center text-slate-400">No class collections recorded.</td>
+                                <td colspan="100" class="p-10 text-center text-slate-400">No class collections recorded.</td>
                             </tr>
                             <tr v-else v-for="(row, idx) in reportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                <td class="p-4 pl-6 font-semibold text-slate-850 dark:text-white">{{ row.class_name }}</td>
-                                <td class="p-4 text-center font-mono">{{ row.transactions_count }}</td>
-                                <td class="p-4 text-right font-bold text-emerald-600">₹{{ numberFormat(row.total_collected) }}</td>
-                                <td class="p-4 text-right text-indigo-500">₹{{ numberFormat(row.total_discount) }}</td>
-                                <td class="p-4 pr-6 text-right text-pink-500">₹{{ numberFormat(row.total_fine) }}</td>
+                                <td class="p-4 pl-6 font-semibold text-slate-800 dark:text-white" v-if="selectedColumns.includes('class_name')">{{ row.class_name }}</td>
+                                <td class="p-4 text-center font-mono" v-if="selectedColumns.includes('transactions_count')">{{ row.transactions_count }}</td>
+                                <td class="p-4 text-right font-bold text-emerald-600" v-if="selectedColumns.includes('total_collected')">₹{{ numberFormat(row.total_collected) }}</td>
+                                <td class="p-4 text-right text-indigo-500" v-if="selectedColumns.includes('total_discount')">₹{{ numberFormat(row.total_discount) }}</td>
+                                <td class="p-4 pr-6 text-right text-pink-500" v-if="selectedColumns.includes('total_fine')">₹{{ numberFormat(row.total_fine) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -393,27 +420,27 @@
                     <table v-else-if="filters.report_type === 'student_wise'" class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-50/50 dark:bg-slate-900/60">
-                                <th class="p-4 pl-6">Student Name</th>
-                                <th class="p-4">Admission No</th>
-                                <th class="p-4">Class</th>
-                                <th class="p-4 text-center">Txns Count</th>
-                                <th class="p-4 text-right">Total Collected</th>
-                                <th class="p-4 text-right">Total Discounts</th>
-                                <th class="p-4 pr-6 text-right">Total Fines</th>
+                                <th class="p-4 pl-6" v-if="selectedColumns.includes('student_name')">Student Name</th>
+                                <th class="p-4" v-if="selectedColumns.includes('admission_no')">Admission No</th>
+                                <th class="p-4" v-if="selectedColumns.includes('class_name')">Class</th>
+                                <th class="p-4 text-center" v-if="selectedColumns.includes('transactions_count')">Txns Count</th>
+                                <th class="p-4 text-right" v-if="selectedColumns.includes('total_collected')">Total Collected</th>
+                                <th class="p-4 text-right" v-if="selectedColumns.includes('total_discount')">Total Discounts</th>
+                                <th class="p-4 pr-6 text-right" v-if="selectedColumns.includes('total_fine')">Total Fines</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
                             <tr v-if="reportData.length === 0">
-                                <td colspan="7" class="p-10 text-center text-slate-400">No student collections recorded.</td>
+                                <td colspan="100" class="p-10 text-center text-slate-400">No student collections recorded.</td>
                             </tr>
                             <tr v-else v-for="(row, idx) in reportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                <td class="p-4 pl-6 font-semibold text-slate-850 dark:text-white">{{ row.student_name }}</td>
-                                <td class="p-4 font-mono text-xs">{{ row.admission_no }}</td>
-                                <td class="p-4">{{ row.class_name }}</td>
-                                <td class="p-4 text-center font-mono">{{ row.transactions_count }}</td>
-                                <td class="p-4 text-right font-bold text-emerald-600">₹{{ numberFormat(row.total_collected) }}</td>
-                                <td class="p-4 text-right text-indigo-500">₹{{ numberFormat(row.total_discount) }}</td>
-                                <td class="p-4 pr-6 text-right text-pink-500">₹{{ numberFormat(row.total_fine) }}</td>
+                                <td class="p-4 pl-6 font-semibold text-slate-800 dark:text-white" v-if="selectedColumns.includes('student_name')">{{ row.student_name }}</td>
+                                <td class="p-4 font-mono text-xs" v-if="selectedColumns.includes('admission_no')">{{ row.admission_no }}</td>
+                                <td class="p-4" v-if="selectedColumns.includes('class_name')">{{ row.class_name }}</td>
+                                <td class="p-4 text-center font-mono" v-if="selectedColumns.includes('transactions_count')">{{ row.transactions_count }}</td>
+                                <td class="p-4 text-right font-bold text-emerald-600" v-if="selectedColumns.includes('total_collected')">₹{{ numberFormat(row.total_collected) }}</td>
+                                <td class="p-4 text-right text-indigo-500" v-if="selectedColumns.includes('total_discount')">₹{{ numberFormat(row.total_discount) }}</td>
+                                <td class="p-4 pr-6 text-right text-pink-500" v-if="selectedColumns.includes('total_fine')">₹{{ numberFormat(row.total_fine) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -422,23 +449,23 @@
                     <table v-else-if="filters.report_type === 'daily'" class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-50/50 dark:bg-slate-900/60">
-                                <th class="p-4 pl-6">Date</th>
-                                <th class="p-4 text-center">Txns Count</th>
-                                <th class="p-4 text-right">Total Collected</th>
-                                <th class="p-4 text-right">Total Discounts</th>
-                                <th class="p-4 pr-6 text-right">Total Fines</th>
+                                <th class="p-4 pl-6" v-if="selectedColumns.includes('date')">Date</th>
+                                <th class="p-4 text-center" v-if="selectedColumns.includes('transactions_count')">Txns Count</th>
+                                <th class="p-4 text-right" v-if="selectedColumns.includes('total_collected')">Total Collected</th>
+                                <th class="p-4 text-right" v-if="selectedColumns.includes('total_discount')">Total Discounts</th>
+                                <th class="p-4 pr-6 text-right" v-if="selectedColumns.includes('total_fine')">Total Fines</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
                             <tr v-if="reportData.length === 0">
-                                <td colspan="5" class="p-10 text-center text-slate-400">No collections for the range.</td>
+                                <td colspan="100" class="p-10 text-center text-slate-400">No collections for the range.</td>
                             </tr>
                             <tr v-else v-for="(row, idx) in reportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                <td class="p-4 pl-6 font-medium">{{ formatDate(row.date) }}</td>
-                                <td class="p-4 text-center font-mono">{{ row.transactions_count }}</td>
-                                <td class="p-4 text-right font-bold text-emerald-600">₹{{ numberFormat(row.total_collected) }}</td>
-                                <td class="p-4 text-right text-indigo-500">₹{{ numberFormat(row.total_discount) }}</td>
-                                <td class="p-4 pr-6 text-right text-pink-500">₹{{ numberFormat(row.total_fine) }}</td>
+                                <td class="p-4 pl-6 font-medium" v-if="selectedColumns.includes('date')">{{ formatDate(row.date) }}</td>
+                                <td class="p-4 text-center font-mono" v-if="selectedColumns.includes('transactions_count')">{{ row.transactions_count }}</td>
+                                <td class="p-4 text-right font-bold text-emerald-600" v-if="selectedColumns.includes('total_collected')">₹{{ numberFormat(row.total_collected) }}</td>
+                                <td class="p-4 text-right text-indigo-500" v-if="selectedColumns.includes('total_discount')">₹{{ numberFormat(row.total_discount) }}</td>
+                                <td class="p-4 pr-6 text-right text-pink-500" v-if="selectedColumns.includes('total_fine')">₹{{ numberFormat(row.total_fine) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -447,23 +474,23 @@
                     <table v-else-if="filters.report_type === 'monthly'" class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-50/50 dark:bg-slate-900/60">
-                                <th class="p-4 pl-6">Month</th>
-                                <th class="p-4 text-center">Txns Count</th>
-                                <th class="p-4 text-right">Total Collected</th>
-                                <th class="p-4 text-right">Total Discounts</th>
-                                <th class="p-4 pr-6 text-right">Total Fines</th>
+                                <th class="p-4 pl-6" v-if="selectedColumns.includes('month')">Month</th>
+                                <th class="p-4 text-center" v-if="selectedColumns.includes('transactions_count')">Txns Count</th>
+                                <th class="p-4 text-right" v-if="selectedColumns.includes('total_collected')">Total Collected</th>
+                                <th class="p-4 text-right" v-if="selectedColumns.includes('total_discount')">Total Discounts</th>
+                                <th class="p-4 pr-6 text-right" v-if="selectedColumns.includes('total_fine')">Total Fines</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
                             <tr v-if="reportData.length === 0">
-                                <td colspan="5" class="p-10 text-center text-slate-400">No collections recorded in this session.</td>
+                                <td colspan="100" class="p-10 text-center text-slate-400">No collections recorded in this session.</td>
                             </tr>
                             <tr v-else v-for="(row, idx) in reportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                <td class="p-4 pl-6 font-bold text-slate-800 dark:text-slate-200">{{ formatMonth(row.month) }}</td>
-                                <td class="p-4 text-center font-mono">{{ row.transactions_count }}</td>
-                                <td class="p-4 text-right font-bold text-emerald-600">₹{{ numberFormat(row.total_collected) }}</td>
-                                <td class="p-4 text-right text-indigo-500">₹{{ numberFormat(row.total_discount) }}</td>
-                                <td class="p-4 pr-6 text-right text-pink-500">₹{{ numberFormat(row.total_fine) }}</td>
+                                <td class="p-4 pl-6 font-bold text-slate-800 dark:text-slate-200" v-if="selectedColumns.includes('month')">{{ formatMonth(row.month) }}</td>
+                                <td class="p-4 text-center font-mono" v-if="selectedColumns.includes('transactions_count')">{{ row.transactions_count }}</td>
+                                <td class="p-4 text-right font-bold text-emerald-600" v-if="selectedColumns.includes('total_collected')">₹{{ numberFormat(row.total_collected) }}</td>
+                                <td class="p-4 text-right text-indigo-500" v-if="selectedColumns.includes('total_discount')">₹{{ numberFormat(row.total_discount) }}</td>
+                                <td class="p-4 pr-6 text-right text-pink-500" v-if="selectedColumns.includes('total_fine')">₹{{ numberFormat(row.total_fine) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -472,30 +499,30 @@
                     <table v-else-if="filters.report_type === 'discount'" class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-50/50 dark:bg-slate-900/60">
-                                <th class="p-4 pl-6">Receipt #</th>
-                                <th class="p-4">Student Name</th>
-                                <th class="p-4">Class</th>
-                                <th class="p-4">Installment</th>
-                                <th class="p-4">Date</th>
-                                <th class="p-4 text-right">Discount Amount</th>
-                                <th class="p-4 pr-6">Remarks</th>
+                                <th class="p-4 pl-6" v-if="selectedColumns.includes('receipt_number')">Receipt #</th>
+                                <th class="p-4" v-if="selectedColumns.includes('student_name')">Student Name</th>
+                                <th class="p-4" v-if="selectedColumns.includes('class_name')">Class</th>
+                                <th class="p-4" v-if="selectedColumns.includes('installment')">Installment</th>
+                                <th class="p-4" v-if="selectedColumns.includes('payment_date')">Date</th>
+                                <th class="p-4 text-right" v-if="selectedColumns.includes('discount_amount')">Discount Amount</th>
+                                <th class="p-4 pr-6" v-if="selectedColumns.includes('remarks')">Remarks</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
                             <tr v-if="reportData.length === 0">
-                                <td colspan="7" class="p-10 text-center text-slate-400">No discount records found.</td>
+                                <td colspan="100" class="p-10 text-center text-slate-400">No discount records found.</td>
                             </tr>
                             <tr v-else v-for="(row, idx) in reportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                <td class="p-4 pl-6 font-mono text-xs">{{ row.receipt_number }}</td>
-                                <td class="p-4 font-semibold text-slate-800 dark:text-white">
+                                <td class="p-4 pl-6 font-mono text-xs" v-if="selectedColumns.includes('receipt_number')">{{ row.receipt_number }}</td>
+                                <td class="p-4 font-semibold text-slate-800 dark:text-white" v-if="selectedColumns.includes('student_name')">
                                     {{ row.student_name }}
                                     <div class="text-[10px] text-slate-400 font-mono">Adm #: {{ row.admission_no }}</div>
                                 </td>
-                                <td class="p-4">{{ row.class_name }}</td>
-                                <td class="p-4">{{ row.installment }}</td>
-                                <td class="p-4 whitespace-nowrap">{{ formatDate(row.payment_date) }}</td>
-                                <td class="p-4 text-right font-black text-indigo-600 dark:text-indigo-400">₹{{ numberFormat(row.discount_amount) }}</td>
-                                <td class="p-4 pr-6 text-slate-500 text-xs">{{ row.remarks || '-' }}</td>
+                                <td class="p-4" v-if="selectedColumns.includes('class_name')">{{ row.class_name }}</td>
+                                <td class="p-4" v-if="selectedColumns.includes('installment')">{{ row.installment }}</td>
+                                <td class="p-4 whitespace-nowrap" v-if="selectedColumns.includes('payment_date')">{{ formatDate(row.payment_date) }}</td>
+                                <td class="p-4 text-right font-black text-indigo-650 dark:text-indigo-400" v-if="selectedColumns.includes('discount_amount')">₹{{ numberFormat(row.discount_amount) }}</td>
+                                <td class="p-4 pr-6 text-slate-500 text-xs" v-if="selectedColumns.includes('remarks')">{{ row.remarks || '-' }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -504,30 +531,30 @@
                     <table v-else-if="filters.report_type === 'fine'" class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-50/50 dark:bg-slate-900/60">
-                                <th class="p-4 pl-6">Receipt #</th>
-                                <th class="p-4">Student Name</th>
-                                <th class="p-4">Class</th>
-                                <th class="p-4">Installment</th>
-                                <th class="p-4">Date</th>
-                                <th class="p-4 text-right">Fine Amount</th>
-                                <th class="p-4 pr-6">Remarks</th>
+                                <th class="p-4 pl-6" v-if="selectedColumns.includes('receipt_number')">Receipt #</th>
+                                <th class="p-4" v-if="selectedColumns.includes('student_name')">Student Name</th>
+                                <th class="p-4" v-if="selectedColumns.includes('class_name')">Class</th>
+                                <th class="p-4" v-if="selectedColumns.includes('installment')">Installment</th>
+                                <th class="p-4" v-if="selectedColumns.includes('payment_date')">Date</th>
+                                <th class="p-4 text-right" v-if="selectedColumns.includes('fine_amount')">Fine Amount</th>
+                                <th class="p-4 pr-6" v-if="selectedColumns.includes('remarks')">Remarks</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
                             <tr v-if="reportData.length === 0">
-                                <td colspan="7" class="p-10 text-center text-slate-400">No late fine records found.</td>
+                                <td colspan="100" class="p-10 text-center text-slate-400">No late fine records found.</td>
                             </tr>
                             <tr v-else v-for="(row, idx) in reportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                <td class="p-4 pl-6 font-mono text-xs">{{ row.receipt_number }}</td>
-                                <td class="p-4 font-semibold text-slate-800 dark:text-white">
+                                <td class="p-4 pl-6 font-mono text-xs" v-if="selectedColumns.includes('receipt_number')">{{ row.receipt_number }}</td>
+                                <td class="p-4 font-semibold text-slate-800 dark:text-white" v-if="selectedColumns.includes('student_name')">
                                     {{ row.student_name }}
                                     <div class="text-[10px] text-slate-400 font-mono">Adm #: {{ row.admission_no }}</div>
                                 </td>
-                                <td class="p-4">{{ row.class_name }}</td>
-                                <td class="p-4">{{ row.installment }}</td>
-                                <td class="p-4 whitespace-nowrap">{{ formatDate(row.payment_date) }}</td>
-                                <td class="p-4 text-right font-black text-pink-600 dark:text-pink-400">₹{{ numberFormat(row.fine_amount) }}</td>
-                                <td class="p-4 pr-6 text-slate-500 text-xs">{{ row.remarks || '-' }}</td>
+                                <td class="p-4" v-if="selectedColumns.includes('class_name')">{{ row.class_name }}</td>
+                                <td class="p-4" v-if="selectedColumns.includes('installment')">{{ row.installment }}</td>
+                                <td class="p-4 whitespace-nowrap" v-if="selectedColumns.includes('payment_date')">{{ formatDate(row.payment_date) }}</td>
+                                <td class="p-4 text-right font-black text-pink-600 dark:text-pink-400" v-if="selectedColumns.includes('fine_amount')">₹{{ numberFormat(row.fine_amount) }}</td>
+                                <td class="p-4 pr-6 text-slate-500 text-xs" v-if="selectedColumns.includes('remarks')">{{ row.remarks || '-' }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -569,6 +596,92 @@ export default {
             student_id: '',
             start_date: '',
             end_date: ''
+        });
+
+        // Config of columns per report type
+        const columnsConfig = {
+            collection: [
+                { key: 'receipt_number', label: 'Receipt #' },
+                { key: 'student_name', label: 'Student Name' },
+                { key: 'class_name', label: 'Class' },
+                { key: 'installment', label: 'Installment' },
+                { key: 'payment_date', label: 'Date' },
+                { key: 'payment_method', label: 'Method' },
+                { key: 'amount_paid', label: 'Amount Paid' },
+                { key: 'discount_amount', label: 'Discount' },
+                { key: 'fine_amount', label: 'Fine' }
+            ],
+            pending: [
+                { key: 'student_name', label: 'Student Name' },
+                { key: 'admission_no', label: 'Adm No' },
+                { key: 'total_fee', label: 'Total Assigned' },
+                { key: 'total_paid', label: 'Paid' },
+                { key: 'total_discount', label: 'Waiver' },
+                { key: 'total_fine', label: 'Fines Paid' },
+                { key: 'outstanding_balance', label: 'Outstanding' }
+            ],
+            installment_wise: [
+                { key: 'installment_name', label: 'Installment Name' },
+                { key: 'due_date', label: 'Due Date' },
+                { key: 'transactions_count', label: 'Txns Count' },
+                { key: 'total_collected', label: 'Total Collected' },
+                { key: 'total_discount', label: 'Total Discounts' },
+                { key: 'total_fine', label: 'Total Fines' }
+            ],
+            class_wise: [
+                { key: 'class_name', label: 'Class Name' },
+                { key: 'transactions_count', label: 'Txns Count' },
+                { key: 'total_collected', label: 'Total Collected' },
+                { key: 'total_discount', label: 'Total Discounts' },
+                { key: 'total_fine', label: 'Total Fines' }
+            ],
+            student_wise: [
+                { key: 'student_name', label: 'Student Name' },
+                { key: 'admission_no', label: 'Admission No' },
+                { key: 'class_name', label: 'Class' },
+                { key: 'transactions_count', label: 'Txns Count' },
+                { key: 'total_collected', label: 'Total Collected' },
+                { key: 'total_discount', label: 'Total Discounts' },
+                { key: 'total_fine', label: 'Total Fines' }
+            ],
+            daily: [
+                { key: 'date', label: 'Date' },
+                { key: 'transactions_count', label: 'Txns Count' },
+                { key: 'total_collected', label: 'Total Collected' },
+                { key: 'total_discount', label: 'Total Discounts' },
+                { key: 'total_fine', label: 'Total Fines' }
+            ],
+            monthly: [
+                { key: 'month', label: 'Month' },
+                { key: 'transactions_count', label: 'Txns Count' },
+                { key: 'total_collected', label: 'Total Collected' },
+                { key: 'total_discount', label: 'Total Discounts' },
+                { key: 'total_fine', label: 'Total Fines' }
+            ],
+            discount: [
+                { key: 'receipt_number', label: 'Receipt #' },
+                { key: 'student_name', label: 'Student Name' },
+                { key: 'class_name', label: 'Class' },
+                { key: 'installment', label: 'Installment' },
+                { key: 'payment_date', label: 'Date' },
+                { key: 'discount_amount', label: 'Discount Amount' },
+                { key: 'remarks', label: 'Remarks' }
+            ],
+            fine: [
+                { key: 'receipt_number', label: 'Receipt #' },
+                { key: 'student_name', label: 'Student Name' },
+                { key: 'class_name', label: 'Class' },
+                { key: 'installment', label: 'Installment' },
+                { key: 'payment_date', label: 'Date' },
+                { key: 'fine_amount', label: 'Fine Amount' },
+                { key: 'remarks', label: 'Remarks' }
+            ]
+        };
+
+        const selectedColumns = ref([]);
+
+        const availableColumns = computed(() => {
+            return columnsConfig[filters.value.report_type] || [];
         });
 
         // Determine when to show student filter
@@ -803,6 +916,8 @@ export default {
             // Reset report output and states
             reportData.value = [];
             hasGenerated.value = false;
+            // Initialize checked columns to all available columns
+            selectedColumns.value = availableColumns.value.map(c => c.key);
         };
 
         const fetchStudents = async () => {
@@ -889,68 +1004,17 @@ export default {
         };
 
         const printReport = () => {
-            const printContent = document.getElementById('print-report-area').innerHTML;
-            const rt = filters.value.report_type;
-
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>${getReportTitle()} - ${getSessionTitle()}</title>
-                        <style>
-                            body { font-family: system-ui, -apple-system, sans-serif; color: #1e293b; padding: 24px; }
-                            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                            th, td { border-bottom: 1px solid #e2e8f0; padding: 10px 12px; text-align: left; font-size: 12px; }
-                            th { background-color: #f8fafc; font-weight: bold; color: #475569; text-transform: uppercase; font-size: 10px; }
-                            .text-right { text-align: right; }
-                            .text-center { text-align: center; }
-                            .font-mono { font-family: monospace; }
-                            .header-container { display: flex; justify-content: space-between; border-bottom: 2px solid #cbd5e1; padding-bottom: 12px; margin-bottom: 20px; }
-                            .summary-grid { display: grid; grid-template-cols: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; text-align: center; }
-                            .summary-card { border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; background-color: #f8fafc; }
-                            .summary-title { font-size: 10px; font-weight: bold; color: #64748b; text-transform: uppercase; }
-                            .summary-value { font-size: 16px; font-weight: 850; margin-top: 4px; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="header-container">
-                            <div>
-                                <h2 style="margin: 0; font-size: 18px; font-weight: 800;">${getReportTitle()}</h2>
-                                <p style="margin: 4px 0 0 0; font-size: 11px; color: #64748b;">Academic Session: ${getSessionTitle()} | Range: ${filters.value.start_date || 'Inception'} to ${filters.value.end_date || 'Present'}</p>
-                            </div>
-                            <div style="text-align: right; font-size: 11px; color: #64748b;">
-                                <div>Generated: ${new Date().toLocaleString()}</div>
-                                <div style="margin-top: 2px;">ERP SaaS Financial Module</div>
-                            </div>
-                        </div>
-
-                        ${summaryAggregates.value ? `
-                        <div class="summary-grid">
-                            <div class="summary-card">
-                                <div class="summary-title">Total Collected</div>
-                                <div class="summary-value" style="color: #16a34a;">₹${numberFormat(summaryAggregates.value.collected)}</div>
-                            </div>
-                            <div class="summary-card">
-                                <div class="summary-title">Total Discounts</div>
-                                <div class="summary-value" style="color: #4f46e5;">₹${numberFormat(summaryAggregates.value.discounts)}</div>
-                            </div>
-                            <div class="summary-card">
-                                <div class="summary-title">Total Fines Collected</div>
-                                <div class="summary-value" style="color: #db2777;">₹${numberFormat(summaryAggregates.value.fines)}</div>
-                            </div>
-                        </div>
-                        ` : ''}
-
-                        ${printContent.replace(/class="hover:bg-slate-50 dark:hover:bg-slate-800\/30 transition-colors"/g, '')}
-                    </body>
-                </html>
-            `);
-            printWindow.document.close();
-            printWindow.focus();
-            setTimeout(() => {
-                printWindow.print();
-                printWindow.close();
-            }, 500);
+            const params = new URLSearchParams({
+                academic_year_id: filters.value.academic_year_id,
+                report_type: filters.value.report_type,
+                class_id: filters.value.class_id || '',
+                section_id: filters.value.section_id || '',
+                student_id: filters.value.student_id || '',
+                start_date: filters.value.start_date || '',
+                end_date: filters.value.end_date || '',
+                selected_columns: selectedColumns.value.join(',')
+            });
+            window.open(`/api/fee-reports/pdf?${params.toString()}`, '_blank');
         };
 
         onMounted(async () => {
@@ -958,6 +1022,9 @@ export default {
             if (route.query.report_type) {
                 filters.value.report_type = route.query.report_type;
             }
+            // Auto initialize column options
+            selectedColumns.value = availableColumns.value.map(c => c.key);
+            
             if (route.query.auto === 'true') {
                 await generateReport();
             }
@@ -992,7 +1059,9 @@ export default {
             numberFormat,
             formatDate,
             formatMonth,
-            router
+            router,
+            selectedColumns,
+            availableColumns
         };
     }
 }

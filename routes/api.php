@@ -298,6 +298,7 @@ Route::middleware('auth')->group(function () {
 
         // Reports
         Route::get('/fee-reports', [FeeReportController::class, 'index'])->middleware('permission:report.view');
+        Route::get('/fee-reports/pdf', [FeeReportController::class, 'downloadPdf'])->middleware('permission:report.view');
     });
 });
 

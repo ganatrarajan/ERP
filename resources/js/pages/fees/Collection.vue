@@ -17,7 +17,7 @@
         </div>
 
         <!-- Student Selector Block -->
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 p-5 rounded-2xl shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 p-5 rounded-2xl shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <div class="space-y-1">
                 <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Academic Session</label>
                 <select 
@@ -49,7 +49,7 @@
                 <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Section</label>
                 <select 
                     v-model="filters.section_id" 
-                    @change="handleFilterChange"
+                    @change="handleSectionChange"
                     class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 focus:outline-none"
                 >
                     <option value="">All Sections</option>
@@ -59,18 +59,15 @@
                 </select>
             </div>
 
-            <div class="space-y-1">
-                <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Student Account</label>
-                <select 
-                    v-model="selectedStudentId" 
-                    @change="fetchStudentDues"
-                    class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 focus:outline-none"
+            <div>
+                <button 
+                    type="button"
+                    @click="fetchStudents"
+                    class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-600/10 transition-all flex items-center justify-center gap-1.5 cursor-pointer h-[38px]"
                 >
-                    <option value="" disabled>Choose Student</option>
-                    <option v-for="stu in studentList" :key="stu.id" :value="stu.id">
-                        {{ stu.first_name }} {{ stu.last_name }} (Adm #: {{ stu.admission_no }}{{ stu.section ? ' - Sec: ' + stu.section : '' }})
-                    </option>
-                </select>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                    Apply Filter
+                </button>
             </div>
         </div>
 
@@ -79,39 +76,130 @@
             <div class="h-24 bg-slate-200 dark:bg-slate-800 rounded"></div>
         </div>
 
-        <div v-else-if="!selectedStudentId" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-12 text-center rounded-2xl text-slate-400 shadow-sm flex flex-col justify-center items-center h-48">
-            <svg class="w-16 h-16 text-slate-300 dark:text-slate-700 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-            Select a student account above to start billing or collection.
+        <div v-else-if="!selectedStudentId">
+            <!-- If Class is selected, show list of students in the class -->
+            <div v-if="filters.class_id" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-3 border-b border-slate-100 dark:border-slate-850">
+                    <h3 class="font-extrabold text-slate-800 dark:text-white text-xs uppercase tracking-wider">
+                        Students in {{ classes.find(c => c.id === filters.class_id)?.name }} {{ filters.section_id ? '-' + (sections.find(s => s.id === filters.section_id)?.name || '') : '' }}
+                    </h3>
+                    <div class="w-full sm:w-72 relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </span>
+                        <input 
+                            type="text" 
+                            v-model="studentSearchQuery" 
+                            @input="handleStudentSearchInput"
+                            placeholder="Search by name or Adm No..." 
+                            class="w-full pl-9 pr-8 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold"
+                        />
+                    </div>
+                </div>
+                <div v-if="studentList.length === 0" class="text-center py-12 text-slate-400 dark:text-slate-600 text-xs">
+                    No matching student records found.
+                </div>
+                <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div 
+                        v-for="stu in studentList" 
+                        :key="stu.id" 
+                        @click="selectStudent(stu)"
+                        class="p-4 border border-slate-150 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500/50 bg-slate-50/50 dark:bg-slate-950/20 hover:bg-white dark:hover:bg-slate-900 rounded-2xl cursor-pointer transition-all hover:shadow-md flex flex-col justify-between gap-3 group active:scale-95"
+                    >
+                        <div class="space-y-1">
+                            <div class="font-extrabold text-slate-800 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors text-xs truncate">
+                                {{ stu.first_name }}
+                            </div>
+                            <div class="text-[9px] text-slate-450 dark:text-slate-500 font-bold uppercase tracking-wider">
+                                Adm: {{ stu.admission_no }}
+                            </div>
+                            <div v-if="stu.section" class="text-[9px] text-slate-400 dark:text-slate-650 font-bold uppercase">
+                                Sec: {{ stu.section }}
+                            </div>
+                        </div>
+                        <button 
+                            type="button"
+                            class="w-full py-1.5 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-650 dark:text-indigo-400 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 dark:hover:text-white font-bold text-[10px] rounded-xl transition-all border-none cursor-pointer flex items-center justify-center gap-1"
+                        >
+                            <span>Select Student</span>
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Otherwise show fallback placeholder -->
+            <div v-else class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-12 text-center rounded-2xl text-slate-400 shadow-sm flex flex-col justify-center items-center h-48">
+                <svg class="w-16 h-16 text-slate-350 dark:text-slate-700 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                Select a class above or search a student account to start billing or collection.
+            </div>
         </div>
 
         <div v-else-if="!dues.has_assignment" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-12 text-center rounded-2xl text-rose-500 shadow-sm flex flex-col justify-center items-center h-48">
-            <svg class="w-16 h-16 text-rose-300 dark:text-rose-900/40 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <svg class="w-16 h-16 text-rose-350 dark:text-rose-900/40 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
             Warning: This student has not been assigned a fee structure for the selected academic year. Go to "Student Fee Assignment" first.
         </div>
 
         <!-- Student Account Details & Dues grid -->
         <div v-else class="space-y-6">
-            <!-- Summary stats -->
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm text-center">
-                    <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Total Dues</span>
-                    <h3 class="text-xl font-black text-slate-800 dark:text-white mt-1.5">₹{{ numberFormat(dues.total_fee) }}</h3>
+            <!-- Student Header Profile Details Banner -->
+            <div v-if="studentProfile" class="grid grid-cols-1 lg:grid-cols-3 gap-4 animate-[fadeIn_0.2s_ease-out]">
+                <!-- Student Card -->
+                <div class="lg:col-span-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black text-lg shrink-0 uppercase">
+                        {{ studentProfile.first_name?.substring(0, 1) }}{{ studentProfile.last_name?.substring(0, 1) }}
+                    </div>
+                    <div class="space-y-0.5 min-w-0 flex-1">
+                        <h2 class="text-sm font-extrabold text-slate-800 dark:text-white truncate">
+                            {{ studentProfile.first_name }} {{ studentProfile.last_name }}
+                        </h2>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold">
+                                Adm: {{ studentProfile.admission_no }}
+                            </span>
+                            <span v-if="studentProfile.gr_no" class="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold">
+                                GR No: {{ studentProfile.gr_no }}
+                            </span>
+                        </div>
+                        <div class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wide">
+                            {{ filters.class_id ? classes.find(c => c.id === filters.class_id)?.name : 'Class' }} - {{ filters.section_id ? sections.find(s => s.id === filters.section_id)?.name : 'Section' }}
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm text-center">
-                    <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide font-semibold">Total Paid</span>
-                    <h3 class="text-xl font-black text-emerald-600 dark:text-emerald-450 mt-1.5">₹{{ numberFormat(dues.total_paid) }}</h3>
-                </div>
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm text-center">
-                    <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide font-semibold">Total Discount</span>
-                    <h3 class="text-xl font-black text-indigo-600 dark:text-indigo-400 mt-1.5">₹{{ numberFormat(dues.total_discount) }}</h3>
-                </div>
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm text-center">
-                    <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide font-semibold">Total Fine Paid</span>
-                    <h3 class="text-xl font-black text-pink-600 dark:text-pink-400 mt-1.5">₹{{ numberFormat(dues.total_fine) }}</h3>
-                </div>
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm text-center col-span-2 md:col-span-1">
-                    <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide font-semibold">Balance Due</span>
-                    <h3 class="text-xl font-black text-rose-600 dark:text-rose-450 mt-1.5">₹{{ numberFormat(dues.outstanding_balance) }}</h3>
+
+                <!-- KPI & Billing Summary -->
+                <div class="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div class="space-y-1 border-r border-slate-100 dark:border-slate-800/80 pr-2 last:border-none">
+                        <span class="text-[9px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider block">Total Fees</span>
+                        <div class="text-lg font-black text-slate-850 dark:text-white mt-1">₹{{ numberFormat(dues.total_fee) }}</div>
+                        <div class="text-[9px] text-slate-400 font-semibold truncate">{{ dues.fee_structure_name }}</div>
+                    </div>
+                    <div class="space-y-1 border-r border-slate-100 dark:border-slate-800/80 pr-2 last:border-none">
+                        <span class="text-[9px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider block">Paid Amount</span>
+                        <div class="text-lg font-black text-emerald-600 dark:text-emerald-400 mt-1">₹{{ numberFormat(dues.total_paid) }}</div>
+                        <div v-if="dues.total_fine > 0" class="text-[9px] text-pink-500 font-bold uppercase">+₹{{ numberFormat(dues.total_fine) }} Fines</div>
+                    </div>
+                    <div class="space-y-1 border-r border-slate-100 dark:border-slate-800/80 pr-2 last:border-none">
+                        <span class="text-[9px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider block">Remaining Dues</span>
+                        <div class="text-lg font-black text-rose-600 dark:text-rose-455 mt-1">₹{{ numberFormat(dues.outstanding_balance) }}</div>
+                        <span :class="[
+                            'inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider border mt-1',
+                            dues.outstanding_balance <= 0 
+                                ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' 
+                                : 'bg-rose-500/10 text-rose-600 dark:text-rose-455 border-rose-500/20'
+                        ]">
+                            {{ dues.outstanding_balance <= 0 ? 'Fully Paid' : 'Pending' }}
+                        </span>
+                    </div>
+                    <div class="space-y-1">
+                        <span class="text-[9px] font-bold text-slate-455 dark:text-slate-500 uppercase tracking-wider block">Last Payment</span>
+                        <div v-if="lastPayment" class="space-y-0.5 mt-1">
+                            <div class="text-xs font-black text-indigo-650 dark:text-indigo-400">₹{{ numberFormat(lastPayment.amount_paid) }}</div>
+                            <div class="text-[9px] text-slate-400 font-bold uppercase">{{ formatDate(lastPayment.payment_date) }}</div>
+                            <div class="text-[9px] text-slate-400 font-mono font-semibold">Ref: {{ lastPayment.receipt?.receipt_number }}</div>
+                        </div>
+                        <div v-else class="text-xs text-slate-400 italic mt-1.5">No payments yet</div>
+                    </div>
                 </div>
             </div>
 
@@ -383,7 +471,7 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import { useToastStore } from '../../stores/toast';
@@ -403,6 +491,15 @@ export default {
         const dues = ref({});
         const loadingDues = ref(false);
         const availableDiscounts = ref([]);
+
+        // Autocomplete search refs
+        const studentSearchQuery = ref('');
+        const showSearchDropdown = ref(false);
+        const searchingStudents = ref(false);
+        const studentProfile = ref(null);
+        const lastPayment = ref(null);
+
+        const allClassStudents = ref([]);
 
         const isCurrentYear = computed(() => {
             const selected = academicYears.value.find(y => y.id === filters.value.academic_year_id);
@@ -470,18 +567,14 @@ export default {
             filters.value.class_id = '';
             filters.value.section_id = '';
             sections.value = [];
-            selectedStudentId.value = '';
-            studentList.value = [];
-            dues.value = {};
+            clearSelectedStudent();
             await fetchClasses();
         };
 
         const handleClassChange = async () => {
             filters.value.section_id = '';
             sections.value = [];
-            selectedStudentId.value = '';
-            studentList.value = [];
-            dues.value = {};
+            clearSelectedStudent();
             
             if (filters.value.class_id) {
                 try {
@@ -493,18 +586,18 @@ export default {
                     console.error(error);
                 }
             }
-            fetchStudents();
         };
 
-        const handleFilterChange = () => {
-            selectedStudentId.value = '';
-            studentList.value = [];
-            dues.value = {};
-            fetchStudents();
+        const handleSectionChange = () => {
+            clearSelectedStudent();
         };
 
         const fetchStudents = async () => {
-            if (!filters.value.academic_year_id || !filters.value.class_id) return;
+            if (!filters.value.academic_year_id || !filters.value.class_id) {
+                allClassStudents.value = [];
+                studentList.value = [];
+                return;
+            }
             try {
                 const response = await window.axios.get('/api/fee-assignments', {
                     params: {
@@ -513,28 +606,120 @@ export default {
                         section_id: filters.value.section_id
                     }
                 });
-                // Map the structured results back into basic student selection info
+                allClassStudents.value = (response.data.students || []).map(s => ({
+                    id: s.student_id,
+                    first_name: s.name,
+                    last_name: '',
+                    admission_no: s.admission_no,
+                    section: s.section,
+                    class_name: s.class
+                }));
+                studentList.value = allClassStudents.value;
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        const handleStudentSearchInput = async () => {
+            if (!filters.value.academic_year_id) return;
+            const q = studentSearchQuery.value.trim();
+
+            if (filters.value.class_id) {
+                // Local filter from pre-fetched class list
+                if (!q) {
+                    studentList.value = allClassStudents.value;
+                } else {
+                    const lowQ = q.toLowerCase();
+                    studentList.value = allClassStudents.value.filter(s => 
+                        s.first_name.toLowerCase().includes(lowQ) || 
+                        s.admission_no.toLowerCase().includes(lowQ)
+                    );
+                }
+                return;
+            }
+
+            // Global search on server (when class is not selected)
+            if (q.length < 2) {
+                studentList.value = [];
+                return;
+            }
+            searchingStudents.value = true;
+            try {
+                const response = await window.axios.get('/api/fee-assignments', {
+                    params: {
+                        academic_year_id: filters.value.academic_year_id,
+                        search: q
+                    }
+                });
                 studentList.value = response.data.students.map(s => ({
                     id: s.student_id,
                     first_name: s.name,
                     last_name: '',
                     admission_no: s.admission_no,
-                    section: s.section
+                    section: s.section,
+                    class_name: s.class
                 }));
             } catch (error) {
                 console.error(error);
+            } finally {
+                searchingStudents.value = false;
+            }
+        };
+
+        const selectStudent = (stu) => {
+            selectedStudentId.value = stu.id;
+            studentSearchQuery.value = `${stu.first_name} ${stu.last_name} (Adm: ${stu.admission_no})`;
+            showSearchDropdown.value = false;
+            fetchStudentDues();
+        };
+
+        const clearSelectedStudent = () => {
+            selectedStudentId.value = '';
+            studentSearchQuery.value = '';
+            dues.value = {};
+            studentProfile.value = null;
+            lastPayment.value = null;
+            showSearchDropdown.value = false;
+            if (filters.value.class_id) {
+                studentList.value = allClassStudents.value;
+            } else {
+                studentList.value = [];
+            }
+        };
+
+        const closeDropdownOnOutsideClick = (e) => {
+            const container = document.getElementById('student-search-container');
+            if (container && !container.contains(e.target)) {
+                showSearchDropdown.value = false;
             }
         };
 
         const fetchStudentDues = async () => {
             if (!selectedStudentId.value) return;
             loadingDues.value = true;
+            studentProfile.value = null;
+            lastPayment.value = null;
             try {
-                const response = await window.axios.get(`/api/fee-collections/dues/${selectedStudentId.value}`, {
-                    params: { academic_year_id: filters.value.academic_year_id }
-                });
-                dues.value = response.data.dues;
-                availableDiscounts.value = response.data.available_discounts || [];
+                const [duesRes, studentRes, historyRes] = await Promise.all([
+                    window.axios.get(`/api/fee-collections/dues/${selectedStudentId.value}`, {
+                        params: { academic_year_id: filters.value.academic_year_id }
+                    }),
+                    window.axios.get(`/api/students/${selectedStudentId.value}`),
+                    window.axios.get('/api/fee-collections/history', {
+                        params: { 
+                            student_id: selectedStudentId.value,
+                            academic_year_id: filters.value.academic_year_id
+                        }
+                    })
+                ]);
+                dues.value = duesRes.data.dues;
+                availableDiscounts.value = duesRes.data.available_discounts || [];
+                studentProfile.value = studentRes.data.student;
+                
+                const collections = historyRes.data.collections || [];
+                if (collections.length > 0) {
+                    lastPayment.value = collections[0];
+                }
             } catch (error) {
                 console.error(error);
                 toastStore.error('Failed to load dues details.');
@@ -589,7 +774,7 @@ export default {
         };
 
         const numberFormat = (val) => {
-            return Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return Number(val || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         };
 
         const applyEntitledDiscount = (d) => {
@@ -643,6 +828,7 @@ export default {
 
         onMounted(async () => {
             await fetchFiltersData();
+            document.addEventListener('click', closeDropdownOnOutsideClick);
             
             if (route.query.student_id) {
                 const sId = route.query.student_id;
@@ -663,8 +849,18 @@ export default {
                             sections.value = secRes.data.sections;
                             filters.value.section_id = matchingRecord.section_id || '';
                             
-                            await fetchStudents();
+                            // Initialize list to make autocomplete text show
+                            studentList.value = [{
+                                id: student.id,
+                                first_name: student.first_name,
+                                last_name: student.last_name,
+                                admission_no: student.admission_no,
+                                section: matchingRecord.section ? matchingRecord.section.name : '',
+                                class_name: matchingRecord.class ? matchingRecord.class.name : ''
+                            }];
+                            
                             selectedStudentId.value = Number(sId);
+                            studentSearchQuery.value = `${student.first_name} ${student.last_name} (Adm: ${student.admission_no})`;
                             await fetchStudentDues();
                         }
                     }
@@ -672,6 +868,10 @@ export default {
                     console.error('Failed to auto-select student from dashboard query:', error);
                 }
             }
+        });
+
+        onUnmounted(() => {
+            document.removeEventListener('click', closeDropdownOnOutsideClick);
         });
 
         return {
@@ -691,9 +891,19 @@ export default {
             filters,
             form,
             isCurrentYear,
+            studentSearchQuery,
+            showSearchDropdown,
+            searchingStudents,
+            studentProfile,
+            lastPayment,
+            allClassStudents,
             handleAcademicYearChange,
             handleClassChange,
-            handleFilterChange,
+            handleSectionChange,
+            handleStudentSearchInput,
+            selectStudent,
+            clearSelectedStudent,
+            fetchStudents,
             fetchStudentDues,
             openCollectModal,
             applyEntitledDiscount,

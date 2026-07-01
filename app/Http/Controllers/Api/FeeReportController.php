@@ -31,13 +31,6 @@ class FeeReportController extends Controller
     {
         $this->authorize('report.view');
 
-        $user = $request->user();
-        $schoolId = $user->isSuperAdmin() ? $request->input('school_id') : $user->school_id;
-
-        if (!$schoolId) {
-            return response()->json(['message' => 'School ID is required.'], 422);
-        }
-
         $request->validate([
             'academic_year_id' => 'required|exists:academic_years,id',
             'report_type' => 'required|in:collection,pending,installment_wise,class_wise,student_wise,daily,monthly,discount,fine',
@@ -47,6 +40,143 @@ class FeeReportController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
         ]);
+
+        try {
+            $data = $this->compileReportData($request);
+            return response()->json([
+                'report_type' => $request->input('report_type'),
+                'data' => $data
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+    }
+
+    public function downloadPdf(Request $request)
+    {
+        $this->authorize('report.view');
+
+        $request->validate([
+            'academic_year_id' => 'required|exists:academic_years,id',
+            'report_type' => 'required|in:collection,pending,installment_wise,class_wise,student_wise,daily,monthly,discount,fine',
+            'class_id' => 'nullable|integer',
+            'section_id' => 'nullable|integer',
+            'student_id' => 'nullable|integer',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'selected_columns' => 'nullable|string',
+        ]);
+
+        $reportType = $request->input('report_type');
+        $academicYearId = (int) $request->input('academic_year_id');
+        $academicYear = AcademicYear::find($academicYearId);
+        $academicYearTitle = $academicYear ? $academicYear->title : 'N/A';
+
+        $columnLabels = [
+            'receipt_number' => 'Receipt #',
+            'student_name' => 'Student Name',
+            'admission_no' => 'Adm No',
+            'class_name' => 'Class',
+            'section_name' => 'Section',
+            'installment' => 'Installment',
+            'payment_date' => 'Payment Date',
+            'payment_method' => 'Mode',
+            'amount_due' => 'Due',
+            'amount_paid' => 'Paid',
+            'discount_amount' => 'Discount',
+            'fine_amount' => 'Fine',
+            'total_fee' => 'Total Fee',
+            'total_paid' => 'Total Paid',
+            'total_discount' => 'Total Discount',
+            'total_fine' => 'Total Fine',
+            'outstanding_balance' => 'Outstanding',
+            'due_date' => 'Due Date',
+            'total_collected' => 'Total Collected',
+            'transactions_count' => 'Transactions',
+            'date' => 'Date',
+            'month' => 'Month',
+            'remarks' => 'Remarks',
+        ];
+
+        $selectedKeys = array_filter(explode(',', $request->input('selected_columns', '')));
+        $columns = [];
+        foreach ($selectedKeys as $key) {
+            $key = trim($key);
+            if (isset($columnLabels[$key])) {
+                $columns[] = [
+                    'key' => $key,
+                    'label' => $columnLabels[$key]
+                ];
+            }
+        }
+
+        if (empty($columns)) {
+            $fallbackKeys = [
+                'collection' => ['receipt_number', 'student_name', 'class_name', 'installment', 'payment_date', 'payment_method', 'amount_paid'],
+                'pending' => ['student_name', 'admission_no', 'class_name', 'total_fee', 'total_paid', 'outstanding_balance'],
+                'installment_wise' => ['installment_name', 'due_date', 'total_collected', 'total_discount', 'total_fine'],
+                'class_wise' => ['class_name', 'total_collected', 'total_discount', 'total_fine', 'transactions_count'],
+                'student_wise' => ['student_name', 'admission_no', 'class_name', 'total_collected', 'total_discount', 'total_fine'],
+                'daily' => ['date', 'total_collected', 'total_discount', 'total_fine', 'transactions_count'],
+                'monthly' => ['month', 'total_collected', 'total_discount', 'total_fine', 'transactions_count'],
+                'discount' => ['receipt_number', 'student_name', 'payment_date', 'discount_amount', 'remarks'],
+                'fine' => ['receipt_number', 'student_name', 'payment_date', 'fine_amount', 'remarks'],
+            ];
+            $keys = $fallbackKeys[$reportType] ?? [];
+            foreach ($keys as $key) {
+                $columns[] = [
+                    'key' => $key,
+                    'label' => $columnLabels[$key] ?? ucfirst(str_replace('_', ' ', $key))
+                ];
+            }
+        }
+
+        try {
+            $data = $this->compileReportData($request);
+        } catch (\InvalidArgumentException $e) {
+            abort(422, $e->getMessage());
+        }
+
+        // Get user school details
+        $user = $request->user();
+        $school = $user->school;
+        
+        $reportTitles = [
+            'collection' => 'Fee Collection Register',
+            'pending' => 'Outstanding Fee Dues Report',
+            'installment_wise' => 'Installment-wise Collection Summary',
+            'class_wise' => 'Class-wise Fee Collection Report',
+            'student_wise' => 'Student-wise Collection Summary',
+            'daily' => 'Daily Fee Collection Register',
+            'monthly' => 'Monthly Fee Collection Summary',
+            'discount' => 'Fee Discount Waiver Report',
+            'fine' => 'Fee Fine / Penalty Register'
+        ];
+        $reportTitle = $reportTitles[$reportType] ?? 'Fee Report';
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.fee_report', [
+            'school' => $school,
+            'reportTitle' => $reportTitle,
+            'academicYearTitle' => $academicYearTitle,
+            'startDate' => $request->input('start_date'),
+            'endDate' => $request->input('end_date'),
+            'columns' => $columns,
+            'data' => $data,
+        ]);
+
+        $pdf->setPaper('a4', 'landscape');
+
+        return $pdf->stream(str_replace(' ', '-', strtolower($reportTitle)) . '-' . date('Y-m-d') . '.pdf');
+    }
+
+    private function compileReportData(Request $request): array
+    {
+        $user = $request->user();
+        $schoolId = $user->isSuperAdmin() ? $request->input('school_id') : $user->school_id;
+
+        if (!$schoolId) {
+            throw new \InvalidArgumentException('School ID is required.');
+        }
 
         $reportType = $request->input('report_type');
         $academicYearId = (int) $request->input('academic_year_id');
@@ -83,7 +213,6 @@ class FeeReportController extends Controller
 
         switch ($reportType) {
             case 'collection':
-                // List of collections with details
                 foreach ($collections as $col) {
                     $classRec = $col->student ? $col->student->academicRecords->where('academic_year_id', $academicYearId)->first() : null;
                     $data[] = [
@@ -103,7 +232,6 @@ class FeeReportController extends Controller
                 break;
 
             case 'pending':
-                // List students and their outstanding balance
                 $recordsQuery = StudentAcademicRecord::with(['student', 'class', 'section'])
                     ->where('school_id', $schoolId)
                     ->where('academic_year_id', $academicYearId)
@@ -138,7 +266,6 @@ class FeeReportController extends Controller
                 break;
 
             case 'installment_wise':
-                // Installment wise collections
                 $instGroup = $collections->groupBy('installment_id');
                 foreach ($instGroup as $instId => $cols) {
                     $inst = FeeInstallment::find($instId);
@@ -156,7 +283,6 @@ class FeeReportController extends Controller
                 break;
 
             case 'class_wise':
-                // Class wise collections
                 $classGroup = $collections->groupBy(function ($col) use ($academicYearId) {
                     if ($col->student) {
                         $record = $col->student->academicRecords->where('academic_year_id', $academicYearId)->first();
@@ -177,7 +303,6 @@ class FeeReportController extends Controller
                 break;
 
             case 'student_wise':
-                // Student wise collections
                 $studentGroup = $collections->groupBy('student_id');
                 foreach ($studentGroup as $sId => $cols) {
                     $firstCol = $cols->first();
@@ -198,7 +323,6 @@ class FeeReportController extends Controller
                 break;
 
             case 'daily':
-                // Daily collection
                 $dailyGroup = $collections->groupBy(function ($col) {
                     return $col->payment_date->format('Y-m-d');
                 })->sortKeys();
@@ -214,7 +338,6 @@ class FeeReportController extends Controller
                 break;
 
             case 'monthly':
-                // Monthly collection
                 $monthlyGroup = $collections->groupBy(function ($col) {
                     return $col->payment_date->format('Y-m');
                 })->sortKeys();
@@ -230,7 +353,6 @@ class FeeReportController extends Controller
                 break;
 
             case 'discount':
-                // Discounts report
                 $discountCols = $collections->where('discount_amount', '>', 0);
                 foreach ($discountCols as $col) {
                     $classRec = $col->student ? $col->student->academicRecords->where('academic_year_id', $academicYearId)->first() : null;
@@ -248,7 +370,6 @@ class FeeReportController extends Controller
                 break;
 
             case 'fine':
-                // Fine report
                 $fineCols = $collections->where('fine_amount', '>', 0);
                 foreach ($fineCols as $col) {
                     $classRec = $col->student ? $col->student->academicRecords->where('academic_year_id', $academicYearId)->first() : null;
@@ -266,9 +387,6 @@ class FeeReportController extends Controller
                 break;
         }
 
-        return response()->json([
-            'report_type' => $reportType,
-            'data' => $data
-        ]);
+        return $data;
     }
 }

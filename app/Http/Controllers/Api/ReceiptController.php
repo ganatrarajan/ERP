@@ -29,26 +29,32 @@ class ReceiptController extends Controller
             $query->where('school_id', $request->input('school_id'));
         }
 
-        if ($request->has('search')) {
+        if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where('receipt_number', 'like', "%{$search}%");
         }
 
-        if ($request->has('academic_year_id')) {
+        if ($request->filled('academic_year_id')) {
             $query->whereHas('collection', function ($q) use ($request) {
                 $q->where('academic_year_id', $request->input('academic_year_id'));
             });
         }
 
-        if ($request->has('payment_date')) {
+        if ($request->filled('payment_date')) {
             $query->whereHas('collection', function ($q) use ($request) {
                 $q->whereDate('payment_date', $request->input('payment_date'));
             });
         }
 
-        if ($request->has('student_id')) {
+        if ($request->filled('student_id')) {
             $query->whereHas('collection', function ($q) use ($request) {
                 $q->where('student_id', $request->input('student_id'));
+            });
+        }
+
+        if ($request->filled('payment_method')) {
+            $query->whereHas('collection', function ($q) use ($request) {
+                $q->where('payment_method', $request->input('payment_method'));
             });
         }
 

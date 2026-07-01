@@ -25,13 +25,13 @@
         </div>
 
         <!-- Filters Block -->
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 p-5 rounded-2xl shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 p-5 rounded-2xl shadow-sm grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
             <div class="space-y-1">
                 <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Academic Session</label>
                 <select 
                     v-model="filters.academic_year_id" 
                     @change="handleAcademicYearChange"
-                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 focus:outline-none"
+                    class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 focus:outline-none"
                 >
                     <option v-for="year in academicYears" :key="year.id" :value="year.id">
                         {{ year.title }}
@@ -44,7 +44,7 @@
                 <select 
                     v-model="filters.class_id" 
                     @change="handleClassChange"
-                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 focus:outline-none"
+                    class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 focus:outline-none"
                 >
                     <option value="">Select Class</option>
                     <option v-for="c in classes" :key="c.id" :value="c.id">
@@ -57,7 +57,6 @@
                 <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Section</label>
                 <select 
                     v-model="filters.section_id" 
-                    @change="fetchStudents"
                     class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 focus:outline-none"
                 >
                     <option value="">All Sections</option>
@@ -75,18 +74,33 @@
                     </span>
                     <input 
                         v-model="filters.search" 
-                        @input="handleSearch"
                         type="text" 
                         placeholder="Name or adm no..." 
                         class="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100"
                     />
                 </div>
             </div>
+
+            <div>
+                <button 
+                    type="button"
+                    @click="fetchStudents"
+                    class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-600/10 transition-all flex items-center justify-center gap-1.5 cursor-pointer h-[38px]"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    Apply Filter
+                </button>
+            </div>
         </div>
 
         <!-- Listing -->
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-            <div v-if="loading" class="p-6 space-y-4 animate-pulse">
+            <div v-if="!hasSearched" class="p-12 text-center text-slate-400 shadow-sm flex flex-col justify-center items-center h-48">
+                <svg class="w-16 h-16 text-slate-350 dark:text-slate-700 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                Apply filters above and click "Apply Filter" to display student assignments listing.
+            </div>
+
+            <div v-else-if="loading" class="p-6 space-y-4 animate-pulse">
                 <div v-for="i in 5" :key="i" class="h-12 bg-slate-200 dark:bg-slate-800/50 rounded-xl"></div>
             </div>
 
@@ -305,6 +319,37 @@
                         ></textarea>
                     </div>
 
+                    <!-- Class Students list with check all option -->
+                    <div v-if="bulkForm.class_id" class="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Target Students ({{ selectedBulkStudentIds.length }} / {{ bulkClassStudents.length }})</label>
+                            <button 
+                                type="button" 
+                                @click="toggleSelectAllBulkStudents"
+                                class="text-[10px] font-bold text-indigo-650 dark:text-indigo-400 hover:underline border-none bg-transparent cursor-pointer"
+                            >
+                                {{ selectedBulkStudentIds.length === bulkClassStudents.length ? 'Deselect All' : 'Select All' }}
+                            </button>
+                        </div>
+                        <div v-if="loadingBulkStudents" class="text-xs text-slate-450 animate-pulse py-2">Loading class student index...</div>
+                        <div v-else-if="bulkClassStudents.length === 0" class="text-xs text-rose-500 py-2">No active students in selected class.</div>
+                        <div v-else class="space-y-1.5 max-h-40 overflow-y-auto border border-slate-200 dark:border-slate-800 p-2.5 rounded-xl bg-slate-50/50 dark:bg-slate-950/20">
+                            <div v-for="stu in bulkClassStudents" :key="stu.student_id" class="flex items-center gap-2.5">
+                                <input 
+                                    v-model="selectedBulkStudentIds" 
+                                    type="checkbox" 
+                                    :value="stu.student_id"
+                                    :id="'bulk_stu_' + stu.student_id"
+                                    class="w-4 h-4 rounded text-indigo-655 border-slate-300 focus:ring-indigo-500 bg-slate-50 dark:bg-slate-950"
+                                />
+                                <label :for="'bulk_stu_' + stu.student_id" class="text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer flex justify-between w-full">
+                                    <span>{{ stu.name }}</span>
+                                    <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">Adm: {{ stu.admission_no }}</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="flex items-center gap-2 pt-2">
                         <input 
                             v-model="bulkForm.overwrite_existing" 
@@ -363,7 +408,8 @@ export default {
         const bulkStructures = ref([]);
         const optionalFeesOptions = ref([]);
 
-        const loading = ref(true);
+        const loading = ref(false);
+        const hasSearched = ref(false);
         const modalOpen = ref(false);
         const bulkModalOpen = ref(false);
         const selectedStudentId = ref(null);
@@ -445,7 +491,6 @@ export default {
             sections.value = [];
             students.value = [];
             await fetchClasses();
-            fetchStudents();
         };
 
         const handleClassChange = async () => {
@@ -461,12 +506,12 @@ export default {
                     console.error(error);
                 }
             }
-            fetchStudents();
         };
 
         const fetchStudents = async () => {
             if (!filters.value.academic_year_id) return;
             loading.value = true;
+            hasSearched.value = true;
             try {
                 const response = await window.axios.get('/api/fee-assignments', {
                     params: filters.value
@@ -567,6 +612,37 @@ export default {
             }
         };
 
+        const bulkClassStudents = ref([]);
+        const selectedBulkStudentIds = ref([]);
+        const loadingBulkStudents = ref(false);
+
+        const fetchBulkClassStudents = async () => {
+            if (!bulkForm.value.class_id) return;
+            loadingBulkStudents.value = true;
+            try {
+                const response = await window.axios.get('/api/fee-assignments', {
+                    params: {
+                        academic_year_id: filters.value.academic_year_id,
+                        class_id: bulkForm.value.class_id
+                    }
+                });
+                bulkClassStudents.value = response.data.students || [];
+                selectedBulkStudentIds.value = bulkClassStudents.value.map(s => s.student_id);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                loadingBulkStudents.value = false;
+            }
+        };
+
+        const toggleSelectAllBulkStudents = () => {
+            if (selectedBulkStudentIds.value.length === bulkClassStudents.value.length) {
+                selectedBulkStudentIds.value = [];
+            } else {
+                selectedBulkStudentIds.value = bulkClassStudents.value.map(s => s.student_id);
+            }
+        };
+
         const openBulkModal = () => {
             bulkErrors.value = '';
             bulkForm.value = {
@@ -578,6 +654,8 @@ export default {
                 overwrite_existing: false
             };
             bulkStructures.value = [];
+            bulkClassStudents.value = [];
+            selectedBulkStudentIds.value = [];
             if (bulkForm.value.class_id) {
                 fetchBulkStructures();
             }
@@ -596,6 +674,7 @@ export default {
                     }
                 });
                 bulkStructures.value = response.data.fee_structures;
+                await fetchBulkClassStudents();
             } catch (error) {
                 console.error(error);
             }
@@ -609,7 +688,10 @@ export default {
             savingBulk.value = true;
             bulkErrors.value = '';
             try {
-                const response = await window.axios.post('/api/fee-assignments/bulk', bulkForm.value);
+                const response = await window.axios.post('/api/fee-assignments/bulk', {
+                    ...bulkForm.value,
+                    student_ids: selectedBulkStudentIds.value
+                });
                 toastStore.success(response.data.message);
                 closeBulkModal();
                 fetchStudents();
@@ -623,8 +705,11 @@ export default {
 
         onMounted(async () => {
             await fetchFiltersData();
-            await fetchStudents();
         });
+
+        const handleSectionChange = () => {
+            // no auto fetch
+        };
 
         return {
             authStore,
@@ -636,6 +721,7 @@ export default {
             bulkStructures,
             optionalFeesOptions,
             loading,
+            hasSearched,
             modalOpen,
             bulkModalOpen,
             selectedStudentName,
@@ -647,8 +733,14 @@ export default {
             form,
             bulkForm,
             isCurrentYear,
+            bulkClassStudents,
+            selectedBulkStudentIds,
+            loadingBulkStudents,
+            fetchBulkClassStudents,
+            toggleSelectAllBulkStudents,
             handleAcademicYearChange,
             handleClassChange,
+            handleSectionChange,
             fetchStudents,
             handleSearch,
             openAssignModal,
