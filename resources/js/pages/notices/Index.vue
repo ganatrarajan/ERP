@@ -19,10 +19,10 @@
         <!-- Filters Section -->
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Target Audience</label>
+                <label class="block text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider mb-1">Target Audience</label>
                 <select 
                     v-model="filters.target_type" 
-                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200 font-semibold"
                 >
                     <option value="">All Audiences</option>
                     <option value="Entire School">Entire School</option>
@@ -32,10 +32,10 @@
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Status</label>
+                <label class="block text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider mb-1">Status</label>
                 <select 
                     v-model="filters.status" 
-                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-955 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200 font-semibold"
                 >
                     <option value="">All Status</option>
                     <option value="active">Active</option>
@@ -43,13 +43,19 @@
                 </select>
             </div>
 
-            <div class="flex items-end gap-2">
-                <button 
-                    @click="fetchNotices"
-                    class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/10 transition-all text-sm"
-                >
-                    Filter
-                </button>
+            <div>
+                <label class="block text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider mb-1">Search Notice</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </span>
+                    <input 
+                        v-model="filters.search" 
+                        type="text" 
+                        placeholder="Search title..." 
+                        class="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200 font-semibold"
+                    />
+                </div>
             </div>
         </div>
 
@@ -143,22 +149,62 @@
             </div>
 
             <!-- Pagination -->
-            <div v-if="totalPages > 1" class="border-t border-slate-200 dark:border-slate-800 p-4 flex items-center justify-between">
-                <button 
-                    :disabled="currentPage === 1"
-                    @click="changePage(currentPage - 1)"
-                    class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 disabled:opacity-50 text-slate-700 dark:text-slate-300"
-                >
-                    Previous
-                </button>
-                <span class="text-xs text-slate-500">Page {{ currentPage }} of {{ totalPages }}</span>
-                <button 
-                    :disabled="currentPage === totalPages"
-                    @click="changePage(currentPage + 1)"
-                    class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 disabled:opacity-50 text-slate-700 dark:text-slate-300"
-                >
-                    Next
-                </button>
+            <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden bg-white dark:bg-slate-900 rounded-b-2xl">
+                <div class="flex items-center gap-4">
+                    <!-- Page Size Selector -->
+                    <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                        <span>Show</span>
+                        <select 
+                            v-model="perPage" 
+                            class="px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold focus:outline-none text-[11px]"
+                        >
+                            <option :value="10">10</option>
+                            <option :value="25">25</option>
+                            <option :value="50">50</option>
+                            <option :value="100">100</option>
+                        </select>
+                        <span>entries</span>
+                    </div>
+
+                    <span class="text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                        Showing {{ from }} to {{ to }} of {{ totalEntries }} entries
+                    </span>
+                </div>
+
+                <div v-if="totalPages > 1" class="flex items-center gap-1">
+                    <!-- Previous -->
+                    <button 
+                        :disabled="currentPage === 1" 
+                        @click="currentPage--"
+                        class="px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-50 transition-all bg-slate-50 dark:bg-slate-800 text-slate-707 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-750 cursor-pointer"
+                    >
+                        Previous
+                    </button>
+
+                    <!-- Numeric Pages Loop -->
+                    <button 
+                        v-for="page in pageNumbers" 
+                        :key="page"
+                        @click="currentPage = page"
+                        :class="[
+                            'px-2.5 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer',
+                            currentPage === page 
+                                ? 'bg-indigo-600 border-indigo-600 dark:bg-indigo-500 dark:border-indigo-500 text-white shadow-sm shadow-indigo-600/20' 
+                                : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-707 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80'
+                        ]"
+                    >
+                        {{ page }}
+                    </button>
+
+                    <!-- Next -->
+                    <button 
+                        :disabled="currentPage === totalPages" 
+                        @click="currentPage++"
+                        class="px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-50 transition-all bg-slate-50 dark:bg-slate-800 text-slate-707 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-750 cursor-pointer"
+                    >
+                        Next
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -298,14 +344,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, reactive, computed, watch } from 'vue';
 import { useAuthStore } from '../../stores/auth';
 import { useConfirmStore } from '../../stores/confirm';
 
 const authStore = useAuthStore();
 const confirmStore = useConfirmStore();
 
-const notices = ref([]);
+const rawNotices = ref([]);
 const loading = ref(false);
 const saving = ref(false);
 const modalOpen = ref(false);
@@ -315,11 +361,79 @@ const classes = ref([]);
 const modalSections = ref([]);
 
 const currentPage = ref(1);
-const totalPages = ref(1);
+const perPage = ref(10);
 
 const filters = reactive({
     target_type: '',
-    status: ''
+    status: '',
+    search: ''
+});
+
+const processedNotices = computed(() => {
+    let list = [...rawNotices.value];
+
+    // Filter by target_type
+    if (filters.target_type) {
+        list = list.filter(n => n.target_type === filters.target_type);
+    }
+    // Filter by status
+    if (filters.status) {
+        list = list.filter(n => n.status === filters.status);
+    }
+    // Filter by search query (instant client-side!)
+    if (filters.search) {
+        const query = filters.search.toLowerCase();
+        list = list.filter(n => 
+            n.title?.toLowerCase().includes(query) || 
+            n.description?.toLowerCase().includes(query) ||
+            n.target_type?.toLowerCase().includes(query)
+        );
+    }
+
+    // Default sorting: descending by notice_date
+    list.sort((a, b) => {
+        if (a.notice_date < b.notice_date) return 1;
+        if (a.notice_date > b.notice_date) return -1;
+        return b.id - a.id;
+    });
+
+    return list;
+});
+
+const totalEntries = computed(() => processedNotices.value.length);
+
+const totalPages = computed(() => {
+    return Math.ceil(totalEntries.value / perPage.value) || 1;
+});
+
+const from = computed(() => {
+    if (totalEntries.value === 0) return 0;
+    return (currentPage.value - 1) * perPage.value + 1;
+});
+
+const to = computed(() => {
+    const toVal = currentPage.value * perPage.value;
+    return toVal > totalEntries.value ? totalEntries.value : toVal;
+});
+
+const pageNumbers = computed(() => {
+    const pages = [];
+    for (let i = 1; i <= totalPages.value; i++) {
+        pages.push(i);
+    }
+    return pages;
+});
+
+// The list of paginated notices displayed in the table!
+const notices = computed(() => {
+    const start = (currentPage.value - 1) * perPage.value;
+    const end = start + perPage.value;
+    return processedNotices.value.slice(start, end);
+});
+
+// Watch parameters to reset page
+watch([() => filters.target_type, () => filters.status, () => filters.search, perPage], () => {
+    currentPage.value = 1;
 });
 
 const form = ref({
@@ -360,13 +474,10 @@ const fetchNotices = async () => {
     loading.value = true;
     try {
         const params = {
-            page: currentPage.value,
-            target_type: filters.target_type,
-            status: filters.status
+            per_page: 10000
         };
         const response = await window.axios.get('/api/notices', { params });
-        notices.value = response.data.data;
-        totalPages.value = response.data.last_page;
+        rawNotices.value = response.data.data || response.data || [];
     } catch (e) {
         window.toastr?.error('Failed to load notices.');
     } finally {
@@ -490,7 +601,6 @@ const handleDelete = async (notice) => {
 
 const changePage = (page) => {
     currentPage.value = page;
-    fetchNotices();
 };
 
 onMounted(() => {

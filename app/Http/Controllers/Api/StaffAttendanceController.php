@@ -227,7 +227,7 @@ class StaffAttendanceController extends Controller
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('attendance.staff_report_pdf', $pdfData);
 
-        return $pdf->download('Staff_Attendance_Report_' . str_replace(' ', '_', $staff->name) . '.pdf');
+        return $pdf->stream('Staff_Attendance_Report_' . str_replace(' ', '_', $staff->name) . '.pdf');
     }
 
     /**
@@ -416,6 +416,6 @@ class StaffAttendanceController extends Controller
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('attendance.staff_monthly_grid_pdf', $pdfData)
             ->setPaper('a4', 'landscape');
 
-        return $pdf->download('Staff_Attendance_Report_' . $monthStr . '.pdf');
+        return $pdf->stream('Staff_Attendance_Report_' . $monthStr . '.pdf');
     }
 }

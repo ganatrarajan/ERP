@@ -33,63 +33,98 @@
 
         <!-- Tab 1: Student Attendance -->
         <div v-if="currentTab === 'mark'" class="space-y-6">
-            <!-- Filter Bar -->
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Academic Year <span class="text-rose-500">*</span></label>
-                    <select 
-                        v-model="filters.academic_year_id" 
-                        class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                    >
-                        <option value="">Select Year</option>
-                        <option v-for="year in academicYears" :key="year.id" :value="year.id">
-                            {{ year.title }} <span v-if="year.is_current">(Current)</span>
-                        </option>
-                    </select>
+            <!-- Redesigned Inline Filter Bar -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider mb-1">Academic Year</label>
+                        <select 
+                            v-model="filters.academic_year_id" 
+                            class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-850 dark:text-slate-200 font-semibold"
+                        >
+                            <option value="">Select Year</option>
+                            <option v-for="year in academicYears" :key="year.id" :value="year.id">
+                                {{ year.title }} <span v-if="year.is_current">(Current)</span>
+                            </option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider mb-1">Class</label>
+                        <select 
+                            v-model="filters.class_id" 
+                            @change="fetchSections"
+                            class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200 font-semibold"
+                        >
+                            <option value="">Select Class</option>
+                            <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-555 dark:text-slate-400 uppercase tracking-wider mb-1">Section</label>
+                        <select 
+                            v-model="filters.section_id" 
+                            class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-850 dark:text-slate-200 font-semibold"
+                        >
+                            <option value="">Select Section</option>
+                            <option v-for="sec in sections" :key="sec.id" :value="sec.id">{{ sec.name }}</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-555 dark:text-slate-400 uppercase tracking-wider mb-1">Date</label>
+                        <input 
+                            v-model="filters.attendance_date" 
+                            v-datepicker
+                            type="text" 
+                            placeholder="YYYY-MM-DD"
+                            class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200 font-semibold"
+                        />
+                    </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Class <span class="text-rose-500">*</span></label>
-                    <select 
-                        v-model="filters.class_id" 
-                        @change="fetchSections"
-                        class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                    >
-                        <option value="">Select Class</option>
-                        <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
-                    </select>
+                <div class="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-slate-100 dark:border-slate-800/60">
+                    <div class="flex items-center gap-2">
+                        <!-- Quick badge details of selected class -->
+                        <div v-if="hasLoadedMark" class="text-xs text-slate-550 dark:text-slate-400 font-semibold flex items-center gap-1.5 flex-wrap">
+                            <span class="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-lg">Class: {{ getClassName(filters.class_id) }}</span>
+                            <span class="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-lg">Section: {{ getSectionName(filters.section_id) }}</span>
+                            <span class="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-lg">Date: {{ filters.attendance_date }}</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button 
+                            @click="resetTabFilter"
+                            type="button"
+                            class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-semibold rounded-xl transition-all cursor-pointer border-none"
+                        >
+                            Reset
+                        </button>
+                        <button 
+                            @click="applyTabFilter"
+                            :disabled="!filters.academic_year_id || !filters.class_id || !filters.section_id || !filters.attendance_date || loadingStudents"
+                            type="button"
+                            class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-sm font-bold rounded-xl transition-all cursor-pointer shadow-lg shadow-indigo-600/10 disabled:opacity-50"
+                        >
+                            {{ loadingStudents ? 'Loading...' : 'Apply Filter' }}
+                        </button>
+                    </div>
                 </div>
+            </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Section <span class="text-rose-500">*</span></label>
-                    <select 
-                        v-model="filters.section_id" 
-                        class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                    >
-                        <option value="">Select Section</option>
-                        <option v-for="sec in sections" :key="sec.id" :value="sec.id">{{ sec.name }}</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Date <span class="text-rose-500">*</span></label>
+            <!-- Local Student Search input right on the page -->
+            <div v-if="hasLoadedMark && students.length > 0" class="flex justify-end">
+                <div class="relative max-w-xs w-full">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </span>
                     <input 
-                        v-model="filters.attendance_date" 
-                        v-datepicker
+                        v-model="localStudentSearch" 
                         type="text" 
-                        placeholder="YYYY-MM-DD"
-                        class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                        placeholder="Search student in list..." 
+                        class="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-805 dark:text-slate-200 font-semibold"
                     />
-                </div>
-
-                <div class="md:col-span-4 flex justify-end">
-                    <button 
-                        @click="loadStudentList"
-                        :disabled="!filters.academic_year_id || !filters.class_id || !filters.section_id || !filters.attendance_date || loadingStudents"
-                        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-600/10 disabled:opacity-50 transition-all"
-                    >
-                        {{ loadingStudents ? 'Loading Students...' : 'Load Student List' }}
-                    </button>
                 </div>
             </div>
 
@@ -101,13 +136,28 @@
                     <p class="text-xs text-sky-600 dark:text-sky-400">Locked: "{{ studentHolidayTitle }}". Student attendance cannot be marked or modified on a school holiday.</p>
                 </div>
             </div>
-
             <!-- Student List Grid -->
-            <div v-if="students.length > 0" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+            <div v-if="loadingStudents" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 space-y-4 animate-pulse">
+                <div v-for="i in 5" :key="i" class="h-12 bg-slate-200 dark:bg-slate-800/50 rounded-xl"></div>
+            </div>
+
+            <div v-else-if="!hasLoadedMark" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center text-slate-500">
+                <svg class="w-16 h-16 mx-auto text-slate-350 dark:text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">No Attendance Data Loaded</h3>
+                <p class="text-xs text-slate-550 dark:text-slate-450">Click the "Filters" button above, select Class/Section/Date, and apply the filter to load the student list.</p>
+            </div>
+
+            <div v-else-if="students.length === 0" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center text-slate-500">
+                <svg class="w-16 h-16 mx-auto text-slate-350 dark:text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">No Students Found</h3>
+                <p class="text-xs text-slate-550 dark:text-slate-450">No active student records matched the selected filters.</p>
+            </div>
+
+            <div v-else class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
                 <!-- Mark All Selector -->
                 <div class="px-6 py-4 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4">
                     <div class="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                        Marking attendance for {{ students.length }} students
+                        Marking attendance for {{ filteredStudents.length }} of {{ students.length }} students
                     </div>
                     <div v-if="!studentHolidayActive" class="flex items-center gap-2">
                         <span class="text-xs font-bold text-slate-500 uppercase">Mark All As:</span>
@@ -115,7 +165,8 @@
                             v-for="status in ['Present', 'Absent', 'Late', 'Half Day', 'Leave']" 
                             :key="status"
                             @click="markAllStudents(status)"
-                            class="px-2.5 py-1 text-xs font-bold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-slate-700 dark:text-slate-300 transition-colors"
+                            type="button"
+                            class="px-2.5 py-1 text-xs font-bold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-850 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
                         >
                             {{ status }}
                         </button>
@@ -125,7 +176,7 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-50/50 dark:bg-slate-900/60">
+                            <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-50/50 dark:bg-slate-900/60 sticky top-0">
                                 <th class="p-4 pl-6">Roll No</th>
                                 <th class="p-4">Admission No</th>
                                 <th class="p-4">Student Name</th>
@@ -134,10 +185,10 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm text-slate-700 dark:text-slate-300">
-                            <tr v-for="student in students" :key="student.student_id" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                            <tr v-for="student in filteredStudents" :key="student.student_id" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                 <td class="p-4 pl-6 font-semibold">{{ student.roll_no }}</td>
-                                <td class="p-4 font-mono text-xs text-slate-500">{{ student.admission_no }}</td>
-                                <td class="p-4 font-semibold text-slate-800 dark:text-white">
+                                <td class="p-4 font-mono text-xs text-slate-550">{{ student.admission_no }}</td>
+                                <td class="p-4 font-bold text-slate-800 dark:text-white">
                                     {{ student.first_name }} {{ student.last_name }}
                                 </td>
                                 <td class="p-4">
@@ -176,7 +227,7 @@
                                         v-model="student.remarks"
                                         :disabled="studentHolidayActive || student.is_holiday || !isCurrentYear"
                                         placeholder="Optional remark" 
-                                        class="w-full px-2.5 py-1 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200 disabled:opacity-50"
+                                        class="w-full px-2.5 py-1 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-850 dark:text-slate-250 disabled:opacity-50"
                                     />
                                 </td>
                             </tr>
@@ -188,86 +239,144 @@
                     <button 
                         @click="saveAttendance"
                         :disabled="saving"
-                        class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/10 disabled:opacity-50 transition-all flex items-center gap-1.5"
+                        type="button"
+                        class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/10 disabled:opacity-50 transition-all flex items-center gap-1.5 cursor-pointer"
                     >
                         {{ saving ? 'Saving...' : 'Save Attendance' }}
                     </button>
                 </div>
-            </div>
         </div>
+    </div>
 
         <!-- Tab 2: Student Monthly Grid -->
         <div v-if="currentTab === 'monthly'" class="space-y-6">
-            <!-- Filter Bar -->
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Academic Year</label>
-                    <select 
-                        v-model="filters.academic_year_id" 
-                        class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                    >
-                        <option v-for="year in academicYears" :key="year.id" :value="year.id">{{ year.title }}</option>
-                    </select>
+            <!-- Redesigned Inline Filter Bar -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-550 dark:text-slate-400 uppercase tracking-wider mb-1">Academic Year</label>
+                        <select 
+                            v-model="filters.academic_year_id" 
+                            class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200 font-semibold"
+                        >
+                            <option v-for="year in academicYears" :key="year.id" :value="year.id">{{ year.title }}</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-555 dark:text-slate-400 uppercase tracking-wider mb-1">Class</label>
+                        <select 
+                            v-model="filters.class_id" 
+                            @change="fetchSections"
+                            class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200 font-semibold"
+                        >
+                            <option value="">Select Class</option>
+                            <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-555 dark:text-slate-400 uppercase tracking-wider mb-1">Section</label>
+                        <select 
+                            v-model="filters.section_id" 
+                            class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-850 dark:text-slate-200 font-semibold"
+                        >
+                            <option value="">Select Section</option>
+                            <option v-for="sec in sections" :key="sec.id" :value="sec.id">{{ sec.name }}</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-555 dark:text-slate-400 uppercase tracking-wider mb-1">Month</label>
+                        <input 
+                            v-monthpicker
+                            v-model="monthlyFilter.month" 
+                            type="text" 
+                            class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200 font-semibold cursor-pointer"
+                        />
+                    </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Class</label>
-                    <select 
-                        v-model="filters.class_id" 
-                        @change="fetchSections"
-                        class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                    >
-                        <option value="">Select Class</option>
-                        <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Section</label>
-                    <select 
-                        v-model="filters.section_id" 
-                        class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                    >
-                        <option value="">Select Section</option>
-                        <option v-for="sec in sections" :key="sec.id" :value="sec.id">{{ sec.name }}</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Month</label>
-                    <input 
-                        v-model="monthlyFilter.month" 
-                        type="month" 
-                        class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                    />
-                </div>
-
-                <div class="md:col-span-4 flex justify-end gap-3">
-                    <button 
-                        @click="downloadMonthlyPdf"
-                        :disabled="!filters.academic_year_id || !filters.class_id || !filters.section_id || !monthlyFilter.month || downloadingPdf"
-                        class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-600/10 disabled:opacity-50 transition-all flex items-center gap-1.5"
-                    >
-                        <span>{{ downloadingPdf ? 'Downloading PDF...' : 'Download PDF' }}</span>
-                    </button>
-                    <button 
-                        @click="loadMonthlyAttendance"
-                        :disabled="!filters.academic_year_id || !filters.class_id || !filters.section_id || !monthlyFilter.month || loadingMonthly"
-                        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-600/10 disabled:opacity-50 transition-all"
-                    >
-                        {{ loadingMonthly ? 'Loading Grid...' : 'Load Grid' }}
-                    </button>
+                <div class="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-slate-100 dark:border-slate-800/60">
+                    <div class="flex items-center gap-2">
+                        <!-- Quick badge details of selected class -->
+                        <div v-if="hasLoadedMonthly" class="text-xs text-slate-550 dark:text-slate-400 font-semibold flex items-center gap-1.5 flex-wrap">
+                            <span class="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-lg">Class: {{ getClassName(filters.class_id) }}</span>
+                            <span class="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-lg">Section: {{ getSectionName(filters.section_id) }}</span>
+                            <span class="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-lg">Month: {{ monthlyFilter.month }}</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button 
+                            v-if="hasLoadedMonthly && monthlyGrid.length > 0"
+                            @click="downloadMonthlyPdf"
+                            :disabled="downloadingPdf"
+                            type="button"
+                            class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-600/10 disabled:opacity-50 transition-all flex items-center gap-1.5 cursor-pointer"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <span>{{ downloadingPdf ? 'Generating PDF...' : 'Download PDF' }}</span>
+                        </button>
+                        <button 
+                            @click="resetTabFilter"
+                            type="button"
+                            class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-semibold rounded-xl transition-all cursor-pointer border-none"
+                        >
+                            Reset
+                        </button>
+                        <button 
+                            @click="applyTabFilter"
+                            :disabled="!filters.academic_year_id || !filters.class_id || !filters.section_id || !monthlyFilter.month || loadingMonthly"
+                            type="button"
+                            class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-sm font-bold rounded-xl transition-all cursor-pointer shadow-lg shadow-indigo-600/10 disabled:opacity-50"
+                        >
+                            {{ loadingMonthly ? 'Loading...' : 'Apply Filter' }}
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Grid -->
-            <div v-if="monthlyGrid.length > 0" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+            <!-- Grid Content -->
+            <div v-if="loadingMonthly" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 space-y-4 animate-pulse">
+                <div v-for="i in 5" :key="i" class="h-12 bg-slate-200 dark:bg-slate-800/50 rounded-xl"></div>
+            </div>
+
+            <div v-else-if="!hasLoadedMonthly" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center text-slate-500">
+                <svg class="w-16 h-16 mx-auto text-slate-350 dark:text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">No Monthly Data Loaded</h3>
+                <p class="text-xs text-slate-550 dark:text-slate-450">Select Class/Section/Month above and click Apply Filter to load the register.</p>
+            </div>
+
+            <div v-else-if="monthlyGrid.length === 0" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center text-slate-500">
+                <svg class="w-16 h-16 mx-auto text-slate-350 dark:text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">No Register Records Found</h3>
+                <p class="text-xs text-slate-550 dark:text-slate-450">No students found matching filters for this month register.</p>
+            </div>
+
+            <div v-else class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+                <!-- Legend summary bar -->
+                <div class="px-6 py-3 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 flex flex-wrap gap-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-emerald-500"></span> Present (P)</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-rose-500"></span> Absent (A)</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-amber-500"></span> Late (L)</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-orange-400"></span> Half Day (HD)</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-indigo-500"></span> Leave (LV)</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-sky-500"></span> Holiday (H)</span>
+                </div>
+
                 <div class="overflow-x-auto">
                     <table class="w-full border-collapse">
                         <thead>
                             <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-50/50 dark:bg-slate-900/60">
                                 <th class="p-3 pl-6 sticky left-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-10 min-w-[150px]">Student</th>
-                                <th v-for="day in daysInMonth" :key="day" class="p-2 text-center text-[10px] min-w-[28px] border-r border-slate-100 dark:border-slate-800/40">
+                                <th 
+                                    v-for="day in daysInMonth" 
+                                    :key="day" 
+                                    :class="[
+                                        'p-2 text-center text-[10px] min-w-[28px] border-r border-slate-100 dark:border-slate-800/45',
+                                        isDayWeekend(day) ? 'bg-slate-100 dark:bg-slate-850 text-slate-400 dark:text-slate-500' : ''
+                                    ]"
+                                >
                                     {{ day }}
                                 </th>
                                 <th class="p-3 pr-6 text-center min-w-[180px] border-l border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/40">Stats</th>
@@ -281,7 +390,10 @@
                                 <td 
                                     v-for="day in daysInMonth" 
                                     :key="day" 
-                                    class="p-1.5 text-center border-r border-slate-100 dark:border-slate-800/40"
+                                    :class="[
+                                        'p-1.5 text-center border-r border-slate-100 dark:border-slate-800/40',
+                                        isDayWeekend(day) ? 'bg-slate-50/50 dark:bg-slate-800/5 text-slate-400/80' : ''
+                                    ]"
                                 >
                                     <span 
                                         v-if="student.days[day] !== '-'" 
@@ -291,16 +403,16 @@
                                         ]"
                                         :title="student.days[day]"
                                     >
-                                        {{ student.days[day].charAt(0) }}
+                                        {{ student.days[day] === 'Half Day' ? 'HD' : (student.days[day] === 'Holiday' ? 'H' : (student.days[day] === 'Leave' ? 'LV' : student.days[day].charAt(0))) }}
                                     </span>
                                     <span v-else class="text-slate-300 dark:text-slate-700">-</span>
                                 </td>
                                 <td class="p-3 pr-6 text-center font-semibold text-slate-500 border-l border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/40 flex justify-center gap-1.5">
-                                    <span class="text-emerald-600 dark:text-emerald-400">{{ student.stats.Present }}P</span>
-                                    <span class="text-rose-600 dark:text-rose-400">{{ student.stats.Absent }}A</span>
-                                    <span class="text-amber-600 dark:text-amber-400">{{ student.stats.Late }}L</span>
-                                    <span class="text-indigo-600 dark:text-indigo-400">{{ student.stats.Leave }}Lv</span>
-                                    <span class="text-sky-600 dark:text-sky-400">{{ student.stats.Holiday || 0 }}H</span>
+                                    <span class="text-emerald-650 dark:text-emerald-450">{{ student.stats.Present }}P</span>
+                                    <span class="text-rose-650 dark:text-rose-450">{{ student.stats.Absent }}A</span>
+                                    <span class="text-amber-650 dark:text-amber-450">{{ student.stats.Late }}L</span>
+                                    <span class="text-indigo-650 dark:text-indigo-455">{{ student.stats.Leave }}Lv</span>
+                                    <span class="text-sky-655 dark:text-sky-455">{{ student.stats.Holiday || 0 }}H</span>
                                 </td>
                             </tr>
                         </tbody>
@@ -311,27 +423,45 @@
 
         <!-- Tab 3: Staff Attendance -->
         <div v-if="currentTab === 'staff'" class="space-y-6">
-            <!-- Filter Bar -->
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Date <span class="text-rose-500">*</span></label>
-                    <input 
-                        v-model="filters.attendance_date" 
-                        v-datepicker
-                        type="text" 
-                        placeholder="YYYY-MM-DD"
-                        class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                    />
+            <!-- Redesigned Inline Filter Bar -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-555 dark:text-slate-400 uppercase tracking-wider mb-1">Date</label>
+                        <input 
+                            v-model="filters.attendance_date" 
+                            v-datepicker
+                            type="text" 
+                            placeholder="YYYY-MM-DD"
+                            class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 font-semibold"
+                        />
+                    </div>
                 </div>
 
-                <div class="flex items-end">
-                    <button 
-                        @click="loadStaffList"
-                        :disabled="!filters.attendance_date || loadingStaff"
-                        class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-600/10 disabled:opacity-50 transition-all"
-                    >
-                        {{ loadingStaff ? 'Loading Staff...' : 'Load Staff List' }}
-                    </button>
+                <div class="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-slate-100 dark:border-slate-800/60">
+                    <div class="flex items-center gap-2">
+                        <!-- Quick badge details -->
+                        <div v-if="hasLoadedStaff" class="text-xs text-slate-550 dark:text-slate-400 font-semibold flex items-center gap-1.5 flex-wrap">
+                            <span class="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-lg">Date: {{ filters.attendance_date }}</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button 
+                            @click="resetTabFilter"
+                            type="button"
+                            class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-semibold rounded-xl transition-all cursor-pointer border-none"
+                        >
+                            Reset
+                        </button>
+                        <button 
+                            @click="applyTabFilter"
+                            :disabled="!filters.attendance_date || loadingStaff"
+                            type="button"
+                            class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-sm font-bold rounded-xl transition-all cursor-pointer shadow-lg shadow-indigo-600/10 disabled:opacity-50"
+                        >
+                            {{ loadingStaff ? 'Loading...' : 'Apply Filter' }}
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -345,7 +475,23 @@
             </div>
 
             <!-- Staff List Grid -->
-            <div v-if="staffs.length > 0" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+            <div v-if="loadingStaff" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 space-y-4 animate-pulse">
+                <div v-for="i in 5" :key="i" class="h-12 bg-slate-200 dark:bg-slate-800/50 rounded-xl"></div>
+            </div>
+
+            <div v-else-if="!hasLoadedStaff" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center text-slate-500">
+                <svg class="w-16 h-16 mx-auto text-slate-350 dark:text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">No Staff Attendance Data Loaded</h3>
+                <p class="text-xs text-slate-550 dark:text-slate-450">Select Date above and click Apply Filter to load the staff list.</p>
+            </div>
+
+            <div v-else-if="staffs.length === 0" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center text-slate-500">
+                <svg class="w-16 h-16 mx-auto text-slate-350 dark:text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">No Staff Found</h3>
+                <p class="text-xs text-slate-550 dark:text-slate-450">No active staff records found in the school system.</p>
+            </div>
+
+            <div v-else class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
                 <!-- Mark All Selector -->
                 <div class="px-6 py-4 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4">
                     <div class="text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -439,43 +585,98 @@
 
         <!-- Tab 3.5: Staff Monthly Grid -->
         <div v-if="currentTab === 'staff_monthly'" class="space-y-6">
-            <!-- Filter Bar -->
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Month</label>
-                    <input 
-                        v-model="staffMonthlyFilter.month" 
-                        type="month" 
-                        class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                    />
+            <!-- Redesigned Inline Filter Bar -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-555 dark:text-slate-400 uppercase tracking-wider mb-1">Month</label>
+                        <input 
+                            v-monthpicker
+                            v-model="staffMonthlyFilter.month" 
+                            type="text" 
+                            class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-955 text-slate-850 dark:text-slate-200 font-semibold cursor-pointer"
+                        />
+                    </div>
                 </div>
 
-                <div class="flex items-end gap-3">
-                    <button 
-                        @click="downloadStaffMonthlyPdf"
-                        :disabled="!staffMonthlyFilter.month || downloadingPdf"
-                        class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-600/10 disabled:opacity-50 transition-all flex items-center gap-1.5"
-                    >
-                        <span>{{ downloadingPdf ? 'Downloading PDF...' : 'Download PDF' }}</span>
-                    </button>
-                    <button 
-                        @click="loadStaffMonthlyAttendance"
-                        :disabled="!staffMonthlyFilter.month || loadingStaffMonthly"
-                        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-600/10 disabled:opacity-50 transition-all"
-                    >
-                        {{ loadingStaffMonthly ? 'Loading Grid...' : 'Load Grid' }}
-                    </button>
+                <div class="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-slate-100 dark:border-slate-800/60">
+                    <div class="flex items-center gap-2">
+                        <!-- Quick badge details -->
+                        <div v-if="hasLoadedStaffMonthly" class="text-xs text-slate-555 dark:text-slate-400 font-semibold flex items-center gap-1.5 flex-wrap">
+                            <span class="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-lg">Month: {{ staffMonthlyFilter.month }}</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button 
+                            v-if="hasLoadedStaffMonthly && staffMonthlyGrid.length > 0"
+                            @click="downloadStaffMonthlyPdf"
+                            :disabled="downloadingPdf"
+                            type="button"
+                            class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-600/10 disabled:opacity-50 transition-all flex items-center gap-1.5 cursor-pointer"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <span>{{ downloadingPdf ? 'Generating PDF...' : 'Download PDF' }}</span>
+                        </button>
+                        <button 
+                            @click="resetTabFilter"
+                            type="button"
+                            class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-semibold rounded-xl transition-all cursor-pointer border-none"
+                        >
+                            Reset
+                        </button>
+                        <button 
+                            @click="applyTabFilter"
+                            :disabled="!staffMonthlyFilter.month || loadingStaffMonthly"
+                            type="button"
+                            class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-sm font-bold rounded-xl transition-all cursor-pointer shadow-lg shadow-indigo-600/10 disabled:opacity-50"
+                        >
+                            {{ loadingStaffMonthly ? 'Loading...' : 'Apply Filter' }}
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Grid -->
-            <div v-if="staffMonthlyGrid.length > 0" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+            <!-- Grid Content -->
+            <div v-if="loadingStaffMonthly" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 space-y-4 animate-pulse">
+                <div v-for="i in 5" :key="i" class="h-12 bg-slate-200 dark:bg-slate-800/50 rounded-xl"></div>
+            </div>
+
+            <div v-else-if="!hasLoadedStaffMonthly" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center text-slate-500">
+                <svg class="w-16 h-16 mx-auto text-slate-350 dark:text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">No Monthly Data Loaded</h3>
+                <p class="text-xs text-slate-550 dark:text-slate-450">Select Month above and click Apply Filter to load the register.</p>
+            </div>
+
+            <div v-else-if="staffMonthlyGrid.length === 0" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center text-slate-500">
+                <svg class="w-16 h-16 mx-auto text-slate-350 dark:text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">No Register Records Found</h3>
+                <p class="text-xs text-slate-550 dark:text-slate-450">No staff found matching filters for this month register.</p>
+            </div>
+
+            <div v-else class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+                <!-- Legend summary bar -->
+                <div class="px-6 py-3 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 flex flex-wrap gap-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-emerald-500"></span> Present (P)</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-rose-500"></span> Absent (A)</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-amber-500"></span> Late (L)</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-orange-400"></span> Half Day (HD)</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-indigo-500"></span> Leave (LV)</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-sky-500"></span> Holiday (H)</span>
+                </div>
+
                 <div class="overflow-x-auto">
                     <table class="w-full border-collapse">
                         <thead>
                             <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-50/50 dark:bg-slate-900/60">
                                 <th class="p-3 pl-6 sticky left-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-10 min-w-[150px]">Staff Member</th>
-                                <th v-for="day in daysInStaffMonth" :key="day" class="p-2 text-center text-[10px] min-w-[28px] border-r border-slate-100 dark:border-slate-800/40">
+                                <th 
+                                    v-for="day in daysInStaffMonth" 
+                                    :key="day" 
+                                    :class="[
+                                        'p-2 text-center text-[10px] min-w-[28px] border-r border-slate-100 dark:border-slate-800/45',
+                                        isStaffDayWeekend(day) ? 'bg-slate-100 dark:bg-slate-850 text-slate-400 dark:text-slate-500' : ''
+                                    ]"
+                                >
                                     {{ day }}
                                 </th>
                                 <th class="p-3 pr-6 text-center min-w-[180px] border-l border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/40">Stats</th>
@@ -489,7 +690,10 @@
                                 <td 
                                     v-for="day in daysInStaffMonth" 
                                     :key="day" 
-                                    class="p-1.5 text-center border-r border-slate-100 dark:border-slate-800/40"
+                                    :class="[
+                                        'p-1.5 text-center border-r border-slate-100 dark:border-slate-800/40',
+                                        isStaffDayWeekend(day) ? 'bg-slate-50/50 dark:bg-slate-800/5 text-slate-400/80' : ''
+                                    ]"
                                 >
                                     <span 
                                         v-if="staff.days[day] !== '-'" 
@@ -499,16 +703,16 @@
                                         ]"
                                         :title="staff.days[day]"
                                     >
-                                        {{ staff.days[day].charAt(0) }}
+                                        {{ staff.days[day] === 'Half Day' ? 'HD' : (staff.days[day] === 'Holiday' ? 'H' : (staff.days[day] === 'Leave' ? 'LV' : staff.days[day].charAt(0))) }}
                                     </span>
                                     <span v-else class="text-slate-300 dark:text-slate-700">-</span>
                                 </td>
-                                <td class="p-3 pr-6 text-center font-semibold text-slate-500 border-l border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/40 flex justify-center gap-1.5">
-                                    <span class="text-emerald-600 dark:text-emerald-400">{{ staff.stats.Present }}P</span>
-                                    <span class="text-rose-600 dark:text-rose-400">{{ staff.stats.Absent }}A</span>
-                                    <span class="text-amber-600 dark:text-amber-400">{{ staff.stats.Late }}L</span>
-                                    <span class="text-indigo-600 dark:text-indigo-400">{{ staff.stats.Leave }}Lv</span>
-                                    <span class="text-sky-600 dark:text-sky-400">{{ staff.stats.Holiday || 0 }}H</span>
+                                <td class="p-3 pr-6 text-center font-semibold text-slate-555 border-l border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/40 flex justify-center gap-1.5">
+                                    <span class="text-emerald-650 dark:text-emerald-450">{{ staff.stats.Present }}P</span>
+                                    <span class="text-rose-650 dark:text-rose-450">{{ staff.stats.Absent }}A</span>
+                                    <span class="text-amber-650 dark:text-amber-450">{{ staff.stats.Late }}L</span>
+                                    <span class="text-indigo-655 dark:text-indigo-455">{{ staff.stats.Leave }}Lv</span>
+                                    <span class="text-sky-655 dark:text-sky-455">{{ staff.stats.Holiday || 0 }}H</span>
                                 </td>
                             </tr>
                         </tbody>
@@ -520,25 +724,45 @@
         <!-- Tab 4: Manage Holidays -->
         <div v-if="currentTab === 'holidays'" class="space-y-6">
             <!-- Filter & Action Bar -->
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm flex flex-wrap items-center justify-between gap-4">
-                <div class="w-full md:w-1/3">
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Academic Year</label>
-                    <select 
-                        v-model="filters.academic_year_id" 
-                        @change="loadHolidayList"
-                        class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                    >
-                        <option v-for="year in academicYears" :key="year.id" :value="year.id">{{ year.title }}</option>
-                    </select>
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm flex flex-col md:flex-row items-stretch md:items-end justify-between gap-4">
+                <div class="flex flex-col md:flex-row items-stretch md:items-center gap-4 flex-1">
+                    <div class="w-full md:max-w-xs">
+                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Academic Year</label>
+                        <select 
+                            v-model="filters.academic_year_id" 
+                            @change="loadHolidayList"
+                            class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200 font-semibold"
+                        >
+                            <option v-for="year in academicYears" :key="year.id" :value="year.id">{{ year.title }}</option>
+                        </select>
+                    </div>
+
+                    <!-- Datatable-style Search Input -->
+                    <div class="w-full md:max-w-xs">
+                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Search Holiday</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </span>
+                            <input 
+                                v-model="holidaySearchQuery" 
+                                type="text" 
+                                placeholder="Search by title, target..." 
+                                class="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200 font-semibold"
+                            />
+                        </div>
+                    </div>
                 </div>
 
-                <button 
-                    v-if="isCurrentYear"
-                    @click="openAddHolidayModal"
-                    class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-600/10 transition-all flex items-center gap-1.5"
-                >
-                    Add School Holiday
-                </button>
+                <div class="flex items-end justify-end">
+                    <button 
+                        v-if="isCurrentYear"
+                        @click="openAddHolidayModal"
+                        class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-600/10 transition-all flex items-center gap-1.5 cursor-pointer border-none"
+                    >
+                        Add School Holiday
+                    </button>
+                </div>
             </div>
 
             <!-- Holiday list table -->
@@ -556,7 +780,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
-                            <tr v-for="holiday in holidays" :key="holiday.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                            <tr v-for="holiday in paginatedHolidays" :key="holiday.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/30">
                                 <td class="p-4 pl-6">
                                     <div class="font-semibold text-slate-800 dark:text-white">{{ holiday.title }}</div>
                                     <div class="text-xs text-slate-400 max-w-[250px] truncate" v-if="holiday.description">{{ holiday.description }}</div>
@@ -601,11 +825,70 @@
                                     </button>
                                 </td>
                             </tr>
-                            <tr v-if="holidays.length === 0">
-                                <td colspan="6" class="p-8 text-center text-slate-400 italic">No school holidays defined for this session.</td>
+                            <tr v-if="processedHolidays.length === 0">
+                                <td colspan="6" class="p-8 text-center text-slate-400 italic">No school holidays defined for this session matching search query.</td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden bg-white dark:bg-slate-900 rounded-b-2xl">
+                    <div class="flex items-center gap-4">
+                        <!-- Page Size Selector -->
+                        <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                            <span>Show</span>
+                            <select 
+                                v-model="holidayPerPage" 
+                                class="px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold focus:outline-none text-[11px]"
+                            >
+                                <option :value="10">10</option>
+                                <option :value="25">25</option>
+                                <option :value="50">50</option>
+                                <option :value="100">100</option>
+                            </select>
+                            <span>entries</span>
+                        </div>
+
+                        <span class="text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                            Showing {{ holidayFrom }} to {{ holidayTo }} of {{ holidayTotalEntries }} entries
+                        </span>
+                    </div>
+
+                    <div v-if="holidayTotalPages > 1" class="flex items-center gap-1">
+                        <!-- Previous -->
+                        <button 
+                            :disabled="holidayCurrentPage === 1" 
+                            @click="holidayCurrentPage--"
+                            class="px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-50 transition-all bg-slate-50 dark:bg-slate-800 text-slate-707 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-750 cursor-pointer"
+                        >
+                            Previous
+                        </button>
+
+                        <!-- Numeric Pages Loop -->
+                        <button 
+                            v-for="page in holidayPageNumbers" 
+                            :key="page"
+                            @click="holidayCurrentPage = page"
+                            :class="[
+                                'px-2.5 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer',
+                                holidayCurrentPage === page 
+                                    ? 'bg-indigo-600 border-indigo-600 dark:bg-indigo-500 dark:border-indigo-500 text-white shadow-sm shadow-indigo-600/20' 
+                                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-707 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80'
+                            ]"
+                        >
+                            {{ page }}
+                        </button>
+
+                        <!-- Next -->
+                        <button 
+                            :disabled="holidayCurrentPage === holidayTotalPages" 
+                            @click="holidayCurrentPage++"
+                            class="px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-50 transition-all bg-slate-50 dark:bg-slate-800 text-slate-707 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-750 cursor-pointer"
+                        >
+                            Next
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -773,44 +1056,64 @@
             </div>
 
             <!-- Class Report Filters -->
-            <div v-if="reportType === 'class'" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Academic Year</label>
-                    <select 
-                        v-model="classReportFilters.academic_year_id" 
-                        class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                    >
-                        <option v-for="year in academicYears" :key="year.id" :value="year.id">{{ year.title }}</option>
-                    </select>
+            <div v-if="reportType === 'class'" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-555 dark:text-slate-400 uppercase tracking-wider mb-1">Academic Year</label>
+                        <select 
+                            v-model="classReportFilters.academic_year_id" 
+                            class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-850 dark:text-slate-200 font-semibold"
+                        >
+                            <option v-for="year in academicYears" :key="year.id" :value="year.id">{{ year.title }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-555 dark:text-slate-400 uppercase tracking-wider mb-1">Start Date</label>
+                        <input 
+                            v-model="classReportFilters.start_date" 
+                            v-datepicker
+                            type="text" 
+                            placeholder="YYYY-MM-DD"
+                            class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200 font-semibold"
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-555 dark:text-slate-400 uppercase tracking-wider mb-1">End Date</label>
+                        <input 
+                            v-model="classReportFilters.end_date" 
+                            v-datepicker
+                            type="text" 
+                            placeholder="YYYY-MM-DD"
+                            class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-955 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-805 dark:text-slate-200 font-semibold"
+                        />
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Start Date</label>
-                    <input 
-                        v-model="classReportFilters.start_date" 
-                        v-datepicker
-                        type="text" 
-                        placeholder="YYYY-MM-DD"
-                        class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                    />
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">End Date</label>
-                    <input 
-                        v-model="classReportFilters.end_date" 
-                        v-datepicker
-                        type="text" 
-                        placeholder="YYYY-MM-DD"
-                        class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                    />
-                </div>
-                <div class="flex items-end">
-                    <button 
-                        @click="generateClassReport"
-                        :disabled="!classReportFilters.academic_year_id || !classReportFilters.start_date || !classReportFilters.end_date || loadingReport"
-                        class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/10 transition-all disabled:opacity-50"
-                    >
-                        {{ loadingReport ? 'Generating...' : 'Generate Report' }}
-                    </button>
+
+                <div class="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-slate-100 dark:border-slate-800/60">
+                    <div class="flex items-center gap-2">
+                        <!-- Quick badge details -->
+                        <div v-if="hasLoadedClassReport" class="text-xs text-slate-550 dark:text-slate-400 font-semibold flex items-center gap-1.5 flex-wrap">
+                            <span class="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-lg">Start: {{ classReportFilters.start_date }}</span>
+                            <span class="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded-lg">End: {{ classReportFilters.end_date }}</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button 
+                            @click="resetTabFilter"
+                            type="button"
+                            class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-semibold rounded-xl transition-all cursor-pointer border-none"
+                        >
+                            Reset
+                        </button>
+                        <button 
+                            @click="applyTabFilter"
+                            :disabled="!classReportFilters.academic_year_id || !classReportFilters.start_date || !classReportFilters.end_date || loadingReport"
+                            type="button"
+                            class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-sm font-bold rounded-xl transition-all cursor-pointer shadow-lg shadow-indigo-600/10 disabled:opacity-50"
+                        >
+                            {{ loadingReport ? 'Generating...' : 'Apply Filter' }}
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -914,7 +1217,23 @@
             </div>
 
             <!-- Class Report Table -->
-            <div v-if="reportType === 'class' && classReport.length > 0" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+            <div v-if="loadingReport && reportType === 'class'" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 space-y-4 animate-pulse">
+                <div v-for="i in 5" :key="i" class="h-12 bg-slate-200 dark:bg-slate-800/50 rounded-xl"></div>
+            </div>
+
+            <div v-else-if="reportType === 'class' && !hasLoadedClassReport" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center text-slate-500">
+                <svg class="w-16 h-16 mx-auto text-slate-350 dark:text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">No Class Report Loaded</h3>
+                <p class="text-xs text-slate-550 dark:text-slate-450">Select Academic Year, Start Date, and End Date above and click Apply Filter to generate the report.</p>
+            </div>
+
+            <div v-else-if="reportType === 'class' && classReport.length === 0" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center text-slate-500">
+                <svg class="w-16 h-16 mx-auto text-slate-350 dark:text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">No Records Found</h3>
+                <p class="text-xs text-slate-550 dark:text-slate-450">No class aggregate attendance data matches the filter criteria.</p>
+            </div>
+
+            <div v-else-if="reportType === 'class'" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-50/50 dark:bg-slate-900/60">
@@ -927,15 +1246,15 @@
                             <th class="p-4 pr-6 text-right">Attendance Rate</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
-                        <tr v-for="row in classReport" :key="row.section_id">
+                    <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm text-slate-700 dark:text-slate-300">
+                        <tr v-for="row in classReport" :key="row.section_id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/25">
                             <td class="p-4 pl-6 font-semibold">{{ row.class_name }}</td>
                             <td class="p-4 font-semibold">{{ row.section_name }}</td>
                             <td class="p-4 text-center">{{ row.total_records }}</td>
                             <td class="p-4 text-center text-emerald-600 font-semibold">{{ row.presents }}</td>
                             <td class="p-4 text-center text-rose-600 font-semibold">{{ row.absents }}</td>
                             <td class="p-4 text-center text-indigo-600 font-semibold">{{ row.leaves }}</td>
-                            <td class="p-4 pr-6 text-right font-extrabold text-indigo-605 dark:text-indigo-400">
+                            <td class="p-4 pr-6 text-right font-extrabold text-indigo-600 dark:text-indigo-400">
                                 {{ row.attendance_rate }}%
                             </td>
                         </tr>
@@ -1223,6 +1542,8 @@ import { useAuthStore } from '../../stores/auth';
 import { useConfirmStore } from '../../stores/confirm';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.css';
+import monthSelectPlugin from 'flatpickr/dist/plugins/monthSelect/index.js';
+import 'flatpickr/dist/plugins/monthSelect/style.css';
 
 const vDatepicker = {
     mounted(el, binding) {
@@ -1232,6 +1553,44 @@ const vDatepicker = {
         const config = {
             dateFormat: 'Y-m-d',
             allowInput: true,
+            monthSelectorType: 'dropdown',
+            onChange: (selectedDates, dateStr) => {
+                inputEl.value = dateStr;
+                inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+                inputEl.dispatchEvent(new Event('change', { bubbles: true }));
+            },
+            ...(binding.value || {})
+        };
+        inputEl._flatpickr = flatpickr(inputEl, config);
+    },
+    updated(el) {
+        const inputEl = el.tagName === 'INPUT' ? el : el.querySelector('input');
+        if (inputEl && inputEl._flatpickr) {
+            inputEl._flatpickr.setDate(inputEl.value, false);
+        }
+    },
+    unmounted(el) {
+        const inputEl = el.tagName === 'INPUT' ? el : el.querySelector('input');
+        if (inputEl && inputEl._flatpickr) {
+            inputEl._flatpickr.destroy();
+        }
+    }
+};
+
+const vMonthpicker = {
+    mounted(el, binding) {
+        const inputEl = el.tagName === 'INPUT' ? el : el.querySelector('input');
+        if (!inputEl) return;
+
+        const config = {
+            plugins: [
+                new monthSelectPlugin({
+                    shorthand: true,
+                    dateFormat: 'Y-m',
+                    altFormat: 'F Y',
+                    theme: 'light'
+                })
+            ],
             onChange: (selectedDates, dateStr) => {
                 inputEl.value = dateStr;
                 inputEl.dispatchEvent(new Event('input', { bubbles: true }));
@@ -1284,6 +1643,63 @@ const sections = ref([]);
 const students = ref([]);
 const staffs = ref([]);
 const holidays = ref([]);
+const holidaySearchQuery = ref('');
+const holidayCurrentPage = ref(1);
+const holidayPerPage = ref(10);
+
+const processedHolidays = computed(() => {
+    let list = [...holidays.value];
+    
+    // Sort descending by date
+    list.sort((a, b) => {
+        if (a.holiday_date < b.holiday_date) return 1;
+        if (a.holiday_date > b.holiday_date) return -1;
+        return b.id - a.id;
+    });
+
+    // Search filter
+    if (holidaySearchQuery.value) {
+        const query = holidaySearchQuery.value.toLowerCase();
+        list = list.filter(h => {
+            const titleMatch = h.title?.toLowerCase().includes(query);
+            const descMatch = h.description?.toLowerCase().includes(query);
+            const audienceMatch = (h.target_type === 'all' ? 'all students & staff' : (h.target_type === 'staff' ? 'staff only' : h.target_type))?.toLowerCase().includes(query);
+            return titleMatch || descMatch || audienceMatch;
+        });
+    }
+
+    return list;
+});
+
+const holidayTotalEntries = computed(() => processedHolidays.value.length);
+
+const holidayTotalPages = computed(() => {
+    return Math.ceil(holidayTotalEntries.value / holidayPerPage.value) || 1;
+});
+
+const holidayFrom = computed(() => {
+    if (holidayTotalEntries.value === 0) return 0;
+    return (holidayCurrentPage.value - 1) * holidayPerPage.value + 1;
+});
+
+const holidayTo = computed(() => {
+    const toVal = holidayCurrentPage.value * holidayPerPage.value;
+    return toVal > holidayTotalEntries.value ? holidayTotalEntries.value : toVal;
+});
+
+const holidayPageNumbers = computed(() => {
+    const pages = [];
+    for (let i = 1; i <= holidayTotalPages.value; i++) {
+        pages.push(i);
+    }
+    return pages;
+});
+
+const paginatedHolidays = computed(() => {
+    const start = (holidayCurrentPage.value - 1) * holidayPerPage.value;
+    const end = start + holidayPerPage.value;
+    return processedHolidays.value.slice(start, end);
+});
 
 const loadingStudents = ref(false);
 const loadingStaff = ref(false);
@@ -1297,6 +1713,14 @@ const studentHolidayTitle = ref('');
 const staffHolidayActive = ref(false);
 const staffHolidayTitle = ref('');
 
+// Custom filter & local search state
+const localStudentSearch = ref('');
+const hasLoadedMark = ref(false);
+const hasLoadedMonthly = ref(false);
+const hasLoadedStaff = ref(false);
+const hasLoadedStaffMonthly = ref(false);
+const hasLoadedClassReport = ref(false);
+
 const filters = reactive({
     academic_year_id: '',
     class_id: '',
@@ -1304,11 +1728,104 @@ const filters = reactive({
     attendance_date: new Date().toISOString().split('T')[0]
 });
 
+watch(holidaySearchQuery, () => {
+    holidayCurrentPage.value = 1;
+});
+watch(holidayPerPage, () => {
+    holidayCurrentPage.value = 1;
+});
+watch(() => filters.academic_year_id, () => {
+    holidayCurrentPage.value = 1;
+});
+
 const isCurrentYear = computed(() => {
     if (!filters.academic_year_id) return true;
     const selected = academicYears.value.find(y => y.id === parseInt(filters.academic_year_id));
     return selected ? !!selected.is_current : false;
 });
+
+// Computed search filter for daily student list
+const filteredStudents = computed(() => {
+    const q = localStudentSearch.value.trim().toLowerCase();
+    if (!q) return students.value;
+    return students.value.filter(s => {
+        const fullName = `${s.first_name || ''} ${s.last_name || ''}`.trim().toLowerCase();
+        return fullName.includes(q) ||
+            (s.admission_no && s.admission_no.toLowerCase().includes(q)) ||
+            (s.roll_no && s.roll_no.toString().includes(q));
+    });
+});
+
+// Get class/section name helpers for badge detail info in view
+const getClassName = (classId) => {
+    if (!classId) return 'N/A';
+    const found = classes.value.find(c => c.id === parseInt(classId));
+    return found ? found.name : 'N/A';
+};
+
+const getSectionName = (sectionId) => {
+    if (!sectionId) return 'All';
+    const found = sections.value.find(s => s.id === parseInt(sectionId));
+    return found ? found.name : 'All';
+};
+
+// Filter drawer controls
+const applyTabFilter = () => {
+    if (currentTab.value === 'mark') {
+        loadStudentList();
+    } else if (currentTab.value === 'monthly') {
+        loadMonthlyAttendance();
+    } else if (currentTab.value === 'staff') {
+        loadStaffList();
+    } else if (currentTab.value === 'staff_monthly') {
+        loadStaffMonthlyAttendance();
+    } else if (currentTab.value === 'reports') {
+        if (reportType.value === 'class') {
+            generateClassReport();
+        }
+    }
+};
+
+const resetTabFilter = () => {
+    if (currentTab.value === 'mark') {
+        filters.class_id = '';
+        filters.section_id = '';
+        sections.value = [];
+        filters.attendance_date = new Date().toISOString().split('T')[0];
+        students.value = [];
+        hasLoadedMark.value = false;
+    } else if (currentTab.value === 'monthly') {
+        filters.class_id = '';
+        filters.section_id = '';
+        sections.value = [];
+        monthlyFilter.month = new Date().toISOString().slice(0, 7);
+        monthlyGrid.value = [];
+        hasLoadedMonthly.value = false;
+    } else if (currentTab.value === 'staff') {
+        filters.attendance_date = new Date().toISOString().split('T')[0];
+        staffs.value = [];
+        hasLoadedStaff.value = false;
+    } else if (currentTab.value === 'staff_monthly') {
+        staffMonthlyFilter.month = new Date().toISOString().slice(0, 7);
+        staffMonthlyGrid.value = [];
+        hasLoadedStaffMonthly.value = false;
+    } else if (currentTab.value === 'reports') {
+        if (reportType.value === 'class') {
+            classReportFilters.start_date = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+            classReportFilters.end_date = new Date().toISOString().split('T')[0];
+            classReport.value = [];
+            hasLoadedClassReport.value = false;
+        } else if (reportType.value === 'student') {
+            studentReportFilters.student_id = '';
+            studentSearchQuery.value = '';
+            studentReportData.value = null;
+        } else if (reportType.value === 'staff') {
+            staffReportFilters.user_id = '';
+            staffSearchQuery.value = '';
+            staffReportData.value = null;
+        }
+    }
+};
 
 const monthlyFilter = reactive({
     month: new Date().toISOString().slice(0, 7) // e.g. "2026-06"
@@ -1367,6 +1884,30 @@ const holidayForm = reactive({
     section_id: '',
     student_id: ''
 });
+
+const isDayWeekend = (day) => {
+    if (!monthlyFilter.month) return false;
+    try {
+        const dateStr = `${monthlyFilter.month}-${String(day).padStart(2, '0')}`;
+        const d = new Date(dateStr);
+        const dayOfWeek = d.getDay(); // 0 is Sunday, 6 is Saturday
+        return dayOfWeek === 0 || dayOfWeek === 6;
+    } catch (e) {
+        return false;
+    }
+};
+
+const isStaffDayWeekend = (day) => {
+    if (!staffMonthlyFilter.month) return false;
+    try {
+        const dateStr = `${staffMonthlyFilter.month}-${String(day).padStart(2, '0')}`;
+        const d = new Date(dateStr);
+        const dayOfWeek = d.getDay(); // 0 is Sunday, 6 is Saturday
+        return dayOfWeek === 0 || dayOfWeek === 6;
+    } catch (e) {
+        return false;
+    }
+};
 
 const changeTab = (tabId) => {
     currentTab.value = tabId;
@@ -1471,6 +2012,7 @@ const fetchHolidaySections = async () => {
 
 const loadStudentList = async () => {
     loadingStudents.value = true;
+    hasLoadedMark.value = true;
     studentHolidayActive.value = false;
     studentHolidayTitle.value = '';
     try {
@@ -1526,6 +2068,7 @@ const saveAttendance = async () => {
 // Staff Attendance
 const loadStaffList = async () => {
     loadingStaff.value = true;
+    hasLoadedStaff.value = true;
     staffHolidayActive.value = false;
     staffHolidayTitle.value = '';
     try {
@@ -1582,6 +2125,7 @@ const saveStaffAttendance = async () => {
 // Monthly Grid
 const loadMonthlyAttendance = async () => {
     loadingMonthly.value = true;
+    hasLoadedMonthly.value = true;
     try {
         const response = await window.axios.get('/api/attendances/monthly', {
             params: {
@@ -1613,14 +2157,11 @@ const downloadMonthlyPdf = async () => {
             responseType: 'blob'
         });
         const blob = new Blob([response.data], { type: 'application/pdf' });
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = `Attendance_Report_${monthlyFilter.month}.pdf`;
-        link.click();
-        window.URL.revokeObjectURL(link.href);
-        window.toastr?.success('PDF downloaded successfully.');
+        const fileURL = window.URL.createObjectURL(blob);
+        window.open(fileURL, '_blank');
+        window.toastr?.success('PDF report generated successfully.');
     } catch (e) {
-        window.toastr?.error('Failed to download PDF.');
+        window.toastr?.error('Failed to generate PDF.');
     } finally {
         downloadingPdf.value = false;
     }
@@ -1629,6 +2170,7 @@ const downloadMonthlyPdf = async () => {
 // Staff Monthly Grid
 const loadStaffMonthlyAttendance = async () => {
     loadingStaffMonthly.value = true;
+    hasLoadedStaffMonthly.value = true;
     try {
         const response = await window.axios.get('/api/staff-attendances/monthly', {
             params: {
@@ -1654,14 +2196,11 @@ const downloadStaffMonthlyPdf = async () => {
             responseType: 'blob'
         });
         const blob = new Blob([response.data], { type: 'application/pdf' });
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = `Staff_Attendance_Report_${staffMonthlyFilter.month}.pdf`;
-        link.click();
-        window.URL.revokeObjectURL(link.href);
-        window.toastr?.success('PDF downloaded successfully.');
+        const fileURL = window.URL.createObjectURL(blob);
+        window.open(fileURL, '_blank');
+        window.toastr?.success('PDF report generated successfully.');
     } catch (e) {
-        window.toastr?.error('Failed to download PDF.');
+        window.toastr?.error('Failed to generate PDF.');
     } finally {
         downloadingPdf.value = false;
     }
@@ -1753,6 +2292,7 @@ const deleteHoliday = async (id) => {
 // Reports
 const generateClassReport = async () => {
     loadingReport.value = true;
+    hasLoadedClassReport.value = true;
     try {
         const response = await window.axios.get('/api/attendances/class-report', { params: classReportFilters });
         classReport.value = response.data.report;
@@ -1849,15 +2389,11 @@ const downloadStudentReportPdf = async () => {
             responseType: 'blob'
         });
         const blob = new Blob([response.data], { type: 'application/pdf' });
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        const studentName = selectedStudent.value ? `${selectedStudent.value.first_name}_${selectedStudent.value.last_name}` : 'Student';
-        link.download = `Student_Attendance_Report_${studentName}.pdf`;
-        link.click();
-        window.URL.revokeObjectURL(link.href);
-        window.toastr?.success('PDF downloaded successfully.');
+        const fileURL = window.URL.createObjectURL(blob);
+        window.open(fileURL, '_blank');
+        window.toastr?.success('PDF report generated successfully.');
     } catch (e) {
-        window.toastr?.error('Failed to download PDF.');
+        window.toastr?.error('Failed to generate PDF.');
     } finally {
         downloadingPdf.value = false;
     }
@@ -1872,15 +2408,11 @@ const downloadStaffReportPdf = async () => {
             responseType: 'blob'
         });
         const blob = new Blob([response.data], { type: 'application/pdf' });
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        const staffName = selectedStaff.value ? selectedStaff.value.name.replace(/\s+/g, '_') : 'Staff';
-        link.download = `Staff_Attendance_Report_${staffName}.pdf`;
-        link.click();
-        window.URL.revokeObjectURL(link.href);
-        window.toastr?.success('PDF downloaded successfully.');
+        const fileURL = window.URL.createObjectURL(blob);
+        window.open(fileURL, '_blank');
+        window.toastr?.success('PDF report generated successfully.');
     } catch (e) {
-        window.toastr?.error('Failed to download PDF.');
+        window.toastr?.error('Failed to generate PDF.');
     } finally {
         downloadingPdf.value = false;
     }
