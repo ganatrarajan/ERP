@@ -38,8 +38,9 @@
         }
         table.attendance-table th, table.attendance-table td {
             border: 1px solid #ddd;
-            padding: 4px;
+            padding: 2.5px 1px;
             text-align: center;
+            font-size: 7px;
         }
         table.attendance-table th {
             background-color: #f3f4f6;
@@ -95,17 +96,17 @@
 <table class="attendance-table">
     <thead>
         <tr>
-            <th style="width: 40px;">Roll No</th>
-            <th>Student Name</th>
+            <th style="width: 25px; font-size: 7px;">Roll</th>
+            <th style="font-size: 7.5px;">Student Name</th>
             @for ($d = 1; $d <= $days_in_month; $d++)
-                <th style="width: 18px;">{{ $d }}</th>
+                <th style="width: 12px; font-size: 7px;">{{ $d }}</th>
             @endfor
-            <th style="width: 20px; background-color: #d1fae5;">P</th>
-            <th style="width: 20px; background-color: #fee2e2;">A</th>
-            <th style="width: 20px; background-color: #fef3c7;">L</th>
-            <th style="width: 20px; background-color: #ffedd5;">HD</th>
-            <th style="width: 20px; background-color: #f3e8ff;">LV</th>
-            <th style="width: 20px; background-color: #e0f2fe;">H</th>
+            <th style="width: 12px; font-size: 7px; background-color: #d1fae5;">P</th>
+            <th style="width: 12px; font-size: 7px; background-color: #fee2e2;">A</th>
+            <th style="width: 12px; font-size: 7px; background-color: #fef3c7;">L</th>
+            <th style="width: 12px; font-size: 7px; background-color: #ffedd5;">HD</th>
+            <th style="width: 12px; font-size: 7px; background-color: #f3e8ff;">LV</th>
+            <th style="width: 12px; font-size: 7px; background-color: #e0f2fe;">H</th>
         </tr>
     </thead>
     <tbody>

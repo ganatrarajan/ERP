@@ -68,6 +68,8 @@ Route::middleware('auth')->group(function () {
         ->middleware('permission:user.edit');
     Route::post('/teacher-assignments/bulk-delete', [TeacherAssignmentController::class, 'bulkDestroy'])
         ->middleware('permission:user.edit');
+    Route::get('/teacher-assignments/pdf', [TeacherAssignmentController::class, 'downloadPdf'])
+        ->middleware('permission:user.view');
     Route::apiResource('teacher-assignments', TeacherAssignmentController::class);
 
     // Roles & Permissions

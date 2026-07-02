@@ -9,7 +9,7 @@
             <button 
                 v-if="authStore.hasPermission('exam.create')"
                 @click="openModal()"
-                class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-600/10 transition-all flex items-center gap-1.5"
+                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-xs rounded-xl shadow shadow-indigo-600/10 transition-all flex items-center gap-1.5 cursor-pointer border-none"
             >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Create Exam
@@ -17,10 +17,10 @@
         </div>
 
         <!-- Filters Section -->
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <div class="col-span-1 sm:col-span-2">
-                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Search</label>
-                <div class="relative">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <!-- Search input -->
+                <div class="relative w-full sm:w-80">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </span>
@@ -28,35 +28,56 @@
                         v-model="filters.search" 
                         @input="handleSearch"
                         type="text" 
-                        placeholder="Search exams..." 
-                        class="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                        placeholder="Search exam name..." 
+                        class="w-full pl-9 pr-4 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
                     />
                 </div>
+
+                <!-- Advanced Collapse Toggle -->
+                <button 
+                    @click="showAdvancedFilters = !showAdvancedFilters"
+                    class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 rounded-xl text-xs text-slate-650 dark:text-slate-300 font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                    Filters
+                </button>
             </div>
 
-            <div>
-                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Exam Type</label>
-                <select 
-                    v-model="filters.exam_type_id" 
-                    @change="fetchExams"
-                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                >
-                    <option value="">All Types</option>
-                    <option v-for="type in examTypes" :key="type.id" :value="type.id">{{ type.name }}</option>
-                </select>
-            </div>
+            <!-- Collapsible drawer -->
+            <div v-show="showAdvancedFilters" class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap gap-4 items-center">
+                <!-- Exam Type Filter -->
+                <div class="flex items-center gap-2">
+                    <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Exam Type:</label>
+                    <select 
+                        v-model="filters.exam_type_id" 
+                        @change="fetchExams"
+                        class="px-2.5 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-750 dark:text-slate-350 focus:outline-none cursor-pointer"
+                    >
+                        <option value="">All Types</option>
+                        <option v-for="type in examTypes" :key="type.id" :value="type.id">{{ type.name }}</option>
+                    </select>
+                </div>
 
-            <div>
-                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Status</label>
-                <select 
-                    v-model="filters.status" 
-                    @change="fetchExams"
-                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                <!-- Status Filter -->
+                <div class="flex items-center gap-2">
+                    <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Status:</label>
+                    <select 
+                        v-model="filters.status" 
+                        @change="fetchExams"
+                        class="px-2.5 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-750 dark:text-slate-350 focus:outline-none cursor-pointer"
+                    >
+                        <option value="">All Statuses</option>
+                        <option value="draft">Draft</option>
+                        <option value="published">Published</option>
+                    </select>
+                </div>
+
+                <button 
+                    @click="resetFilters"
+                    class="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-955 text-xs font-bold text-slate-500 dark:text-slate-455 border border-slate-200 dark:border-slate-800/80 rounded-xl transition-all cursor-pointer"
                 >
-                    <option value="">All Status</option>
-                    <option value="draft">Draft</option>
-                    <option value="published">Published</option>
-                </select>
+                    Reset Filters
+                </button>
             </div>
         </div>
 
@@ -66,15 +87,16 @@
                 <div v-for="i in 5" :key="i" class="h-12 bg-slate-200 dark:bg-slate-800/50 rounded-xl"></div>
             </div>
 
-            <div v-else-if="exams.length === 0" class="p-12 text-center text-slate-500">
-                <svg class="w-16 h-16 mx-auto text-slate-300 dark:text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                No exams found.
+            <div v-else-if="exams.length === 0" class="p-12 text-center text-slate-550 bg-slate-50/20 dark:bg-slate-900/10">
+                <svg class="w-12 h-12 mx-auto text-slate-300 dark:text-slate-700 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <h4 class="font-bold text-slate-700 dark:text-slate-300">No Exams Scheduled</h4>
+                <p class="text-xs text-slate-400 mt-1">Refine your query filters or schedule a new exam to begin.</p>
             </div>
 
             <div v-else class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-50/50 dark:bg-slate-900/60">
+                        <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-550 dark:text-slate-400 uppercase bg-slate-50/50 dark:bg-slate-900/60 select-none">
                             <th class="p-4 pl-6">Exam Name</th>
                             <th class="p-4">Type</th>
                             <th class="p-4">Academic Year</th>
@@ -84,21 +106,21 @@
                             <th class="p-4 pr-6 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm text-slate-700 dark:text-slate-300">
+                    <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm text-slate-750 dark:text-slate-305">
                         <tr v-for="exam in exams" :key="exam.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                            <td class="p-4 pl-6 font-semibold text-slate-800 dark:text-white">
+                            <td class="p-4 pl-6 font-bold text-slate-800 dark:text-white">
                                 {{ exam.name }}
                             </td>
-                            <td class="p-4 text-slate-600 dark:text-slate-400">
+                            <td class="p-4 text-xs font-medium text-slate-600 dark:text-slate-400">
                                 {{ exam.exam_type?.name || 'N/A' }}
                             </td>
-                            <td class="p-4 text-slate-600 dark:text-slate-400 font-medium">
+                            <td class="p-4 text-xs text-slate-500 dark:text-slate-400">
                                 {{ exam.academic_year?.title || 'N/A' }}
                             </td>
-                            <td class="p-4 text-center text-slate-600 dark:text-slate-400 font-mono">
+                            <td class="p-4 text-center text-xs font-mono">
                                 {{ formatDate(exam.start_date) }}
                             </td>
-                            <td class="p-4 text-center text-slate-600 dark:text-slate-400 font-mono">
+                            <td class="p-4 text-center text-xs font-mono">
                                 {{ formatDate(exam.end_date) }}
                             </td>
                             <td class="p-4">
@@ -106,38 +128,38 @@
                                     v-if="authStore.hasPermission('exam.edit') && isExamCurrentYear(exam)"
                                     @click="togglePublish(exam)"
                                     :class="[
-                                        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold capitalize transition-all border active:scale-95',
-                                        exam.status === 'published' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20' : 'bg-amber-500/10 text-amber-600 border-amber-500/20 hover:bg-amber-500/20'
+                                        'inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold border transition-colors cursor-pointer capitalize',
+                                        exam.status === 'published' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 border-amber-500/20'
                                     ]"
+                                    :title="exam.status === 'published' ? 'Revert to Draft' : 'Publish Result scores'"
                                 >
                                     {{ exam.status }}
                                 </button>
-                                <span 
-                                    v-else
-                                    :class="[
-                                        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold capitalize border',
-                                        exam.status === 'published' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 border-amber-500/20'
-                                    ]"
-                                >
+                                <span v-else :class="[
+                                    'inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold border capitalize',
+                                    exam.status === 'published' ? 'bg-emerald-500/10 text-emerald-650 border-emerald-500/20' : 'bg-slate-500/10 text-slate-500 border-slate-550/20'
+                                ]">
                                     {{ exam.status }}
                                 </span>
                             </td>
                             <td class="p-4 pr-6 text-right">
                                 <div class="flex items-center justify-end gap-2">
+                                    <!-- Edit -->
                                     <button 
                                         v-if="authStore.hasPermission('exam.edit') && isExamCurrentYear(exam)"
                                         @click="openModal(exam)"
-                                        class="p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg border border-slate-200 dark:border-slate-700/60 transition-colors"
-                                        title="Edit Exam"
+                                        class="p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg border border-slate-200 dark:border-slate-700/60 transition-colors cursor-pointer"
+                                        title="Edit Exam Schedule"
                                     >
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                     </button>
 
+                                    <!-- Delete -->
                                     <button 
                                         v-if="authStore.hasPermission('exam.delete') && isExamCurrentYear(exam)"
                                         @click="handleDelete(exam)"
-                                        class="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 rounded-lg transition-colors"
-                                        title="Delete Exam"
+                                        class="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-455 border border-rose-500/20 rounded-lg transition-colors cursor-pointer"
+                                        title="Delete Exam Master"
                                     >
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                     </button>
@@ -148,138 +170,148 @@
                 </table>
             </div>
 
-            <!-- Pagination -->
-            <div v-if="totalPages > 1" class="border-t border-slate-200 dark:border-slate-800 p-4 flex items-center justify-between">
-                <button 
-                    :disabled="currentPage === 1"
-                    @click="changePage(currentPage - 1)"
-                    class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-700 dark:text-slate-300"
-                >
-                    Previous
-                </button>
+            <!-- Pagination list -->
+            <div class="px-6 py-4 flex items-center justify-between border-t border-slate-200 dark:border-slate-800">
                 <span class="text-xs text-slate-500">Page {{ currentPage }} of {{ totalPages }}</span>
-                <button 
-                    :disabled="currentPage === totalPages"
-                    @click="changePage(currentPage + 1)"
-                    class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-700 dark:text-slate-300"
-                >
-                    Next
-                </button>
+                <div class="flex items-center gap-1">
+                    <button 
+                        :disabled="currentPage === 1" 
+                        @click="changePage(currentPage - 1)"
+                        class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold rounded-lg disabled:opacity-50 cursor-pointer border-none"
+                    >
+                        Prev
+                    </button>
+                    <button 
+                        :disabled="currentPage === totalPages" 
+                        @click="changePage(currentPage + 1)"
+                        class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold rounded-lg disabled:opacity-50 cursor-pointer border-none"
+                    >
+                        Next
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- Add/Edit Modal -->
-        <div v-if="modalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl animate-fade-in">
-                <!-- Modal Header -->
-                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-slate-800 dark:text-white">{{ editingId ? 'Edit Exam Details' : 'Create New Exam' }}</h3>
-                    <button @click="closeModal" class="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-600">
+        <!-- Exam Setup Form Modal -->
+        <div v-if="modalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-opacity">
+            <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden transform transition-all duration-300 animate-fade-in">
+                <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
+                    <h3 class="font-extrabold text-slate-800 dark:text-white text-base">
+                        {{ editingId ? 'Edit Exam Setup' : 'Create Exam Setup' }}
+                    </h3>
+                    <button @click="closeModal" class="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border-none bg-transparent cursor-pointer">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
 
-                <!-- Form -->
                 <form @submit.prevent="saveExam" class="p-6 space-y-4">
-                    <!-- <div class="grid grid-cols-2 gap-4"> -->
-                        <div class="col-span-2">
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Academic Year <span class="text-rose-500">*</span></label>
-                            <select 
-                                v-model="form.academic_year_id"
-                                required
-                                class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                            >
-                                <option v-for="year in academicYears" :key="year.id" :value="year.id">{{ year.title }}</option>
-                            </select>
-                        </div>
+                    <!-- Academic Year -->
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Academic Session</label>
+                        <select 
+                            v-model="form.academic_year_id" 
+                            required
+                            class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 cursor-pointer"
+                        >
+                            <option value="" disabled>Select Academic Year</option>
+                            <option v-for="year in academicYears" :key="year.id" :value="year.id">
+                                {{ year.title }} <span v-if="year.is_current">(Current Active)</span>
+                            </option>
+                        </select>
+                    </div>
 
-                        <div class="col-span-2">
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Exam Type <span class="text-rose-500">*</span></label>
-                            <select 
-                                v-model="form.exam_type_id"
-                                required
-                                class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                            >
-                                <option value="">Select Exam Type</option>
-                                <option v-for="type in examTypes" :key="type.id" :value="type.id">{{ type.name }}</option>
-                            </select>
-                        </div>
+                    <!-- Exam Type -->
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Exam Type Category</label>
+                        <select 
+                            v-model="form.exam_type_id" 
+                            required
+                            class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 cursor-pointer"
+                        >
+                            <option value="" disabled>Select Category</option>
+                            <option v-for="type in examTypes" :key="type.id" :value="type.id">{{ type.name }}</option>
+                        </select>
+                    </div>
 
-                        <div class="col-span-2">
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Exam Name <span class="text-rose-500">*</span></label>
+                    <!-- Name -->
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Exam Name</label>
+                        <input 
+                            v-model="form.name" 
+                            type="text" 
+                            required 
+                            placeholder="e.g. Mid Term Examination"
+                            class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 transition-all"
+                        />
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Start Date -->
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Start Date</label>
                             <input 
-                                v-model="form.name"
-                                type="text"
-                                required
-                                class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                                placeholder="e.g. Mid-Term Theory Exams"
-                            />
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Start Date <span class="text-rose-500">*</span></label>
-                            <input 
-                                v-model="form.start_date"
+                                v-model="form.start_date" 
                                 v-datepicker
                                 type="text"
                                 placeholder="YYYY-MM-DD"
-                                required
-                                class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                                required 
+                                class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 transition-all"
                             />
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">End Date <span class="text-rose-500">*</span></label>
+                        <!-- End Date -->
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">End Date</label>
                             <input 
-                                v-model="form.end_date"
+                                v-model="form.end_date" 
                                 v-datepicker
                                 type="text"
                                 placeholder="YYYY-MM-DD"
-                                required
-                                class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                                required 
+                                class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 transition-all"
                             />
                         </div>
+                    </div>
 
-                        <div class="col-span-2">
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Description</label>
-                            <textarea 
-                                v-model="form.description"
-                                rows="2"
-                                class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                                placeholder="Details or instructions for the exam..."
-                            ></textarea>
-                        </div>
+                    <!-- Description -->
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Description</label>
+                        <textarea 
+                            v-model="form.description" 
+                            rows="2"
+                            placeholder="Provide exam instruction details"
+                            class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 transition-all resize-none"
+                        ></textarea>
+                    </div>
 
-                        <div class="col-span-2">
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Publish Status</label>
-                            <select 
-                                v-model="form.status"
-                                class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                            >
-                                <option value="draft">Draft (Hidden from Report Cards)</option>
-                                <option value="published">Published (Visible on Report Cards)</option>
-                            </select>
-                        </div>
-                        <div v-if="!isFormCurrentYear" class="col-span-2 bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-400 p-3 rounded-xl text-xs flex items-center gap-2">
-                            <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                            <span>Historical Session: Selecting a locked academic session disables modifications.</span>
-                        </div>
+                    <!-- Status -->
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Status</label>
+                        <select 
+                            v-model="form.status" 
+                            class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 transition-all cursor-pointer"
+                        >
+                            <option value="draft">Draft</option>
+                            <option value="published">Published</option>
+                        </select>
+                    </div>
 
-                        <!-- Modal Actions -->
-                    <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+                    <!-- Form Actions -->
+                    <div class="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
                         <button 
                             type="button" 
-                            @click="closeModal"
-                            class="px-4 py-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-slate-600 dark:text-slate-300 text-sm font-semibold transition-colors"
+                            @click="closeModal" 
+                            class="px-4 py-2 text-sm font-semibold text-slate-650 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all border-none bg-transparent cursor-pointer"
                         >
                             Cancel
                         </button>
                         <button 
                             type="submit" 
-                            :disabled="saving || !isFormCurrentYear"
-                            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/10 transition-all active:scale-95 disabled:opacity-50"
+                            :disabled="saving"
+                            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl active:scale-95 disabled:scale-100 disabled:opacity-50 transition-all flex items-center gap-1 border-none cursor-pointer"
                         >
-                            {{ saving ? 'Saving...' : 'Save Exam' }}
+                            <span v-if="saving">Saving...</span>
+                            <span v-else>Save Changes</span>
                         </button>
                     </div>
                 </form>
@@ -304,6 +336,8 @@ const saving = ref(false);
 const modalOpen = ref(false);
 const editingId = ref(null);
 
+const showAdvancedFilters = ref(false);
+
 const currentPage = ref(1);
 const totalPages = ref(1);
 
@@ -322,6 +356,14 @@ const form = ref({
     description: '',
     status: 'draft'
 });
+
+const resetFilters = () => {
+    filters.search = '';
+    filters.exam_type_id = '';
+    filters.status = '';
+    currentPage.value = 1;
+    fetchExams();
+};
 
 const isFormCurrentYear = computed(() => {
     if (!form.value.academic_year_id) return true;
@@ -440,6 +482,23 @@ const closeModal = () => {
 };
 
 const saveExam = async () => {
+    // Validation checks
+    if (new Date(form.value.start_date) > new Date(form.value.end_date)) {
+        window.toastr?.error('Start date must be before or equal to End date.');
+        return;
+    }
+
+    // Frontend validation preventing duplicate exam names in the same academic year
+    const isDuplicate = exams.value.some(e => 
+        e.name.toLowerCase() === form.value.name.trim().toLowerCase() && 
+        e.academic_year_id === parseInt(form.value.academic_year_id) &&
+        e.id !== editingId.value
+    );
+    if (isDuplicate) {
+        window.toastr?.error('An exam with this name already exists in the selected academic session.');
+        return;
+    }
+
     saving.value = true;
     try {
         if (editingId.value) {

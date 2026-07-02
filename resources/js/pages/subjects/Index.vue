@@ -1,15 +1,18 @@
 <template>
     <div class="space-y-6">
+        <!-- Settings Control Header -->
+        <SettingsHeader />
+
         <!-- Header -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-                <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white tracking-tight">Subjects</h1>
-                <p class="text-sm text-slate-500 dark:text-slate-400">Manage school curriculum subjects and assign them to classes, sections, and sessions.</p>
+                <h1 class="text-xl font-extrabold text-slate-800 dark:text-white tracking-tight">Subjects</h1>
+                <p class="text-xs text-slate-550 dark:text-slate-400">Manage curriculum courses, course codes, grading scales, and assign subjects to classes.</p>
             </div>
             <button 
                 v-if="authStore.hasPermission('subject.create') && isCurrentYear"
                 @click="openModal()"
-                class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-600/10 transition-all flex items-center gap-1.5"
+                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-xs rounded-xl shadow shadow-indigo-600/10 transition-all flex items-center gap-1.5 border-none cursor-pointer"
             >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Add Subject
@@ -25,10 +28,10 @@
         </div>
 
         <!-- Filters Section -->
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm grid grid-cols-1 sm:grid-cols-6 gap-4">
-            <div class="col-span-1 sm:col-span-2">
-                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Search</label>
-                <div class="relative">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <!-- Search input -->
+                <div class="relative w-full sm:w-80">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </span>
@@ -36,60 +39,83 @@
                         v-model="filters.search" 
                         @input="handleSearch"
                         type="text" 
-                        placeholder="Search subjects..." 
-                        class="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                        placeholder="Search subject title or code..." 
+                        class="w-full pl-9 pr-4 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
                     />
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <!-- Session Select -->
+                    <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Session:</label>
+                    <select 
+                        v-model="filters.academic_year_id" 
+                        @change="handleAcademicYearChange"
+                        class="px-2.5 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-750 dark:text-slate-350 focus:outline-none cursor-pointer"
+                    >
+                        <option value="">All Sessions</option>
+                        <option v-for="year in academicYears" :key="year.id" :value="year.id">
+                            {{ year.title }} <span v-if="year.is_current">(Current)</span>
+                        </option>
+                    </select>
+
+                    <button 
+                        @click="showAdvancedFilters = !showAdvancedFilters"
+                        class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 rounded-xl text-xs text-slate-600 dark:text-slate-350 font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                        Filters
+                    </button>
                 </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Session / Academic Year</label>
-                <select 
-                    v-model="filters.academic_year_id" 
-                    @change="handleAcademicYearChange"
-                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                >
-                    <option value="">All Sessions</option>
-                    <option v-for="year in academicYears" :key="year.id" :value="year.id">
-                        {{ year.title }} <span v-if="year.is_current">(Current)</span>
-                    </option>
-                </select>
-            </div>
+            <!-- Collapsible drawer -->
+            <div v-show="showAdvancedFilters" class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap gap-6 items-center">
+                <!-- Class filter -->
+                <div class="flex items-center gap-2">
+                    <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Class:</label>
+                    <select 
+                        v-model="filters.class_id" 
+                        @change="fetchFilterSections"
+                        class="px-2.5 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-750 dark:text-slate-350 focus:outline-none cursor-pointer"
+                    >
+                        <option value="">All Classes</option>
+                        <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
+                    </select>
+                </div>
 
-            <div>
-                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Class</label>
-                <select 
-                    v-model="filters.class_id" 
-                    @change="fetchFilterSections"
-                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                >
-                    <option value="">All Classes</option>
-                    <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
-                </select>
-            </div>
+                <!-- Section Filter -->
+                <div class="flex items-center gap-2">
+                    <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Section:</label>
+                    <select 
+                        v-model="filters.section_id" 
+                        @change="fetchSubjects"
+                        class="px-2.5 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-955 text-slate-750 dark:text-slate-350 focus:outline-none cursor-pointer"
+                    >
+                        <option value="">All Sections</option>
+                        <option v-for="sec in filterSections" :key="sec.id" :value="sec.id">{{ sec.name }}</option>
+                    </select>
+                </div>
 
-            <div>
-                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Section</label>
-                <select 
-                    v-model="filters.section_id" 
-                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
-                >
-                    <option value="">All Sections</option>
-                    <option v-for="sec in filterSections" :key="sec.id" :value="sec.id">{{ sec.name }}</option>
-                </select>
-            </div>
+                <!-- Status Filter -->
+                <div class="flex items-center gap-2">
+                    <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Status:</label>
+                    <select 
+                        v-model="filters.status" 
+                        @change="fetchSubjects"
+                        class="px-2.5 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-955 text-slate-750 dark:text-slate-350 focus:outline-none cursor-pointer"
+                    >
+                        <option value="">All Statuses</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
 
-            <div>
-                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Status</label>
-                <select 
-                    v-model="filters.status" 
-                    @change="fetchSubjects"
-                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                <button 
+                    @click="resetFilters"
+                    class="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-955 text-xs font-bold text-slate-500 dark:text-slate-455 border border-slate-200 dark:border-slate-800/80 rounded-xl transition-all cursor-pointer"
                 >
-                    <option value="">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                </select>
+                    Reset Filters
+                </button>
             </div>
         </div>
 
@@ -424,6 +450,7 @@
 import { ref, onMounted, reactive, watch, computed } from 'vue';
 import { useAuthStore } from '../../stores/auth';
 import { useConfirmStore } from '../../stores/confirm';
+import SettingsHeader from '../../components/SettingsHeader.vue';
 
 const authStore = useAuthStore();
 const confirmStore = useConfirmStore();
@@ -434,6 +461,7 @@ const saving = ref(false);
 const modalOpen = ref(false);
 const editingId = ref(null);
 
+const showAdvancedFilters = ref(false);
 const academicYears = ref([]);
 const classes = ref([]);
 const filterSections = ref([]);
@@ -441,6 +469,16 @@ const modalClasses = ref([]);
 const modalSections = ref([]);
 const gradeScales = ref([]);
 let isModalLoading = false;
+
+const resetFilters = () => {
+    filters.search = '';
+    filters.class_id = '';
+    filters.section_id = '';
+    filters.status = '';
+    filterSections.value = [];
+    currentPage.value = 1;
+    fetchSubjects();
+};
 
 const isCurrentYear = computed(() => {
     if (!filters.academic_year_id) return true;
@@ -750,9 +788,14 @@ const handleDelete = async (subj) => {
 
 onMounted(async () => {
     await fetchAcademicYears();
-    await fetchClasses();
     fetchGradeScales();
-    fetchSubjects();
+    await fetchClasses();
+    await fetchSubjects();
+    window.addEventListener('open-settings-create-modal', () => {
+        if (window.location.pathname.includes('/subjects')) {
+            openModal();
+        }
+    });
 });
 </script>
 
