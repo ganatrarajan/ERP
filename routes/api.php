@@ -308,6 +308,7 @@ Route::middleware('auth')->group(function () {
 Route::post('/mobile/school/verify', [\App\Http\Controllers\Api\MobileAuthController::class, 'verifySchool']);
 Route::get('/mobile/academic-years/{school_code}', [\App\Http\Controllers\Api\MobileAuthController::class, 'academicYears']);
 Route::post('/mobile/login', [\App\Http\Controllers\Api\MobileAuthController::class, 'login']);
+Route::post('/mobile/teacher/login', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'login']);
 
 Route::post('/mobile/change-password', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'changePassword']);
 
@@ -328,5 +329,40 @@ Route::middleware(['auth:sanctum', 'mobile.context'])->prefix('mobile')->group(f
     Route::get('/receipts', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'receipts']);
     Route::get('/receipt/{id}', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'receiptUrl']);
     Route::get('/receipt/{id}/download', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'downloadReceipt']);
+
+    // Teacher Mobile Secured Routes
+    Route::prefix('teacher')->group(function () {
+        Route::post('/logout', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'logout']);
+        Route::get('/profile', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'profile']);
+        Route::post('/profile/update', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'updateProfile']);
+        Route::post('/change-password', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'changePassword']);
+        Route::post('/fcm-token', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'fcmToken']);
+        
+        Route::get('/dashboard', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'dashboard']);
+        Route::get('/assignments', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'assignments']);
+        
+        Route::get('/attendance/classes', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'attendanceClasses']);
+        Route::get('/attendance/students', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'attendanceStudents']);
+        Route::post('/attendance/save', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'submitAttendance']);
+        Route::post('/attendance/update', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'updateAttendance']);
+        Route::get('/attendance/history', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'attendanceHistory']);
+        Route::get('/attendance/monthly', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'monthlyAttendance']);
+        
+        Route::get('/homeworks', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'homeworks']);
+        Route::get('/homeworks/{id}', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'homeworkDetails']);
+        Route::post('/homeworks', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'createHomework']);
+        Route::put('/homeworks/{id}', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'updateHomework']);
+        Route::delete('/homeworks/{id}', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'deleteHomework']);
+        
+        Route::get('/notices', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'notices']);
+        Route::get('/notices/{id}', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'noticeDetails']);
+        
+        Route::get('/exams', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'exams']);
+        Route::get('/exams/{exam}/marks', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'examMarks']);
+        Route::get('/exams/{exam}/subjects', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'examSubjects']);
+        Route::post('/exams/marks/save', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'saveExamMarks']);
+        
+        Route::get('/documents', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'documents']);
+    });
 });
 
