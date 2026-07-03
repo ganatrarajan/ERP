@@ -24,7 +24,7 @@
                         <!-- Role -->
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 mb-1">Filter Role</label>
-                            <select v-model="filters.role" class="w-full px-3 py-2 text-xs font-semibold bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 text-slate-700 dark:text-slate-200">
+                            <select v-model="filters.role" class="w-full px-3 py-2 text-xs font-semibold bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 text-slate-700 dark:text-slate-200 cursor-pointer">
                                 <option value="">All Roles</option>
                                 <option v-for="role in roles" :key="role.id" :value="role.name">{{ role.name }}</option>
                             </select>
@@ -33,7 +33,7 @@
                         <!-- Status -->
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 mb-1">Account Status</label>
-                            <select v-model="filters.status" class="w-full px-3 py-2 text-xs font-semibold bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 text-slate-700 dark:text-slate-200">
+                            <select v-model="filters.status" class="w-full px-3 py-2 text-xs font-semibold bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 text-slate-700 dark:text-slate-200 cursor-pointer">
                                 <option value="">All Statuses</option>
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
@@ -55,7 +55,7 @@
                         <!-- Academic Class -->
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 mb-1">Assigned Class</label>
-                            <select v-model="filters.class_id" @change="loadSections" class="w-full px-3 py-2 text-xs font-semibold bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 text-slate-700 dark:text-slate-200">
+                            <select v-model="filters.class_id" @change="loadSections" class="w-full px-3 py-2 text-xs font-semibold bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 text-slate-700 dark:text-slate-200 cursor-pointer">
                                 <option value="">All Classes</option>
                                 <option v-for="c in classes" :key="c.id" :value="c.id">{{ c.name }}</option>
                             </select>
@@ -64,7 +64,7 @@
                         <!-- Section -->
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 mb-1">Assigned Section</label>
-                            <select v-model="filters.section_id" @change="loadSubjects" :disabled="!filters.class_id" class="w-full px-3 py-2 text-xs font-semibold bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 text-slate-700 dark:text-slate-200 disabled:opacity-50">
+                            <select v-model="filters.section_id" @change="loadSubjects" :disabled="!filters.class_id" class="w-full px-3 py-2 text-xs font-semibold bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 text-slate-700 dark:text-slate-200 disabled:opacity-50 cursor-pointer">
                                 <option value="">All Sections</option>
                                 <option v-for="s in sections" :key="s.id" :value="s.id">{{ s.name }}</option>
                             </select>
@@ -73,7 +73,7 @@
                         <!-- Subject -->
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 mb-1">Assigned Subject</label>
-                            <select v-model="filters.subject_id" :disabled="!filters.class_id" class="w-full px-3 py-2 text-xs font-semibold bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 text-slate-700 dark:text-slate-200 disabled:opacity-50">
+                            <select v-model="filters.subject_id" :disabled="!filters.class_id" class="w-full px-3 py-2 text-xs font-semibold bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500 text-slate-700 dark:text-slate-200 disabled:opacity-50 cursor-pointer">
                                 <option value="">All Subjects</option>
                                 <option v-for="sub in subjects" :key="sub.id" :value="sub.id">{{ sub.name }}</option>
                             </select>
@@ -87,7 +87,7 @@
                     
                     <div class="max-h-[350px] overflow-y-auto space-y-2 pr-1 select-none">
                         <label v-for="(label, key) in availableColumns" :key="key" class="flex items-center gap-2.5 text-xs font-bold text-slate-650 dark:text-slate-350 cursor-pointer p-1 rounded hover:bg-slate-50 dark:hover:bg-slate-850">
-                            <input type="checkbox" :value="key" v-model="selectedColumns" class="rounded border-slate-300 text-indigo-650 focus:ring-indigo-500 h-4 w-4" />
+                            <input type="checkbox" :value="key" v-model="selectedColumns" class="rounded border-slate-300 text-indigo-650 focus:ring-indigo-500 h-4 w-4 cursor-pointer" />
                             {{ label }}
                         </label>
                     </div>
@@ -108,14 +108,14 @@
                         </button>
                     </div>
 
-                    <div class="flex items-center gap-2">
+                    <div class="flex flex-wrap items-center gap-2">
                         <!-- Print -->
                         <button 
                             @click="printReport"
                             :disabled="users.length === 0 || loading"
                             class="px-3.5 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl shadow-sm hover:bg-slate-50 transition-all cursor-pointer flex items-center gap-1"
                         >
-                            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                            <svg class="w-4 h-4 text-slate-550" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                             Print Report
                         </button>
 
@@ -125,8 +125,18 @@
                             :disabled="users.length === 0 || loading"
                             class="px-3.5 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl shadow-sm hover:bg-slate-50 transition-all cursor-pointer flex items-center gap-1"
                         >
-                            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            <svg class="w-4 h-4 text-slate-550" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                             Export CSV
+                        </button>
+
+                        <!-- Export Excel -->
+                        <button 
+                            @click="exportExcel"
+                            :disabled="users.length === 0 || loading"
+                            class="px-3.5 py-2.5 bg-emerald-500 hover:bg-emerald-650 active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm transition-all cursor-pointer flex items-center gap-1 border-none"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Export Excel
                         </button>
 
                         <!-- Export PDF -->
@@ -142,11 +152,25 @@
                 </div>
 
                 <!-- Preview Grid Card -->
-                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm">
-                    <div class="p-4 bg-slate-50/50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Report Preview Grid</span>
-                        <span v-if="users.length > 0" class="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 rounded-lg text-[10px] font-bold border border-indigo-150">
-                            {{ users.length }} matches found
+                <div id="print-staff-area" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm">
+                    <div class="p-4 bg-slate-50/50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center gap-4">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0">Report Preview Grid</span>
+                        
+                        <!-- Search Box inside preview header -->
+                        <div v-if="users.length > 0" class="relative w-full sm:w-60">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-405">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </span>
+                            <input 
+                                v-model="localSearch"
+                                type="text"
+                                placeholder="Search preview list..."
+                                class="w-full pl-8 pr-3 py-1 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            />
+                        </div>
+                        
+                        <span v-if="users.length > 0" class="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-650 dark:text-indigo-405 rounded-lg text-[10px] font-bold border border-indigo-150 shrink-0">
+                            {{ filteredUsers.length }} of {{ users.length }} shown
                         </span>
                     </div>
 
@@ -170,7 +194,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-150 dark:divide-slate-800/60 text-xs text-slate-700 dark:text-slate-350">
-                                <tr v-for="user in users" :key="user.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/10">
+                                <tr v-for="user in filteredUsers" :key="user.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/10">
                                     <td v-for="col in selectedColumns" :key="col" class="p-3">
                                         <template v-if="col === 'dob'">
                                             {{ formatDate(user.dob) }}
@@ -198,8 +222,9 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useToastStore } from '../../stores/toast';
+import { exportToExcel } from '../../utils/reportExporter';
 
 export default {
     name: 'UserReports',
@@ -212,6 +237,8 @@ export default {
         const classes = ref([]);
         const sections = ref([]);
         const subjects = ref([]);
+        
+        const localSearch = ref('');
 
         // Config Filters
         const filters = ref({
@@ -248,6 +275,18 @@ export default {
         };
 
         const selectedColumns = ref(['employee_id', 'name', 'email', 'mobile', 'designation', 'status']);
+
+        const filteredUsers = computed(() => {
+            if (!localSearch.value) return users.value;
+            const q = localSearch.value.toLowerCase();
+            return users.value.filter(user => {
+                return selectedColumns.value.some(col => {
+                    const val = user[col];
+                    if (val === null || val === undefined) return false;
+                    return val.toString().toLowerCase().includes(q);
+                });
+            });
+        });
 
         const fetchReportData = async () => {
             loading.value = true;
@@ -341,8 +380,11 @@ export default {
                 columns: selectedColumns.value.join(','),
                 export: 'pdf'
             }).toString();
-            // We reuse the landscape or portrait PDF for printing
             window.open(`/api/users/reports?${queryParams}`, '_blank');
+        };
+
+        const exportExcel = () => {
+            exportToExcel('#print-staff-area table', 'Staff_Directory_Report');
         };
 
         onMounted(async () => {
@@ -360,6 +402,7 @@ export default {
         return {
             loading,
             users,
+            filteredUsers,
             roles,
             classes,
             sections,
@@ -373,7 +416,9 @@ export default {
             formatDate,
             exportCSV,
             exportPDF,
-            printReport
+            printReport,
+            exportExcel,
+            localSearch
         };
     }
 }

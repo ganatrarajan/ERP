@@ -7,13 +7,13 @@
         </div>
 
         <!-- Filter Bar -->
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm grid grid-cols-1 sm:grid-cols-5 gap-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div>
                 <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Exam <span class="text-rose-500">*</span></label>
                 <select 
                     v-model="filters.exam_id"
                     @change="handleExamChange"
-                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200 cursor-pointer"
                 >
                     <option value="">Select Exam</option>
                     <option v-for="ex in exams" :key="ex.id" :value="ex.id">{{ ex.name }}</option>
@@ -25,7 +25,8 @@
                 <select 
                     v-model="filters.class_id"
                     @change="handleClassChange"
-                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                    :disabled="!filters.exam_id"
+                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200 cursor-pointer disabled:opacity-50"
                 >
                     <option value="">Select Class</option>
                     <option v-for="cls in classes" :key="cls.id" :value="cls.id">{{ cls.name }}</option>
@@ -37,7 +38,8 @@
                 <select 
                     v-model="filters.section_id"
                     @change="handleSectionChange"
-                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                    :disabled="!filters.class_id"
+                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200 cursor-pointer disabled:opacity-50"
                 >
                     <option value="">Select Section</option>
                     <option v-for="sec in sections" :key="sec.id" :value="sec.id">{{ sec.name }}</option>
@@ -48,37 +50,97 @@
                 <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Subject <span class="text-rose-500">*</span></label>
                 <select 
                     v-model="filters.subject_id"
-                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                    :disabled="!filters.section_id"
+                    class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200 cursor-pointer disabled:opacity-50"
                 >
                     <option value="">Select Subject</option>
                     <option v-for="sub in subjects" :key="sub.id" :value="sub.id">{{ sub.name }}</option>
                 </select>
             </div>
-
-            <div class="flex items-end">
-                <button 
-                    @click="loadStudentsList"
-                    :disabled="!filters.exam_id || !filters.class_id || !filters.section_id || !filters.subject_id || loading"
-                    class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-600/10 transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    Load Students
-                </button>
-            </div>
         </div>
 
         <!-- Marks Setup Table -->
-        <div v-if="loaded" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
-            <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/60">
+        <div v-if="loaded" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm space-y-4">
+            <!-- Table Action Header -->
+            <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/60">
                 <div>
                     <h3 class="font-bold text-slate-800 dark:text-white">Record Grades & Scores</h3>
-                    <p class="text-xs text-slate-400">Evaluation Type: <span class="capitalize font-bold">{{ subjectType }}</span> | Max Marks: <span class="font-bold">{{ maxMarks }}</span></p>
+                    <p class="text-xs text-slate-400 mt-0.5">Evaluation Type: <span class="capitalize font-bold">{{ subjectType }}</span> | Max Marks: <span class="font-bold">{{ maxMarks }}</span></p>
                 </div>
-                <span class="text-xs px-2.5 py-1 rounded-full font-bold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/40">
-                    {{ selectedExamName }} | Class: {{ selectedClassName }}
-                </span>
+                
+                <!-- Quick table filter search -->
+                <div class="relative w-full md:w-64">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </span>
+                    <input 
+                        v-model="localSearch"
+                        type="text" 
+                        placeholder="Search student name or roll..." 
+                        class="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                    />
+                </div>
             </div>
 
+            <!-- Bulk actions row -->
+            <div class="px-6 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex flex-wrap items-center gap-2">
+                    <button 
+                        @click="markAllPresent"
+                        class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[10px] font-bold text-slate-700 dark:text-slate-300 rounded-lg cursor-pointer transition-colors"
+                    >
+                        Mark All Present
+                    </button>
+                    <button 
+                        @click="markAllAbsent"
+                        class="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-[10px] font-bold text-rose-600 rounded-lg cursor-pointer transition-colors border border-rose-500/10"
+                    >
+                        Mark All Absent
+                    </button>
+                    
+                    <!-- Bulk fill input trigger -->
+                    <button 
+                        @click="showBulkFill = !showBulkFill"
+                        class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/60 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 rounded-lg cursor-pointer transition-colors border border-indigo-100 dark:border-indigo-900/30"
+                    >
+                        Bulk Fill Score/Grade
+                    </button>
+                </div>
+
+                <!-- Inline bulk fill field -->
+                <transition name="fade">
+                    <div v-if="showBulkFill" class="flex items-center gap-2 bg-slate-50 dark:bg-slate-950 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800/80">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Fill Value:</label>
+                        
+                        <input 
+                            v-if="subjectType === 'marks'"
+                            v-model.number="bulkFillValue"
+                            type="number"
+                            min="0"
+                            :max="maxMarks"
+                            placeholder="Marks"
+                            class="w-20 px-2 py-1 text-xs border border-slate-250 dark:border-slate-700 rounded bg-white dark:bg-slate-900 text-slate-850 dark:text-slate-200"
+                        />
+                        <select 
+                            v-else
+                            v-model="bulkFillValue"
+                            class="w-32 px-2 py-1 text-xs border border-slate-250 dark:border-slate-700 rounded bg-white dark:bg-slate-900 text-slate-850 dark:text-slate-200"
+                        >
+                            <option value="">Select Grade</option>
+                            <option v-for="gr in gradesList" :key="gr.id" :value="gr.id">{{ gr.grade }}</option>
+                        </select>
+
+                        <button 
+                            @click="applyBulkFill"
+                            class="px-2.5 py-1 bg-indigo-600 text-white rounded text-[10px] font-bold cursor-pointer hover:bg-indigo-500"
+                        >
+                            Apply
+                        </button>
+                    </div>
+                </transition>
+            </div>
+
+            <!-- Table -->
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -94,7 +156,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm text-slate-700 dark:text-slate-300">
-                        <tr v-for="(stud, index) in studentsList" :key="stud.student_id" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                        <tr v-for="(stud, index) in filteredStudents" :key="stud.student_id" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                             <td class="p-4 pl-6 font-semibold font-mono text-slate-500">
                                 {{ stud.roll_no || '-' }}
                             </td>
@@ -112,7 +174,7 @@
                                         type="checkbox" 
                                         v-model="stud.is_absent"
                                         @change="if (stud.is_absent) { stud.marks_obtained = null; stud.grade_id = ''; }"
-                                        class="rounded border-slate-300 dark:border-slate-700 text-rose-600 focus:ring-rose-500 dark:bg-slate-950 disabled:opacity-50" 
+                                        class="rounded border-slate-300 dark:border-slate-700 text-rose-600 focus:ring-rose-500 dark:bg-slate-950 disabled:opacity-50 cursor-pointer" 
                                     />
                                     <span :class="[stud.is_absent ? 'text-rose-600 font-bold' : 'text-slate-500']">Absent</span>
                                 </label>
@@ -123,11 +185,13 @@
                                 <div class="flex items-center justify-center gap-3">
                                     <template v-if="!stud.is_absent">
                                         <input 
+                                            :id="`score-input-${index}`"
                                             v-model.number="stud.marks_obtained" 
                                             type="number"
                                             min="0"
                                             :max="maxMarks"
-                                            class="w-24 px-3 py-1.5 text-sm rounded-xl text-center border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200 disabled:opacity-50"
+                                            @keydown="handleKeydown($event, index)"
+                                            class="w-24 px-3 py-1.5 text-sm rounded-xl text-center border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-955 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
                                             placeholder="Marks"
                                         />
                                         <span class="text-xs text-slate-400">/ {{ maxMarks }}</span>
@@ -135,7 +199,7 @@
                                         <!-- Dynamic Auto Grade Symbol -->
                                         <span 
                                             v-if="stud.marks_obtained !== null && stud.marks_obtained !== ''" 
-                                            class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/40"
+                                            class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-indigo-900/40"
                                             title="Calculated Grade"
                                         >
                                             {{ calculateAutoGrade(stud.marks_obtained) }}
@@ -151,8 +215,10 @@
                             <td v-else class="p-4 text-center">
                                 <template v-if="!stud.is_absent">
                                     <select 
+                                        :id="`score-input-${index}`"
                                         v-model="stud.grade_id"
-                                        class="w-full max-w-xs px-3 py-1.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200 disabled:opacity-50"
+                                        @keydown="handleKeydown($event, index)"
+                                        class="w-full max-w-xs px-3 py-1.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
                                     >
                                         <option value="">Select Grade</option>
                                         <option v-for="gr in gradesList" :key="gr.id" :value="gr.id">
@@ -169,8 +235,8 @@
                                 <input 
                                     v-model="stud.remarks" 
                                     type="text"
-                                    class="w-full px-3 py-1.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200 disabled:opacity-50"
-                                    placeholder="Remarks (e.g. Absent, sick, etc.)"
+                                    class="w-full px-3 py-1.5 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-955 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"
+                                    placeholder="Remarks (e.g. sick, good progress)"
                                 />
                             </td>
                         </tr>
@@ -182,8 +248,8 @@
             <div class="p-6 border-t border-slate-200 dark:border-slate-800 flex justify-end bg-slate-50/30 dark:bg-slate-900/40">
                 <button 
                     @click="saveMarks"
-                    :disabled="saving || studentsList.length === 0"
-                    class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/10 transition-all active:scale-95 disabled:opacity-50"
+                    :disabled="saving || filteredStudents.length === 0"
+                    class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/10 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
                 >
                     {{ saving ? 'Saving Marks...' : 'Save & Publish Marks' }}
                 </button>
@@ -199,13 +265,15 @@
         </div>
 
         <div v-else class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-12 text-center text-slate-500 rounded-2xl shadow-sm">
-            <svg class="w-16 h-16 mx-auto text-slate-300 dark:text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            Please select the Exam, Class, Section, and Subject then click "Load Students" to input mark sheets.
+            <svg class="w-16 h-16 mx-auto text-slate-350 dark:text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <h4 class="font-bold text-slate-700 dark:text-slate-300">No Sheets Loaded</h4>
+            <p class="text-xs text-slate-400 mt-1">Select Exam, Class, Section, and Subject. The sheet will load automatically.</p>
         </div>
     </div>
 </template>
+
 <script setup>
-import { ref, onMounted, reactive, computed } from 'vue';
+import { ref, onMounted, reactive, computed, watch } from 'vue';
 import { useAuthStore } from '../../stores/auth';
 import { useConfirmStore } from '../../stores/confirm';
 import { useToastStore } from '../../stores/toast';
@@ -231,6 +299,10 @@ const subjectType = ref('marks');
 const maxMarks = ref(100);
 const examScheduleId = ref(null);
 
+const localSearch = ref('');
+const showBulkFill = ref(false);
+const bulkFillValue = ref('');
+
 const filters = reactive({
     exam_id: '',
     class_id: '',
@@ -240,6 +312,15 @@ const filters = reactive({
 });
 
 const academicYears = ref([]);
+
+// Watcher for automatic loading of the student marksheet once all 4 criteria are selected
+watch(() => [filters.exam_id, filters.class_id, filters.section_id, filters.subject_id], ([exam, cls, sec, sub]) => {
+    if (exam && cls && sec && sub) {
+        loadStudentsList();
+    } else {
+        loaded.value = false;
+    }
+});
 
 const fetchAcademicYears = async () => {
     try {
@@ -338,6 +419,79 @@ const fetchSubjects = async () => {
     }
 };
 
+// Filter students locally in the preview sheet
+const filteredStudents = computed(() => {
+    if (!localSearch.value) return studentsList.value;
+    const query = localSearch.value.toLowerCase();
+    return studentsList.value.filter(s => 
+        s.name.toLowerCase().includes(query) ||
+        (s.roll_no && s.roll_no.toString().includes(query)) ||
+        (s.admission_no && s.admission_no.toLowerCase().includes(query))
+    );
+});
+
+// Arrow key/Enter navigation
+const handleKeydown = (event, index) => {
+    if (event.key === 'ArrowUp' || event.key === 'Up') {
+        event.preventDefault();
+        focusInput(index - 1);
+    } else if (event.key === 'ArrowDown' || event.key === 'Down' || event.key === 'Enter') {
+        event.preventDefault();
+        focusInput(index + 1);
+    }
+};
+
+const focusInput = (targetIndex) => {
+    if (targetIndex >= 0 && targetIndex < filteredStudents.value.length) {
+        const el = document.getElementById(`score-input-${targetIndex}`);
+        if (el) {
+            el.focus();
+            el.select?.();
+        }
+    }
+};
+
+// Bulk Actions
+const markAllPresent = () => {
+    studentsList.value.forEach(s => s.is_absent = false);
+    toastStore.success('Marked all students as present.');
+};
+
+const markAllAbsent = () => {
+    studentsList.value.forEach(s => {
+        s.is_absent = true;
+        s.marks_obtained = null;
+        s.grade_id = '';
+    });
+    toastStore.success('Marked all students as absent.');
+};
+
+const applyBulkFill = () => {
+    if (bulkFillValue.value === '') return;
+
+    if (subjectType.value === 'marks') {
+        const val = Number(bulkFillValue.value);
+        if (isNaN(val) || val < 0 || val > maxMarks.value) {
+            toastStore.error(`Please enter a valid mark between 0 and ${maxMarks.value}.`);
+            return;
+        }
+        studentsList.value.forEach(s => {
+            if (!s.is_absent) {
+                s.marks_obtained = val;
+            }
+        });
+    } else {
+        studentsList.value.forEach(s => {
+            if (!s.is_absent) {
+                s.grade_id = bulkFillValue.value;
+            }
+        });
+    }
+    toastStore.success('Bulk fill applied successfully.');
+    bulkFillValue.value = '';
+    showBulkFill.value = false;
+};
+
 const loadStudentsList = async () => {
     loading.value = true;
     loaded.value = false;
@@ -345,7 +499,6 @@ const loadStudentsList = async () => {
         const exObj = exams.value.find(e => e.id === filters.exam_id);
         const clsObj = classes.value.find(c => c.id === filters.class_id);
         const secObj = sections.value.find(s => s.id === filters.section_id);
-        const subObj = subjects.value.find(sb => sb.id === filters.subject_id);
 
         selectedExamName.value = exObj ? exObj.name : '';
         selectedClassName.value = (clsObj ? clsObj.name : '') + ' - ' + (secObj ? secObj.name : '');
@@ -389,15 +542,14 @@ const calculateAutoGrade = (marksObtained) => {
     if (marksObtained === null || marksObtained === '') return '-';
     const pct = (marksObtained / maxMarks.value) * 100;
     
-    // Match in gradesList
     const matched = gradesList.value
         .filter(g => g.min_percentage <= pct)
         .sort((a, b) => b.min_percentage - a.min_percentage)[0];
 
     return matched ? matched.grade : '-';
 };
+
 const saveMarks = async () => {
-    // Validate marks limit (only for present students)
     if (subjectType.value === 'marks') {
         const outOfRange = studentsList.value.some(s => !s.is_absent && (s.marks_obtained > maxMarks.value || s.marks_obtained < 0));
         if (outOfRange) {
@@ -419,7 +571,7 @@ const saveMarks = async () => {
             exam_id: filters.exam_id,
             exam_schedule_id: examScheduleId.value,
             subject_id: filters.subject_id,
-            subject_evaluation_type: subjectType.value, // Pass to backend for auto grading
+            subject_evaluation_type: subjectType.value,
             marks: studentsList.value.map(s => ({
                 student_id: s.student_id,
                 marks_obtained: s.is_absent ? null : ((s.marks_obtained === '' || s.marks_obtained === null || s.marks_obtained === undefined) ? null : Number(s.marks_obtained)),
@@ -429,9 +581,6 @@ const saveMarks = async () => {
             }))
         };
 
-        // Determine correct schedule ID
-        // The backend resolves exam_schedule_id accurately by validating foreign keys.
-        // Let's pass the correct schedule_id fetched from API.
         const response = await window.axios.post('/api/exam-marks/save', payload);
         toastStore.success(response.data.message || 'Marks saved successfully.');
     } catch (e) {

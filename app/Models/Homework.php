@@ -21,7 +21,8 @@ class Homework extends Model
         'submission_date',
         'created_by',
         'status',
-        'is_delete'
+        'is_delete',
+        'max_marks'
     ];
 
     protected $appends = ['attachment_url'];

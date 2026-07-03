@@ -1233,8 +1233,35 @@
                 <p class="text-xs text-slate-550 dark:text-slate-450">No class aggregate attendance data matches the filter criteria.</p>
             </div>
 
-            <div v-else-if="reportType === 'class'" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
-                <table class="w-full text-left border-collapse">
+            <div v-else-if="reportType === 'class'" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm space-y-4">
+                <!-- Action bar with Search & Excel Export -->
+                <div class="p-4 bg-slate-50/50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Class Attendance Directory</span>
+                    
+                    <div class="flex items-center gap-3 w-full md:w-auto">
+                        <div class="relative w-full md:w-60">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </span>
+                            <input 
+                                v-model="attendanceLocalSearch"
+                                type="text"
+                                placeholder="Filter class list..."
+                                class="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            />
+                        </div>
+                        <button 
+                            @click="exportAttendanceExcel"
+                            type="button"
+                            class="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1 cursor-pointer border-none"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Excel Export
+                        </button>
+                    </div>
+                </div>
+
+                <table id="attendance-class-table" class="w-full text-left border-collapse">
                     <thead>
                         <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-50/50 dark:bg-slate-900/60">
                             <th class="p-4 pl-6">Class</th>
@@ -1247,7 +1274,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm text-slate-700 dark:text-slate-300">
-                        <tr v-for="row in classReport" :key="row.section_id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/25">
+                        <tr v-for="row in filteredClassReport" :key="row.section_id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/25">
                             <td class="p-4 pl-6 font-semibold">{{ row.class_name }}</td>
                             <td class="p-4 font-semibold">{{ row.section_name }}</td>
                             <td class="p-4 text-center">{{ row.total_records }}</td>
@@ -1540,6 +1567,7 @@ import { ref, onMounted, reactive, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import { useConfirmStore } from '../../stores/confirm';
+import { exportToExcel } from '../../utils/reportExporter';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.css';
 import monthSelectPlugin from 'flatpickr/dist/plugins/monthSelect/index.js';
@@ -1848,6 +1876,21 @@ const classReportFilters = reactive({
     end_date: new Date().toISOString().split('T')[0]
 });
 const classReport = ref([]);
+const attendanceLocalSearch = ref('');
+
+const filteredClassReport = computed(() => {
+    if (!attendanceLocalSearch.value) return classReport.value;
+    const q = attendanceLocalSearch.value.toLowerCase();
+    return classReport.value.filter(row => {
+        return (row.class_name && row.class_name.toLowerCase().includes(q)) ||
+               (row.section_name && row.section_name.toLowerCase().includes(q)) ||
+               (row.attendance_rate && row.attendance_rate.toString().includes(q));
+    });
+});
+
+const exportAttendanceExcel = () => {
+    exportToExcel('#attendance-class-table', 'Class_Attendance_Report');
+};
 
 const studentReportFilters = reactive({
     academic_year_id: '',

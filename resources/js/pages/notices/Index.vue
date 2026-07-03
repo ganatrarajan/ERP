@@ -28,6 +28,7 @@
                     <option value="Entire School">Entire School</option>
                     <option value="Class Wise">Class Wise</option>
                     <option value="Section Wise">Section Wise</option>
+                    <option value="Teacher Only">Teacher Only</option>
                 </select>
             </div>
 
@@ -97,6 +98,7 @@
                             </td>
                             <td class="p-4">
                                 <span v-if="notice.target_type === 'Entire School'" class="text-xs text-slate-450 italic">All School</span>
+                                <span v-else-if="notice.target_type === 'Teacher Only'" class="text-xs text-emerald-600 dark:text-emerald-450 font-bold italic">Staff Only</span>
                                 <span v-else-if="notice.target_type === 'Class Wise'" class="px-2 py-0.5 rounded text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80">
                                     Class: {{ notice.class?.name || 'N/A' }}
                                 </span>
@@ -266,6 +268,7 @@
                                 <option value="Entire School">Entire School</option>
                                 <option value="Class Wise">Class Wise</option>
                                 <option value="Section Wise">Section Wise</option>
+                                <option value="Teacher Only">Teacher Only</option>
                             </select>
                         </div>
 

@@ -6,152 +6,176 @@
                 <h1 class="text-2xl font-extrabold text-slate-800 dark:text-white tracking-tight">Fees Financial Reports</h1>
                 <p class="text-sm text-slate-500 dark:text-slate-400">Generate, analyze, and print statements for collections, overdue dues, waivers, and penalties.</p>
             </div>
-            <button
-                v-if="reportData.length > 0"
-                @click="printReport"
-                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-1.5"
-            >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                Print Report
-            </button>
+            <div class="flex items-center gap-2" v-if="reportData.length > 0">
+                <button
+                    @click="printReport"
+                    class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer border-none"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    Print Report
+                </button>
+                <button
+                    @click="exportExcel"
+                    class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer border-none"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Export Excel
+                </button>
+            </div>
         </div>
 
         <!-- Filters Block -->
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 p-5 rounded-2xl shadow-sm space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                <!-- Academic Session -->
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Academic Session *</label>
-                    <select 
-                        v-model="filters.academic_year_id" 
-                        @change="handleAcademicYearChange"
-                        class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-750 dark:text-slate-350 focus:outline-none"
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 p-4 rounded-2xl shadow-sm space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div class="flex flex-wrap items-center gap-4 flex-1">
+                    <!-- Academic Session -->
+                    <div class="space-y-1 w-full sm:w-48">
+                        <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Academic Session *</label>
+                        <select 
+                            v-model="filters.academic_year_id" 
+                            @change="handleAcademicYearChange"
+                            class="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-750 dark:text-slate-300 focus:outline-none cursor-pointer"
+                        >
+                            <option v-for="year in academicYears" :key="year.id" :value="year.id">
+                                {{ year.title }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Report Type -->
+                    <div class="space-y-1 w-full sm:w-64">
+                        <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Report Variant *</label>
+                        <select 
+                            v-model="filters.report_type" 
+                            @change="handleReportTypeChange"
+                            class="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-750 dark:text-slate-300 focus:outline-none cursor-pointer"
+                        >
+                            <option value="collection">Collections Register (Detailed)</option>
+                            <option value="pending">Outstanding Balances (Dues)</option>
+                            <option value="installment_wise">Installment-wise Summary</option>
+                            <option value="class_wise">Class-wise Summary</option>
+                            <option value="student_wise">Student-wise Summary</option>
+                            <option value="daily">Daily Collection Log</option>
+                            <option value="monthly">Monthly Collection Log</option>
+                            <option value="discount">Discounts / Waivers Applied</option>
+                            <option value="fine">Late Fines Register</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 self-end">
+                    <button 
+                        @click="showAdvancedFilters = !showAdvancedFilters"
+                        class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 rounded-xl text-xs text-slate-650 dark:text-slate-300 font-bold flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-200/40 dark:border-slate-800"
                     >
-                        <option v-for="year in academicYears" :key="year.id" :value="year.id">
-                            {{ year.title }}
-                        </option>
-                    </select>
-                </div>
-
-                <!-- Report Type -->
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Report Variant *</label>
-                    <select 
-                        v-model="filters.report_type" 
-                        @change="handleReportTypeChange"
-                        class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-750 dark:text-slate-350 focus:outline-none"
-                    >
-                        <option value="collection">Collections Register (Detailed)</option>
-                        <option value="pending">Outstanding Balances (Dues)</option>
-                        <option value="installment_wise">Installment-wise Summary</option>
-                        <option value="class_wise">Class-wise Summary</option>
-                        <option value="student_wise">Student-wise Summary</option>
-                        <option value="daily">Daily Collection Log</option>
-                        <option value="monthly">Monthly Collection Log</option>
-                        <option value="discount">Discounts / Waivers Applied</option>
-                        <option value="fine">Late Fines Register</option>
-                    </select>
-                </div>
-
-                <!-- Class -->
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Class Filter</label>
-                    <select 
-                        v-model="filters.class_id" 
-                        @change="handleClassChange"
-                        class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-750 dark:text-slate-350 focus:outline-none"
-                    >
-                        <option value="">All Classes</option>
-                        <option v-for="c in classes" :key="c.id" :value="c.id">
-                            {{ c.name }}
-                        </option>
-                    </select>
-                </div>
-
-                <!-- Section -->
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Section Filter</label>
-                    <select 
-                        v-model="filters.section_id" 
-                        @change="handleSectionChange"
-                        class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-750 dark:text-slate-350 focus:outline-none"
-                    >
-                        <option value="">All Sections</option>
-                        <option v-for="sec in sections" :key="sec.id" :value="sec.id">
-                            {{ sec.name }}
-                        </option>
-                    </select>
-                </div>
-
-                <!-- Student Filter (only for collection/pending/discount/fine/student_wise) -->
-                <div v-if="showStudentFilter" class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Student Account</label>
-                    <select 
-                        v-model="filters.student_id" 
-                        class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-750 dark:text-slate-350 focus:outline-none"
-                    >
-                        <option value="">All Students</option>
-                        <option v-for="stu in studentList" :key="stu.id" :value="stu.id">
-                            {{ stu.first_name }} {{ stu.last_name }} (Adm #: {{ stu.admission_no }})
-                        </option>
-                    </select>
-                </div>
-
-                <!-- Start Date -->
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">From Date</label>
-                    <input 
-                        v-model="filters.start_date" 
-                        v-datepicker
-                        type="text" 
-                        placeholder="YYYY-MM-DD"
-                        class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 focus:outline-none"
-                    />
-                </div>
-
-                <!-- End Date -->
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">To Date</label>
-                    <input 
-                        v-model="filters.end_date" 
-                        v-datepicker
-                        type="text" 
-                        placeholder="YYYY-MM-DD"
-                        class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 focus:outline-none"
-                    />
-                </div>
-
-                <!-- Action Button -->
-                <div class="flex items-end md:col-span-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                        Advanced Filters
+                    </button>
+                    
                     <button 
                         @click="generateReport"
                         :disabled="generating"
-                        class="w-full px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm rounded-xl shadow-lg active:scale-95 disabled:scale-100 disabled:opacity-60 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                        class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow active:scale-95 disabled:scale-100 disabled:opacity-60 transition-all flex items-center gap-1.5 cursor-pointer border-none"
                     >
                         <svg v-if="!generating" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 00-4-4H5m14 0h-3a2 2 0 00-2 2v3m2 4H9m6 0a3 3 0 11-6 0v-1m6 0H9m11-4V5a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2z"></path></svg>
                         <svg v-else class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                        <span>{{ generating ? 'Generating...' : 'Generate Report' }}</span>
+                        <span>Generate</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Column selection checkboxes -->
-            <div v-if="availableColumns.length > 0" class="pt-4 border-t border-slate-100 dark:border-slate-800/80">
-                <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-2">Display Columns</span>
-                <div class="flex flex-wrap gap-x-4 gap-y-2">
-                    <label 
-                        v-for="col in availableColumns" 
-                        :key="col.key" 
-                        class="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-350 font-semibold cursor-pointer select-none hover:text-indigo-650 dark:hover:text-indigo-400 transition-colors"
-                    >
+            <!-- Collapsible Advanced Filters -->
+            <div v-show="showAdvancedFilters" class="pt-4 border-t border-slate-100 dark:border-slate-800/80 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <!-- Class -->
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Class</label>
+                        <select 
+                            v-model="filters.class_id" 
+                            @change="handleClassChange"
+                            class="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-750 dark:text-slate-350 focus:outline-none cursor-pointer"
+                        >
+                            <option value="">All Classes</option>
+                            <option v-for="c in classes" :key="c.id" :value="c.id">
+                                {{ c.name }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Section -->
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Section</label>
+                        <select 
+                            v-model="filters.section_id" 
+                            @change="handleSectionChange"
+                            :disabled="!filters.class_id"
+                            class="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-750 dark:text-slate-350 focus:outline-none cursor-pointer disabled:opacity-50"
+                        >
+                            <option value="">All Sections</option>
+                            <option v-for="sec in sections" :key="sec.id" :value="sec.id">
+                                {{ sec.name }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Student Filter -->
+                    <div v-if="showStudentFilter" class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Student Account</label>
+                        <select 
+                            v-model="filters.student_id" 
+                            :disabled="!filters.class_id"
+                            class="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-955 text-slate-750 dark:text-slate-350 focus:outline-none cursor-pointer disabled:opacity-50"
+                        >
+                            <option value="">All Students</option>
+                            <option v-for="stu in studentList" :key="stu.id" :value="stu.id">
+                                {{ stu.first_name }} {{ stu.last_name }} (Adm #: {{ stu.admission_no }})
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Start Date -->
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">From Date</label>
                         <input 
-                            type="checkbox" 
-                            :value="col.key" 
-                            v-model="selectedColumns" 
-                            class="rounded border-slate-300 text-indigo-650 h-3.5 w-3.5 focus:ring-indigo-500" 
+                            v-model="filters.start_date" 
+                            v-datepicker
+                            type="text" 
+                            placeholder="YYYY-MM-DD"
+                            class="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-955 text-slate-700 dark:text-slate-300 focus:outline-none"
                         />
-                        {{ col.label }}
-                    </label>
+                    </div>
+
+                    <!-- End Date -->
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">To Date</label>
+                        <input 
+                            v-model="filters.end_date" 
+                            v-datepicker
+                            type="text" 
+                            placeholder="YYYY-MM-DD"
+                            class="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-955 text-slate-750 dark:text-slate-300 focus:outline-none"
+                        />
+                    </div>
+                </div>
+
+                <!-- Display columns -->
+                <div v-if="availableColumns.length > 0" class="pt-3 border-t border-slate-100 dark:border-slate-800/80">
+                    <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-2">Display Columns</span>
+                    <div class="flex flex-wrap gap-x-4 gap-y-2">
+                        <label 
+                            v-for="col in availableColumns" 
+                            :key="col.key" 
+                            class="flex items-center gap-1.5 text-xs text-slate-650 dark:text-slate-350 font-semibold cursor-pointer select-none hover:text-indigo-650 dark:hover:text-indigo-400 transition-colors"
+                        >
+                            <input 
+                                type="checkbox" 
+                                :value="col.key" 
+                                v-model="selectedColumns" 
+                                class="rounded border-slate-300 text-indigo-650 h-3.5 w-3.5 focus:ring-indigo-500 cursor-pointer" 
+                            />
+                            {{ col.label }}
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -164,7 +188,7 @@
 
         <div v-else-if="!hasGenerated" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-12 text-center rounded-2xl text-slate-400 shadow-sm flex flex-col justify-center items-center h-48">
             <svg class="w-16 h-16 text-slate-300 dark:text-slate-700 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 00-4-4H5m14 0h-3a2 2 0 00-2 2v3m2 4H9m6 0a3 3 0 11-6 0v-1m6 0H9m11-4V5a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2z"></path></svg>
-            Choose a report type and filter parameters above, then click "Generate Report".
+            Choose a report type and filter parameters above, then click "Generate".
         </div>
 
         <div v-else class="space-y-6">
@@ -203,19 +227,32 @@
 
             <!-- Report Grid Table -->
             <div id="print-report-area" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
-                <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
                         <h3 class="font-extrabold text-slate-800 dark:text-white text-sm uppercase tracking-wider">Report Output: {{ getReportTitle() }}</h3>
                         <p class="text-xs text-slate-400 mt-0.5">Academic session: {{ getSessionTitle() }} | Dates: {{ filters.start_date || 'Inception' }} to {{ filters.end_date || 'Present' }}</p>
                     </div>
-                    <button 
-                        @click="printReport"
-                        type="button"
-                        class="print:hidden px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-indigo-650 dark:text-indigo-400 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-xs transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer ml-auto shrink-0"
-                    >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                        Print / Download PDF
-                    </button>
+                    <div class="flex flex-wrap items-center gap-3 w-full md:w-auto ml-auto">
+                        <div class="relative w-full md:w-60">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </span>
+                            <input 
+                                v-model="localSearch"
+                                type="text" 
+                                placeholder="Search statement preview..." 
+                                class="w-full pl-9 pr-4 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            />
+                        </div>
+                        <button 
+                            @click="printReport"
+                            type="button"
+                            class="print:hidden px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-indigo-650 dark:text-indigo-400 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-xs transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shrink-0"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Export PDF
+                        </button>
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -235,12 +272,12 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
-                            <tr v-if="reportData.length === 0">
+                            <tr v-if="filteredReportData.length === 0">
                                 <td colspan="100" class="p-10 text-center text-slate-400">No collection records found.</td>
                             </tr>
-                            <tr v-else v-for="(row, idx) in reportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                            <tr v-else v-for="(row, idx) in filteredReportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                 <td class="p-4 pl-6 font-mono text-xs" v-if="selectedColumns.includes('receipt_number')">{{ row.receipt_number }}</td>
-                                <td class="p-4 font-semibold text-slate-800 dark:text-white" v-if="selectedColumns.includes('student_name')">
+                                <td class="p-4 font-semibold text-slate-850 dark:text-white" v-if="selectedColumns.includes('student_name')">
                                     {{ row.student_name }}
                                     <div class="text-[10px] text-slate-400 font-mono">Adm #: {{ row.admission_no }}</div>
                                 </td>
@@ -254,9 +291,10 @@
                             </tr>
                         </tbody>
                     </table>
-                                      <!-- 2. PENDING FEES -->
+
+                    <!-- 2. PENDING FEES -->
                     <div v-else-if="filters.report_type === 'pending'" class="p-6 space-y-4">
-                        <div v-if="reportData.length === 0" class="text-center text-slate-400 py-10 font-bold">
+                        <div v-if="filteredReportData.length === 0" class="text-center text-slate-400 py-10 font-bold">
                             No outstanding balance records found.
                         </div>
                         <div v-else class="space-y-4">
@@ -278,7 +316,7 @@
                                     </div>
                                     <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
                                         <div class="text-right">
-                                            <span class="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase block tracking-wider">Pending Dues</span>
+                                            <span class="text-[10px] font-bold text-slate-455 dark:text-slate-500 uppercase block tracking-wider">Pending Dues</span>
                                             <span class="text-sm font-black text-rose-600 dark:text-rose-400">₹{{ numberFormat(cGroup.outstanding_balance) }}</span>
                                         </div>
                                         <svg 
@@ -297,7 +335,7 @@
                                         <!-- Section Accordion Header -->
                                         <div 
                                             @click="toggleSection(cGroup.className + '_' + sec.sectionName)"
-                                            class="p-3 bg-slate-50/50 dark:bg-slate-950/20 hover:bg-slate-50 dark:hover:bg-slate-950/40 cursor-pointer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 transition-colors select-none"
+                                            class="p-3 bg-slate-50/50 dark:bg-slate-955/20 hover:bg-slate-50 dark:hover:bg-slate-955/40 cursor-pointer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 transition-colors select-none"
                                         >
                                             <div class="space-y-0.5">
                                                 <div class="flex items-center gap-1.5">
@@ -310,7 +348,7 @@
                                             </div>
                                             <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
                                                 <div class="text-right">
-                                                    <span class="text-[9px] font-bold text-slate-400 uppercase block">Pending</span>
+                                                    <span class="text-[9px] font-bold text-slate-400 block">Pending</span>
                                                     <span class="text-xs font-black text-rose-500">₹{{ numberFormat(sec.outstanding_balance) }}</span>
                                                 </div>
                                                 <svg 
@@ -339,7 +377,7 @@
                                                 </thead>
                                                 <tbody class="divide-y divide-slate-150 dark:divide-slate-800 text-xs text-slate-600 dark:text-slate-350 bg-white dark:bg-slate-900/30">
                                                     <tr v-for="stu in sec.students" :key="stu.admission_no" class="hover:bg-slate-50 dark:hover:bg-slate-800/10 transition-colors">
-                                                        <td class="p-3 pl-4 font-semibold text-slate-800 dark:text-white" v-if="selectedColumns.includes('student_name')">{{ stu.student_name }}</td>
+                                                        <td class="p-3 pl-4 font-semibold text-slate-850 dark:text-white" v-if="selectedColumns.includes('student_name')">{{ stu.student_name }}</td>
                                                         <td class="p-3 font-mono text-[11px]" v-if="selectedColumns.includes('admission_no')">{{ stu.admission_no }}</td>
                                                         <td class="p-3 text-right" v-if="selectedColumns.includes('total_fee')">₹{{ numberFormat(stu.total_fee) }}</td>
                                                         <td class="p-3 text-right text-emerald-600 font-medium" v-if="selectedColumns.includes('total_paid')">₹{{ numberFormat(stu.total_paid) }}</td>
@@ -364,7 +402,8 @@
                             </div>
                         </div>
                     </div>
-                                         <!-- 3. INSTALLMENT WISE -->
+
+                    <!-- 3. INSTALLMENT WISE -->
                     <table v-else-if="filters.report_type === 'installment_wise'" class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-50/50 dark:bg-slate-900/60">
@@ -377,10 +416,10 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
-                            <tr v-if="reportData.length === 0">
+                            <tr v-if="filteredReportData.length === 0">
                                 <td colspan="100" class="p-10 text-center text-slate-400">No installment records found.</td>
                             </tr>
-                            <tr v-else v-for="(row, idx) in reportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                            <tr v-else v-for="(row, idx) in filteredReportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                 <td class="p-4 pl-6 font-semibold text-slate-800 dark:text-white" v-if="selectedColumns.includes('installment_name')">{{ row.installment_name }}</td>
                                 <td class="p-4" v-if="selectedColumns.includes('due_date')">{{ formatDate(row.due_date) }}</td>
                                 <td class="p-4 text-center font-mono" v-if="selectedColumns.includes('transactions_count')">{{ row.transactions_count }}</td>
@@ -403,10 +442,10 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
-                            <tr v-if="reportData.length === 0">
+                            <tr v-if="filteredReportData.length === 0">
                                 <td colspan="100" class="p-10 text-center text-slate-400">No class collections recorded.</td>
                             </tr>
-                            <tr v-else v-for="(row, idx) in reportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                            <tr v-else v-for="(row, idx) in filteredReportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                 <td class="p-4 pl-6 font-semibold text-slate-800 dark:text-white" v-if="selectedColumns.includes('class_name')">{{ row.class_name }}</td>
                                 <td class="p-4 text-center font-mono" v-if="selectedColumns.includes('transactions_count')">{{ row.transactions_count }}</td>
                                 <td class="p-4 text-right font-bold text-emerald-600" v-if="selectedColumns.includes('total_collected')">₹{{ numberFormat(row.total_collected) }}</td>
@@ -430,11 +469,11 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
-                            <tr v-if="reportData.length === 0">
+                            <tr v-if="filteredReportData.length === 0">
                                 <td colspan="100" class="p-10 text-center text-slate-400">No student collections recorded.</td>
                             </tr>
-                            <tr v-else v-for="(row, idx) in reportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                <td class="p-4 pl-6 font-semibold text-slate-800 dark:text-white" v-if="selectedColumns.includes('student_name')">{{ row.student_name }}</td>
+                            <tr v-else v-for="(row, idx) in filteredReportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                <td class="p-4 pl-6 font-semibold text-slate-850 dark:text-white" v-if="selectedColumns.includes('student_name')">{{ row.student_name }}</td>
                                 <td class="p-4 font-mono text-xs" v-if="selectedColumns.includes('admission_no')">{{ row.admission_no }}</td>
                                 <td class="p-4" v-if="selectedColumns.includes('class_name')">{{ row.class_name }}</td>
                                 <td class="p-4 text-center font-mono" v-if="selectedColumns.includes('transactions_count')">{{ row.transactions_count }}</td>
@@ -457,10 +496,10 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
-                            <tr v-if="reportData.length === 0">
+                            <tr v-if="filteredReportData.length === 0">
                                 <td colspan="100" class="p-10 text-center text-slate-400">No collections for the range.</td>
                             </tr>
-                            <tr v-else v-for="(row, idx) in reportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                            <tr v-else v-for="(row, idx) in filteredReportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                 <td class="p-4 pl-6 font-medium" v-if="selectedColumns.includes('date')">{{ formatDate(row.date) }}</td>
                                 <td class="p-4 text-center font-mono" v-if="selectedColumns.includes('transactions_count')">{{ row.transactions_count }}</td>
                                 <td class="p-4 text-right font-bold text-emerald-600" v-if="selectedColumns.includes('total_collected')">₹{{ numberFormat(row.total_collected) }}</td>
@@ -482,10 +521,10 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
-                            <tr v-if="reportData.length === 0">
+                            <tr v-if="filteredReportData.length === 0">
                                 <td colspan="100" class="p-10 text-center text-slate-400">No collections recorded in this session.</td>
                             </tr>
-                            <tr v-else v-for="(row, idx) in reportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                            <tr v-else v-for="(row, idx) in filteredReportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                 <td class="p-4 pl-6 font-bold text-slate-800 dark:text-slate-200" v-if="selectedColumns.includes('month')">{{ formatMonth(row.month) }}</td>
                                 <td class="p-4 text-center font-mono" v-if="selectedColumns.includes('transactions_count')">{{ row.transactions_count }}</td>
                                 <td class="p-4 text-right font-bold text-emerald-600" v-if="selectedColumns.includes('total_collected')">₹{{ numberFormat(row.total_collected) }}</td>
@@ -509,12 +548,12 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
-                            <tr v-if="reportData.length === 0">
+                            <tr v-if="filteredReportData.length === 0">
                                 <td colspan="100" class="p-10 text-center text-slate-400">No discount records found.</td>
                             </tr>
-                            <tr v-else v-for="(row, idx) in reportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                            <tr v-else v-for="(row, idx) in filteredReportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                 <td class="p-4 pl-6 font-mono text-xs" v-if="selectedColumns.includes('receipt_number')">{{ row.receipt_number }}</td>
-                                <td class="p-4 font-semibold text-slate-800 dark:text-white" v-if="selectedColumns.includes('student_name')">
+                                <td class="p-4 font-semibold text-slate-850 dark:text-white" v-if="selectedColumns.includes('student_name')">
                                     {{ row.student_name }}
                                     <div class="text-[10px] text-slate-400 font-mono">Adm #: {{ row.admission_no }}</div>
                                 </td>
@@ -541,12 +580,12 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 text-sm">
-                            <tr v-if="reportData.length === 0">
+                            <tr v-if="filteredReportData.length === 0">
                                 <td colspan="100" class="p-10 text-center text-slate-400">No late fine records found.</td>
                             </tr>
-                            <tr v-else v-for="(row, idx) in reportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                            <tr v-else v-for="(row, idx) in filteredReportData" :key="idx" class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                 <td class="p-4 pl-6 font-mono text-xs" v-if="selectedColumns.includes('receipt_number')">{{ row.receipt_number }}</td>
-                                <td class="p-4 font-semibold text-slate-800 dark:text-white" v-if="selectedColumns.includes('student_name')">
+                                <td class="p-4 font-semibold text-slate-850 dark:text-white" v-if="selectedColumns.includes('student_name')">
                                     {{ row.student_name }}
                                     <div class="text-[10px] text-slate-400 font-mono">Adm #: {{ row.admission_no }}</div>
                                 </td>
@@ -569,6 +608,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import { useToastStore } from '../../stores/toast';
+import { exportToExcel } from '../../utils/reportExporter';
 
 export default {
     name: 'FeesReportsIndex',
@@ -587,6 +627,9 @@ export default {
         const loading = ref(false);
         const generating = ref(false);
         const hasGenerated = ref(false);
+        
+        const localSearch = ref('');
+        const showAdvancedFilters = ref(false);
 
         const filters = ref({
             academic_year_id: '',
@@ -702,12 +745,24 @@ export default {
             expandedSections.value[classSectionKey] = !expandedSections.value[classSectionKey];
         };
 
+        // Filter the dataset based on local search box
+        const filteredReportData = computed(() => {
+            if (!localSearch.value) return reportData.value;
+            const q = localSearch.value.toLowerCase();
+            return reportData.value.filter(row => {
+                return Object.entries(row).some(([key, val]) => {
+                    if (val === null || val === undefined) return false;
+                    return val.toString().toLowerCase().includes(q);
+                });
+            });
+        });
+
         const groupedPendingData = computed(() => {
-            if (filters.value.report_type !== 'pending' || reportData.value.length === 0) return [];
+            if (filters.value.report_type !== 'pending' || filteredReportData.value.length === 0) return [];
 
             const groups = {};
 
-            reportData.value.forEach(row => {
+            filteredReportData.value.forEach(row => {
                 const className = row.class_name || 'N/A';
                 const sectionName = row.section_name || 'N/A';
 
@@ -913,10 +968,8 @@ export default {
         };
 
         const handleReportTypeChange = () => {
-            // Reset report output and states
             reportData.value = [];
             hasGenerated.value = false;
-            // Initialize checked columns to all available columns
             selectedColumns.value = availableColumns.value.map(c => c.key);
         };
 
@@ -1017,12 +1070,21 @@ export default {
             window.open(`/api/fee-reports/pdf?${params.toString()}`, '_blank');
         };
 
+        const exportExcel = () => {
+            // Excel Export support
+            const table = document.querySelector('#print-report-area table');
+            if (table) {
+                exportToExcel(table, getReportTitle());
+            } else {
+                exportToExcel('print-report-area', getReportTitle());
+            }
+        };
+
         onMounted(async () => {
             await fetchFiltersData();
             if (route.query.report_type) {
                 filters.value.report_type = route.query.report_type;
             }
-            // Auto initialize column options
             selectedColumns.value = availableColumns.value.map(c => c.key);
             
             if (route.query.auto === 'true') {
@@ -1037,6 +1099,7 @@ export default {
             sections,
             studentList,
             reportData,
+            filteredReportData,
             loading,
             generating,
             hasGenerated,
@@ -1056,12 +1119,15 @@ export default {
             getReportTitle,
             getSessionTitle,
             printReport,
+            exportExcel,
             numberFormat,
             formatDate,
             formatMonth,
             router,
             selectedColumns,
-            availableColumns
+            availableColumns,
+            showAdvancedFilters,
+            localSearch
         };
     }
 }

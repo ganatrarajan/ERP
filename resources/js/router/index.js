@@ -191,6 +191,12 @@ const routes = [
         component: () => import('../pages/attendance/Index.vue'),
         meta: { requiresAuth: true, permission: 'attendance.view', module: 'attendance', layout: 'app' }
     },
+    {
+        path: '/leaves',
+        name: 'leaves.index',
+        component: () => import('../pages/leaves/Index.vue'),
+        meta: { requiresAuth: true, permission: 'attendance.view', module: 'attendance', layout: 'app' }
+    },
     // Homework Module
     {
         path: '/homeworks',

@@ -491,4 +491,55 @@ class TeacherAssignmentController extends Controller
             'deleted' => $deletedCount
         ]);
     }
+
+    /**
+     * Download assignments list as PDF.
+     */
+    public function downloadPdf(Request $request)
+    {
+        $this->authorize('user.view');
+        $currentUser = $request->user();
+
+        $query = TeacherAssignment::with(['teacher', 'academicYear', 'class', 'section', 'subject']);
+
+        if (!$currentUser->isSuperAdmin()) {
+            $query->where('school_id', $currentUser->school_id);
+        }
+
+        if ($request->filled('teacher_id')) {
+            $query->where('teacher_id', $request->input('teacher_id'));
+        }
+
+        if ($request->filled('academic_year_id')) {
+            $query->where('academic_year_id', $request->input('academic_year_id'));
+        }
+
+        if ($request->filled('class_id')) {
+            $query->where('class_id', $request->input('class_id'));
+        }
+
+        if ($request->filled('section_id')) {
+            $query->where('section_id', $request->input('section_id'));
+        }
+
+        if ($request->filled('subject_id')) {
+            $query->where('subject_id', $request->input('subject_id'));
+        }
+
+        $assignments = $query->get();
+        $school = $currentUser->school;
+
+        $selectedKeys = array_filter(explode(',', $request->input('selected_columns', '')));
+        if (empty($selectedKeys)) {
+            $selectedKeys = ['teacher_name', 'teacher_code', 'academic_session', 'class', 'section', 'subject', 'type'];
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.teacher_assignments', [
+            'school' => $school,
+            'assignments' => $assignments,
+            'columns' => $selectedKeys
+        ]);
+
+        return $pdf->stream('Teacher_Assignments_Report.pdf');
+    }
 }

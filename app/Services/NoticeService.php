@@ -61,8 +61,11 @@ class NoticeService
 
             if ($notice->target_type === 'Class Wise' || $notice->target_type === 'Section Wise') {
                 $this->fcmService->sendToClass($schoolId, $notice->class_id, $notice->section_id, $title, $body, $dataPayload);
+            } elseif ($notice->target_type === 'Teacher Only') {
+                $this->fcmService->sendToStaff($schoolId, $title, $body, $dataPayload);
             } else {
                 $this->fcmService->sendToSchool($schoolId, $title, $body, $dataPayload);
+                $this->fcmService->sendToStaff($schoolId, $title, $body, $dataPayload);
             }
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error("FCM Notice Notification Error: " . $e->getMessage());
@@ -132,8 +135,11 @@ class NoticeService
 
             if ($notice->target_type === 'Class Wise' || $notice->target_type === 'Section Wise') {
                 $this->fcmService->sendToClass($notice->school_id, $notice->class_id, $notice->section_id, $title, $body, $dataPayload);
+            } elseif ($notice->target_type === 'Teacher Only') {
+                $this->fcmService->sendToStaff($notice->school_id, $title, $body, $dataPayload);
             } else {
                 $this->fcmService->sendToSchool($notice->school_id, $title, $body, $dataPayload);
+                $this->fcmService->sendToStaff($notice->school_id, $title, $body, $dataPayload);
             }
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error("FCM Notice Notification Error: " . $e->getMessage());

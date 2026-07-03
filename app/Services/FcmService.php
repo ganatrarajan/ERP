@@ -11,14 +11,21 @@ class FcmService
     /**
      * Get OAuth2 Access Token for Firebase Cloud Messaging using Service Account JWT.
      */
-    private function getAccessToken(): string
+    private function getAccessToken(string $appType = 'student'): string
     {
-        return cache()->remember('fcm_access_token', 3000, function () {
+        $cacheKey = 'fcm_access_token_' . $appType;
+        return cache()->remember($cacheKey, 3000, function () use ($appType) {
             // Retrieve config path or default
-            $configPath = config('firebase.credentials');
-            if (!$configPath || !file_exists($configPath)) {
-                // Try fallback to absolute path
-                $configPath = storage_path('firebase/firebase-service-account.json');
+            if ($appType === 'teacher') {
+                $configPath = storage_path('firebase/teacher-firebase-service-account.json');
+                if (!file_exists($configPath)) {
+                    $configPath = storage_path('firebase/firebase-service-account.json');
+                }
+            } else {
+                $configPath = config('firebase.credentials');
+                if (!$configPath || !file_exists($configPath)) {
+                    $configPath = storage_path('firebase/firebase-service-account.json');
+                }
             }
 
             if (!file_exists($configPath)) {
@@ -73,14 +80,23 @@ class FcmService
     /**
      * Send FCM push notification to a single device token.
      */
-    public function sendToToken(string $token, string $title, string $body, array $data = []): bool
+    public function sendToToken(string $token, string $title, string $body, array $data = [], string $appType = 'student'): bool
     {
         try {
-            $accessToken = $this->getAccessToken();
-            $configPath = config('firebase.credentials') ?: storage_path('firebase/firebase-service-account.json');
-            if (!file_exists($configPath)) {
-                $configPath = storage_path('firebase/eduvora-erp-firebase-adminsdk-fbsvc-95c4f76254.json');
+            $accessToken = $this->getAccessToken($appType);
+            
+            if ($appType === 'teacher') {
+                $configPath = storage_path('firebase/teacher-firebase-service-account.json');
+                if (!file_exists($configPath)) {
+                    $configPath = storage_path('firebase/firebase-service-account.json');
+                }
+            } else {
+                $configPath = config('firebase.credentials') ?: storage_path('firebase/firebase-service-account.json');
+                if (!file_exists($configPath)) {
+                    $configPath = storage_path('firebase/eduvora-erp-firebase-adminsdk-fbsvc-95c4f76254.json');
+                }
             }
+
             $json = json_decode(file_get_contents($configPath), true);
             $projectId = $json['project_id'];
 
@@ -123,7 +139,11 @@ class FcmService
             // Handle expired or invalid FCM token
             if ($response->status() === 400 || $response->status() === 404 || $response->status() === 410) {
                 Log::warning("FCM Token is invalid, deactivating: {$token}");
-                StudentDeviceToken::where('firebase_token', $token)->update(['status' => 0]);
+                if ($appType === 'teacher') {
+                    \App\Models\UserDeviceToken::where('firebase_token', $token)->update(['status' => 0]);
+                } else {
+                    StudentDeviceToken::where('firebase_token', $token)->update(['status' => 0]);
+                }
                 return false;
             }
 
@@ -149,6 +169,23 @@ class FcmService
 
         foreach ($tokens as $token) {
             $this->sendToToken($token, $title, $body, $data);
+        }
+    }
+
+    /**
+     * Send FCM push notification to a specific user's (teacher/staff) registered devices.
+     */
+    public function sendToUser(int $userId, string $title, string $body, array $data = []): void
+    {
+        $tokens = \App\Models\UserDeviceToken::where('user_device_tokens.user_id', $userId)
+            ->where('user_device_tokens.status', 1)
+            ->join('users', 'user_device_tokens.user_id', '=', 'users.id')
+            ->where('users.status', 'active')
+            ->pluck('user_device_tokens.firebase_token')
+            ->toArray();
+
+        foreach ($tokens as $token) {
+            $this->sendToToken($token, $title, $body, $data, 'teacher');
         }
     }
 
@@ -205,6 +242,23 @@ class FcmService
 
         foreach ($tokens as $token) {
             $this->sendToToken($token, $title, $body, $data);
+        }
+    }
+
+    /**
+     * Send FCM push notification to all staff in a school.
+     */
+    public function sendToStaff(int $schoolId, string $title, string $body, array $data = []): void
+    {
+        $tokens = \App\Models\UserDeviceToken::where('user_device_tokens.school_id', $schoolId)
+            ->where('user_device_tokens.status', 1)
+            ->join('users', 'user_device_tokens.user_id', '=', 'users.id')
+            ->where('users.status', 'active')
+            ->pluck('user_device_tokens.firebase_token')
+            ->toArray();
+
+        foreach ($tokens as $token) {
+            $this->sendToToken($token, $title, $body, $data, 'teacher');
         }
     }
 }
