@@ -300,10 +300,11 @@ class TeacherMobileApiController extends Controller
             ->where(function ($q) {
                 $q->where('target_type', 'Entire School')
                   ->orWhere('target_type', 'Class Wise')
-                  ->orWhere('target_type', 'Section Wise');
+                  ->orWhere('target_type', 'Section Wise')
+                  ->orWhere('target_type', 'Teacher Only');
             })
             ->orderBy('notice_date', 'desc')
-            ->take(5)
+            ->take(3)
             ->get();
 
         return $this->successResponse([
@@ -675,6 +676,29 @@ class TeacherMobileApiController extends Controller
             'created_by' => $teacher->id,
         ]);
 
+        try {
+            $homework->load('subject');
+            $subjectName = $homework->subject ? $homework->subject->name : 'N/A';
+            $title = "New Homework: " . $homework->title;
+            $body = "New assignment for " . $subjectName . ". Submission Date: " . $homework->submission_date;
+            
+            $fcmService = app(\App\Services\FcmService::class);
+            $fcmService->sendToClass(
+                $teacher->school_id,
+                $homework->class_id,
+                $homework->section_id,
+                $title,
+                $body,
+                [
+                    'type' => 'homework',
+                    'id' => $homework->id,
+                ],
+                $homework->academic_year_id
+            );
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("FCM Homework Notification Error: " . $e->getMessage());
+        }
+
         return $this->successResponse(['homework' => $homework], 'Homework created successfully.', 201);
     }
 
@@ -702,6 +726,29 @@ class TeacherMobileApiController extends Controller
         }
 
         $homework->update($request->only(['title', 'description', 'submission_date', 'max_marks']));
+
+        try {
+            $homework->load('subject');
+            $subjectName = $homework->subject ? $homework->subject->name : 'N/A';
+            $title = "Homework Updated: " . $homework->title;
+            $body = "Homework updated for " . $subjectName . ". Submission Date: " . $homework->submission_date;
+            
+            $fcmService = app(\App\Services\FcmService::class);
+            $fcmService->sendToClass(
+                $homework->school_id,
+                $homework->class_id,
+                $homework->section_id,
+                $title,
+                $body,
+                [
+                    'type' => 'homework',
+                    'id' => $homework->id,
+                ],
+                $homework->academic_year_id
+            );
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("FCM Homework Notification Error: " . $e->getMessage());
+        }
 
         return $this->successResponse(['homework' => $homework], 'Homework updated successfully.');
     }
@@ -734,11 +781,12 @@ class TeacherMobileApiController extends Controller
             ->where('school_id', $teacher->school_id)
             ->where('is_delete', 0);
 
-        // Notices visible to entire school
+        // Notices visible to entire school and teachers
         $query->where(function ($q) {
             $q->where('target_type', 'Entire School')
               ->orWhere('target_type', 'Class Wise')
-              ->orWhere('target_type', 'Section Wise');
+              ->orWhere('target_type', 'Section Wise')
+              ->orWhere('target_type', 'Teacher Only');
         });
 
         $notices = $query->orderBy('notice_date', 'desc')->orderBy('id', 'desc')->paginate(15);
@@ -1001,4 +1049,200 @@ class TeacherMobileApiController extends Controller
 
         return $this->successResponse(['subjects' => $subjects]);
     }
+
+    /**
+     * GET /mobile/teacher/leaves
+     */
+    public function leaves(Request $request): JsonResponse
+    {
+        $teacher = $request->user();
+        $leaves = \App\Models\StaffLeave::where('school_id', $teacher->school_id)
+            ->where('user_id', $teacher->id)
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return $this->successResponse(['leaves' => $leaves]);
+    }
+
+    /**
+     * POST /mobile/teacher/leaves
+     */
+    public function createLeave(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'leave_type' => 'required|string|max:255',
+            'start_date' => 'required|date_format:Y-m-d|after_or_equal:today',
+            'end_date' => 'required|date_format:Y-m-d|after_or_equal:start_date',
+            'reason' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorResponse('Validation error', 422, $validator->errors());
+        }
+
+        $teacher = $request->user();
+        $schoolId = $teacher->school_id;
+        $startDate = $request->start_date;
+        $endDate = $request->end_date;
+
+        // 1. Check for overlapping leave requests (Pending or Approved)
+        $overlapping = \App\Models\StaffLeave::where('user_id', $teacher->id)
+            ->whereIn('status', ['Pending', 'Approved'])
+            ->where(function ($query) use ($startDate, $endDate) {
+                $query->where('start_date', '<=', $endDate)
+                      ->where('end_date', '>=', $startDate);
+            })
+            ->first();
+
+        if ($overlapping) {
+            return $this->errorResponse(
+                "You already have a {$overlapping->status} leave request from {$overlapping->start_date} to {$overlapping->end_date}.",
+                422
+            );
+        }
+
+        // 2. Check for holidays in the requested date range
+        $start = Carbon::parse($startDate);
+        $end = Carbon::parse($endDate);
+        
+        for ($date = $start; $date->lte($end); $date->addDay()) {
+            $dateStr = $date->format('Y-m-d');
+            $holiday = \App\Services\HolidayService::isHolidayForStaff($schoolId, $teacher->id, $dateStr);
+            if ($holiday) {
+                return $this->errorResponse(
+                    "Cannot request leave on a holiday: {$holiday->title} ({$dateStr})",
+                    422
+                );
+            }
+        }
+
+        $leave = \App\Models\StaffLeave::create([
+            'school_id' => $teacher->school_id,
+            'user_id' => $teacher->id,
+            'leave_type' => $request->leave_type,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'reason' => $request->reason,
+            'status' => 'Pending',
+            'requested_date' => Carbon::today()->format('Y-m-d'),
+        ]);
+
+        return $this->successResponse(['leave' => $leave], 'Leave request submitted successfully.', 201);
+    }
+
+    /**
+     * GET /mobile/teacher/attendance
+     */
+    public function myAttendance(Request $request): JsonResponse
+    {
+        $teacher = $request->user();
+        $schoolId = $teacher->school_id;
+
+        $month = $request->filled('month') ? $request->month : Carbon::today()->format('Y-m');
+        $startOfMonth = Carbon::parse($month . '-01');
+        $endOfMonth = (clone $startOfMonth)->endOfMonth();
+        $today = Carbon::today();
+
+        $attendances = \App\Models\StaffAttendance::where('school_id', $schoolId)
+            ->where('user_id', $teacher->id)
+            ->whereBetween('attendance_date', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
+            ->where('is_delete', 0)
+            ->get()
+            ->keyBy('attendance_date');
+
+        $fullList = [];
+        
+        for ($date = clone $startOfMonth; $date->lte($endOfMonth); $date->addDay()) {
+            $dateStr = $date->format('Y-m-d');
+            
+            if ($attendances->has($dateStr)) {
+                $rec = $attendances->get($dateStr);
+                $fullList[] = [
+                    'id' => $rec->id,
+                    'attendance_date' => $dateStr,
+                    'status' => $rec->status,
+                    'remarks' => $rec->remarks ?? '',
+                ];
+            } else {
+                $holiday = \App\Services\HolidayService::isHolidayForStaff($schoolId, $teacher->id, $dateStr);
+                if ($holiday) {
+                    $fullList[] = [
+                        'id' => 0,
+                        'attendance_date' => $dateStr,
+                        'status' => 'Holiday',
+                        'remarks' => $holiday->title,
+                    ];
+                } else {
+                    if ($date->gt($today)) {
+                        $fullList[] = [
+                            'id' => 0,
+                            'attendance_date' => $dateStr,
+                            'status' => 'Future',
+                            'remarks' => '',
+                        ];
+                    } else {
+                        $fullList[] = [
+                            'id' => 0,
+                            'attendance_date' => $dateStr,
+                            'status' => 'Not Marked',
+                            'remarks' => '',
+                        ];
+                    }
+                }
+            }
+        }
+
+        // Order descending (newest first)
+        $orderedList = array_reverse($fullList);
+        $listCollection = collect($orderedList);
+        
+        $stats = [
+            'Present' => $listCollection->where('status', 'Present')->count(),
+            'Absent' => $listCollection->where('status', 'Absent')->count(),
+            'Late' => $listCollection->where('status', 'Late')->count(),
+            'Half Day' => $listCollection->where('status', 'Half Day')->count(),
+            'Leave' => $listCollection->where('status', 'Leave')->count(),
+            'Holiday' => $listCollection->where('status', 'Holiday')->count(),
+            'total' => $listCollection->whereIn('status', ['Present', 'Absent', 'Late', 'Half Day', 'Leave'])->count(),
+        ];
+        
+        $presents = $stats['Present'] + $stats['Late'] + $stats['Half Day'];
+        $stats['attendance_rate'] = $stats['total'] > 0 ? round(($presents / $stats['total']) * 100, 2) : 100.00;
+
+        return $this->successResponse([
+            'attendances' => $orderedList,
+            'stats' => $stats
+        ]);
+    }
+
+    /**
+     * DELETE /mobile/teacher/leaves/{id}
+     */
+    public function cancelLeave(Request $request, $id): JsonResponse
+    {
+        $teacher = $request->user();
+        $leave = \App\Models\StaffLeave::where('school_id', $teacher->school_id)
+            ->where('user_id', $teacher->id)
+            ->findOrFail($id);
+
+        // If it was already approved, clean up the attendance records
+        if ($leave->status === 'Approved') {
+            $start = Carbon::parse($leave->start_date);
+            $end = Carbon::parse($leave->end_date);
+
+            for ($date = $start; $date->lte($end); $date->addDay()) {
+                $dateString = $date->format('Y-m-d');
+                \App\Models\StaffAttendance::where('school_id', $leave->school_id)
+                    ->where('user_id', $leave->user_id)
+                    ->where('attendance_date', $dateString)
+                    ->where('status', 'Leave')
+                    ->delete();
+            }
+        }
+
+        $leave->delete();
+
+        return $this->successResponse([], 'Leave request cancelled successfully.');
+    }
 }
+

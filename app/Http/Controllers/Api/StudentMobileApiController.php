@@ -110,7 +110,10 @@ class StudentMobileApiController extends Controller
                 $q->where('is_delete', 0)
                   ->where('status', 'active')
                   ->where(function ($q2) use ($student, $academicYearId) {
-                      $q2->where('is_optional', false)
+                      $q2->where(function ($qSub) {
+                          $qSub->where('is_optional', false)
+                               ->orWhereNull('is_optional');
+                      })
                         ->orWhere(function ($q3) use ($student, $academicYearId) {
                             $q3->where('is_optional', true)
                               ->whereIn('id', function ($subQuery) use ($student, $academicYearId) {
@@ -241,7 +244,10 @@ class StudentMobileApiController extends Controller
                 $q->where('is_delete', 0)
                   ->where('status', 'active')
                   ->where(function ($q2) use ($student, $academicYearId) {
-                      $q2->where('is_optional', false)
+                      $q2->where(function ($qSub) {
+                          $qSub->where('is_optional', false)
+                               ->orWhereNull('is_optional');
+                      })
                         ->orWhere(function ($q3) use ($student, $academicYearId) {
                             $q3->where('is_optional', true)
                               ->whereIn('id', function ($subQuery) use ($student, $academicYearId) {
@@ -312,7 +318,10 @@ class StudentMobileApiController extends Controller
                   ->orWhereNull('section_id');
             })
             ->where(function ($q) use ($student, $academicYearId) {
-                $q->where('is_optional', false)
+                $q->where(function ($qSub) {
+                    $qSub->where('is_optional', false)
+                         ->orWhereNull('is_optional');
+                })
                   ->orWhere(function ($q2) use ($student, $academicYearId) {
                       $q2->where('is_optional', true)
                         ->whereIn('id', function ($subQuery) use ($student, $academicYearId) {

@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\HomeworkController;
 use App\Http\Controllers\Api\NoticeController;
 use App\Http\Controllers\Api\HolidayController;
 use App\Http\Controllers\Api\StaffAttendanceController;
+use App\Http\Controllers\Api\StaffLeaveController;
 use App\Http\Controllers\Api\WeekendSettingController;
 use App\Http\Controllers\Api\FeeTypeController;
 use App\Http\Controllers\Api\FeeStructureController;
@@ -165,6 +166,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/staff-attendances/report/pdf', [StaffAttendanceController::class, 'reportPdf'])->middleware('permission:attendance.view');
         Route::get('/staff-attendances/monthly', [StaffAttendanceController::class, 'monthlyGrid'])->middleware('permission:attendance.view');
         Route::get('/staff-attendances/monthly/pdf', [StaffAttendanceController::class, 'monthlyGridPdf'])->middleware('permission:attendance.view');
+
+        // Staff Leaves
+        Route::get('/staff-leaves', [StaffLeaveController::class, 'index'])->middleware('permission:attendance.view');
+        Route::post('/staff-leaves/{id}/approve', [StaffLeaveController::class, 'approve'])->middleware('permission:attendance.edit');
+        Route::post('/staff-leaves/{id}/reject', [StaffLeaveController::class, 'reject'])->middleware('permission:attendance.edit');
+        Route::delete('/staff-leaves/{id}', [StaffLeaveController::class, 'destroy'])->middleware('permission:attendance.delete');
 
         // Holidays
         Route::get('/holidays', [HolidayController::class, 'index'])->middleware('permission:attendance.view');
@@ -363,6 +370,10 @@ Route::middleware(['auth:sanctum', 'mobile.context'])->prefix('mobile')->group(f
         Route::post('/exams/marks/save', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'saveExamMarks']);
         
         Route::get('/documents', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'documents']);
+        Route::get('/attendance', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'myAttendance']);
+        Route::get('/leaves', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'leaves']);
+        Route::post('/leaves', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'createLeave']);
+        Route::delete('/leaves/{id}', [\App\Http\Controllers\Api\TeacherMobileApiController::class, 'cancelLeave']);
     });
 });
 

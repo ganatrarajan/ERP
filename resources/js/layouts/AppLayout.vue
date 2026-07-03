@@ -288,6 +288,16 @@
                         </router-link>
 
                         <router-link 
+                            v-if="authStore.user?.school_id && authStore.hasModule('attendance') && authStore.hasPermission('attendance.view')" 
+                            to="/leaves" 
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                            :class="[isRouteActive('/leaves') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10' : 'text-slate-655 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200']"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Leave Approval
+                        </router-link>
+
+                        <router-link 
                             v-if="authStore.user?.school_id && authStore.hasModule('homework') && authStore.hasPermission('homework.view')" 
                             to="/homeworks" 
                             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
