@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -13,6 +14,21 @@ void main() async {
   try {
     await Firebase.initializeApp();
     await NotificationService().init();
+
+    // Request notification permission (iOS & Android 13+)
+    await FirebaseMessaging.instance.requestPermission();
+
+    // Get FCM token
+    final token = await FirebaseMessaging.instance.getToken();
+
+    debugPrint("====================================");
+    print("FCM TOKEN: $token");
+    debugPrint("====================================");
+
+    // Listen for token refresh
+    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
+      debugPrint("FCM TOKEN REFRESHED: $newToken");
+    });
   } catch (e) {
     debugPrint("Firebase/Notification initialization failed: $e");
   }

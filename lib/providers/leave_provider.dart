@@ -114,6 +114,28 @@ class LeaveNotifier extends StateNotifier<LeaveState> {
       return false;
     }
   }
+
+  Future<bool> cancelLeave(String id) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      final success = await _leaveRepository.cancelLeave(int.parse(id));
+      if (success) {
+        state = state.copyWith(
+          requests: state.requests.where((r) => r.id != id).toList(),
+          isLoading: false,
+        );
+        return true;
+      }
+      state = state.copyWith(isLoading: false, errorMessage: "Failed to cancel leave request");
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString().replaceAll('Exception: ', ''),
+      );
+      return false;
+    }
+  }
 }
 
 final leaveProvider = StateNotifierProvider<LeaveNotifier, LeaveState>((ref) {

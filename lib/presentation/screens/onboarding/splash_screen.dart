@@ -53,7 +53,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
         if (!success) {
           final err = ref.read(onboardingProvider).errorMessage;
           await ref.read(onboardingProvider.notifier).clearOnboarding();
-          await ref.read(authProvider.notifier).logout();
+          await ref.read(authProvider.notifier).logout(context);
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -68,7 +68,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
         final newYearId = ref.read(onboardingProvider).academicYear?.id;
         if (oldYearId != null && newYearId != null && oldYearId != newYearId) {
           // Log out immediately if academic year has changed
-          await ref.read(authProvider.notifier).logout();
+          await ref.read(authProvider.notifier).logout(context);
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

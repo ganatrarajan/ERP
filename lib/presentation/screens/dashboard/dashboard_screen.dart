@@ -6,6 +6,7 @@ import '../../../providers/dashboard_provider.dart';
 import '../../widgets/loading_view.dart';
 import '../../widgets/error_view.dart';
 import '../attendance/attendance_classes_screen.dart';
+import '../attendance/my_attendance_screen.dart';
 import '../homework/homework_list_screen.dart';
 import '../exam/exam_config_screen.dart';
 import '../my_classes/my_classes_screen.dart';
@@ -154,10 +155,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               theme: theme,
                               icon: Icons.calendar_today_rounded,
                               label: "Leaves",
-                              color: Colors.blue,
+                              color: Colors.pink,
                               onTap: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(builder: (_) => const LeaveListScreen()),
+                                );
+                              },
+                            ),
+                            _buildQuickAction(
+                              theme: theme,
+                              icon: Icons.badge_outlined,
+                              label: "My Attendance",
+                              color: Colors.teal,
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => const MyAttendanceScreen()),
                                 );
                               },
                             ),

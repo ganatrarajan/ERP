@@ -8,6 +8,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../network/dio_client.dart';
 import '../constants/api_endpoints.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import '../router/app_router.dart';
+import 'secure_storage.dart';
+import '../../presentation/screens/leave/leave_list_screen.dart';
+import '../../presentation/screens/notice/notice_list_screen.dart';
+import '../../presentation/screens/homework/homework_list_screen.dart';
 
 class NotificationModel {
   final String id;
@@ -58,6 +64,7 @@ class NotificationService {
 
   final _firebaseMessaging = FirebaseMessaging.instance;
   final _localNotifications = FlutterLocalNotificationsPlugin();
+  final _secureStorage = SecureStorageService();
   
   static const _notificationsCacheKey = 'cached_notifications_list';
 
@@ -77,7 +84,15 @@ class NotificationService {
     await _localNotifications.initialize(
       initSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
-        // Handle click action
+        final payload = response.payload;
+        if (payload != null) {
+          try {
+            final Map<String, dynamic> data = Map<String, dynamic>.from(jsonDecode(payload));
+            _handleNotificationClick(data);
+          } catch (e) {
+            debugPrint('Error parsing local notification click payload: $e');
+          }
+        }
       },
     );
 
@@ -85,8 +100,26 @@ class NotificationService {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       final notification = message.notification;
       if (notification != null) {
-        _showLocalNotification(notification.title ?? 'EduvoraX Alert', notification.body ?? '');
+        _showLocalNotification(
+          notification.title ?? 'EduvoraX Alert',
+          notification.body ?? '',
+          jsonEncode(message.data),
+        );
         _cacheNotification(notification.title ?? 'EduvoraX Alert', notification.body ?? '');
+      }
+    });
+
+    // Handle when app is opened from background state by clicking a notification
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      _handleNotificationClick(message.data);
+    });
+
+    // Check if app was opened from terminated state
+    _firebaseMessaging.getInitialMessage().then((initialMessage) {
+      if (initialMessage != null) {
+        Future.delayed(const Duration(milliseconds: 1000), () {
+          _handleNotificationClick(initialMessage.data);
+        });
       }
     });
 
@@ -94,12 +127,40 @@ class NotificationService {
     _firebaseMessaging.onTokenRefresh.listen((token) {
       updateTokenToServer(token);
     });
+
+    // Sync FCM token on startup if already logged in
+    final hasAuthToken = await _secureStorage.getToken();
+    if (hasAuthToken != null) {
+      updateTokenToServer();
+    }
+  }
+
+  void _handleNotificationClick(Map<String, dynamic> data) {
+    final type = data['type']?.toString().toLowerCase();
+    
+    if (type == 'leave') {
+      navigatorKey.currentState?.push(
+        MaterialPageRoute(builder: (_) => const LeaveListScreen()),
+      );
+    } else if (type == 'homework') {
+      navigatorKey.currentState?.push(
+        MaterialPageRoute(builder: (_) => const HomeworkListScreen()),
+      );
+    } else if (type == 'notice') {
+      navigatorKey.currentState?.push(
+        MaterialPageRoute(builder: (_) => const NoticeListScreen()),
+      );
+    }
   }
 
   Future<void> updateTokenToServer([String? token]) async {
     try {
       final fcmToken = token ?? await _firebaseMessaging.getToken();
-      if (fcmToken == null) return;
+      debugPrint("Attempting to sync FCM token: $fcmToken");
+      if (fcmToken == null) {
+        debugPrint("FCM Token is null, cannot sync.");
+        return;
+      }
 
       final deviceName = await _getDeviceName();
       final appVersion = await _getAppVersion();
@@ -117,12 +178,12 @@ class NotificationService {
       
       // Token registered successfully
       debugPrint("FCM Token successfully synced: ${response.data}");
-    } catch (_) {
-      // Ignore or log error
+    } catch (e) {
+      debugPrint("FCM Token sync failed error: $e");
     }
   }
 
-  Future<void> _showLocalNotification(String title, String body) async {
+  Future<void> _showLocalNotification(String title, String body, String payload) async {
     const androidDetails = AndroidNotificationDetails(
       'eduvorax_teacher_channel',
       'EduvoraX Teacher Alerts',
@@ -138,6 +199,7 @@ class NotificationService {
       title,
       body,
       details,
+      payload: payload,
     );
   }
 

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/models/teacher.dart';
 import '../data/repositories/auth_repository.dart';
@@ -85,9 +86,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         teacher: result.teacher,
         isLoading: false,
       );
-      
       // Sync device notification token
-      NotificationService().updateTokenToServer(result.token);
+      NotificationService().updateTokenToServer();
       
       return true;
     } else {
@@ -99,9 +99,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  Future<void> logout() async {
+  Future<void> logout([BuildContext? context]) async {
     state = state.copyWith(isLoading: true);
-    await _authRepository.logout();
+    await _authRepository.logout(context);
     await _secureStorage.clearAuth();
     await NotificationService().clearAll();
     state = AuthState(isAuthenticated: false);

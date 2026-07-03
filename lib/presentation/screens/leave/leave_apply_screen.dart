@@ -81,6 +81,11 @@ class _LeaveApplyScreenState extends ConsumerState<LeaveApplyScreen> {
           const SnackBar(content: Text("Leave request submitted successfully"), backgroundColor: Colors.green),
         );
         Navigator.of(context).pop();
+      } else {
+        final errorMsg = ref.read(leaveProvider).errorMessage ?? "Failed to submit leave request";
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMsg), backgroundColor: Colors.red),
+        );
       }
     }
   }

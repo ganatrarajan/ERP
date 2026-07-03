@@ -36,4 +36,10 @@ class LeaveRepository {
     }
     throw Exception(data['message'] ?? 'Failed to apply leave');
   }
+
+  Future<bool> cancelLeave(int id) async {
+    final response = await _dioClient.delete('${ApiEndpoints.leaves}/$id');
+    final data = response.data;
+    return data is Map<String, dynamic> && data['success'] == true;
+  }
 }

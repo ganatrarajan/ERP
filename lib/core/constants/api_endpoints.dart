@@ -54,6 +54,9 @@ class ApiEndpoints {
   
   // Leaves
   static String get leaves => '$baseUrl/teacher/leaves';
+  
+  // My Attendance
+  static String get myAttendance => '$baseUrl/teacher/attendance';
 
   // Resolves local path to storage URL
   static String resolveAttachmentUrl(String? attachmentPath) {

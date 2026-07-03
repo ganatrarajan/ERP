@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 import '../../core/constants/api_endpoints.dart';
 import '../../core/network/dio_client.dart';
 import '../models/school.dart';
@@ -80,11 +82,23 @@ class AuthRepository {
     }
   }
 
-  Future<bool> logout() async {
+  Future<bool> logout([BuildContext? context]) async {
     try {
       final response = await _dioClient.post(ApiEndpoints.logout);
       final data = response.data;
-      return data is Map && data['success'] == true;
+
+      if (data is Map && data['success'] == true) {
+        if (context != null) {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/login',
+            (route) => false,
+          );
+        }
+        return true;
+      }
+
+      return false;
     } catch (_) {
       return false;
     }

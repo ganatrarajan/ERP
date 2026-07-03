@@ -16,8 +16,8 @@ class TeacherDocumentModel {
   factory TeacherDocumentModel.fromJson(Map<String, dynamic> json) {
     return TeacherDocumentModel(
       id: json['id'] ?? 0,
-      title: json['title'] ?? '',
-      filePath: json['file_path'] ?? '',
+      title: json['title'] ?? json['document_name'] ?? '',
+      filePath: json['file_path'] ?? json['document_path'] ?? '',
     );
   }
 }

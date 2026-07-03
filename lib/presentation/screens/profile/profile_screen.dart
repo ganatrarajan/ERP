@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/profile_provider.dart';
+import '../../../data/repositories/profile_repository.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../../core/services/download_service.dart';
 import '../../../core/constants/api_endpoints.dart';
@@ -18,13 +22,264 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  Map<String, dynamic> _downloadedDocsInfo = {};
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(profileProvider.notifier).fetchProfile();
-      ref.read(profileProvider.notifier).fetchDocuments();
+      ref.read(profileProvider.notifier).fetchDocuments().then((_) {
+        _syncAndCleanObsoleteFiles();
+      });
     });
+    _loadDownloadedDocsInfo();
+  }
+
+  Future<void> _loadDownloadedDocsInfo() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final dataStr = prefs.getString('downloaded_teacher_docs');
+      if (dataStr != null) {
+        setState(() {
+          _downloadedDocsInfo = jsonDecode(dataStr);
+        });
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _syncAndCleanObsoleteFiles() async {
+    final documents = ref.read(profileProvider).documents;
+    if (documents.isEmpty) return;
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final dataStr = prefs.getString('downloaded_teacher_docs');
+      if (dataStr == null) return;
+
+      Map<String, dynamic> infoMap = jsonDecode(dataStr);
+      bool changed = false;
+
+      final keys = List<String>.from(infoMap.keys);
+      for (final key in keys) {
+        final docId = int.tryParse(key);
+        if (docId == null) continue;
+
+        final onlineDoc = documents.firstWhere(
+          (d) => d.id == docId,
+          orElse: () => TeacherDocumentModel(id: -1, title: '', filePath: ''),
+        );
+
+        final docInfo = Map<String, dynamic>.from(infoMap[key]);
+        final localPath = docInfo['localPath'] as String?;
+        final onlinePath = docInfo['onlinePath'] as String?;
+
+        if (onlineDoc.id == -1) {
+          if (localPath != null) {
+            final file = File(localPath);
+            if (file.existsSync()) {
+              file.deleteSync();
+            }
+          }
+          infoMap.remove(key);
+          changed = true;
+        } else if (onlineDoc.filePath != onlinePath) {
+          if (localPath != null) {
+            final file = File(localPath);
+            if (file.existsSync()) {
+              file.deleteSync();
+            }
+          }
+          infoMap.remove(key);
+          changed = true;
+        } else {
+          if (localPath != null && !File(localPath).existsSync()) {
+            infoMap.remove(key);
+            changed = true;
+          }
+        }
+      }
+
+      if (changed) {
+        await prefs.setString('downloaded_teacher_docs', jsonEncode(infoMap));
+        setState(() {
+          _downloadedDocsInfo = infoMap;
+        });
+      }
+    } catch (_) {}
+  }
+
+  void _downloadDocument(TeacherDocumentModel doc) async {
+    var ext = doc.filePath.contains('.') ? doc.filePath.split('.').last.toLowerCase() : 'pdf';
+    if (ext == 'jfif') ext = 'jpg';
+    final filename = '${doc.title.replaceAll(' ', '_')}.$ext';
+    final url = ApiEndpoints.resolveAttachmentUrl(doc.filePath);
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Downloading ${doc.title}...")),
+    );
+
+    try {
+      final localPath = await DownloadService().downloadFile(
+        url: url,
+        filename: filename,
+      );
+
+      if (mounted && localPath != null) {
+        final prefs = await SharedPreferences.getInstance();
+        final updatedInfo = Map<String, dynamic>.from(_downloadedDocsInfo);
+        updatedInfo[doc.id.toString()] = {
+          'localPath': localPath,
+          'onlinePath': doc.filePath,
+          'filename': filename,
+        };
+        await prefs.setString('downloaded_teacher_docs', jsonEncode(updatedInfo));
+
+        setState(() {
+          _downloadedDocsInfo = updatedInfo;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Downloaded: ${doc.title}"),
+            backgroundColor: Colors.green,
+            action: SnackBarAction(
+              label: "Open",
+              textColor: Colors.white,
+              onPressed: () {
+                DownloadService().openDownloadedFile(filename);
+              },
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Download failed: ${e.toString()}"), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
+  void _viewDocument(TeacherDocumentModel doc) {
+    final url = ApiEndpoints.resolveAttachmentUrl(doc.filePath);
+    var ext = doc.filePath.contains('.') ? doc.filePath.split('.').last.toLowerCase() : 'pdf';
+    if (ext == 'jfif') ext = 'jpg';
+    final isImage = ['jpg', 'jpeg', 'png', 'gif', 'jfif', 'webp'].contains(ext);
+
+    final isDownloaded = _downloadedDocsInfo.containsKey(doc.id.toString());
+    final docInfo = isDownloaded ? _downloadedDocsInfo[doc.id.toString()] : null;
+    final filename = docInfo != null ? docInfo['filename'] as String? : null;
+    final localPath = docInfo != null ? docInfo['localPath'] as String? : null;
+
+    if (isImage) {
+      showDialog(
+        context: context,
+        builder: (context) => Dialog(
+          insetPadding: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppBar(
+                title: Text(doc.title),
+                leading: IconButton(
+                  icon: const Icon(Icons.close_rounded),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+              ),
+              Container(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.6,
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: InteractiveViewer(
+                    minScale: 0.5,
+                    maxScale: 4.0,
+                    child: isDownloaded && localPath != null && File(localPath).existsSync()
+                        ? Image.file(File(localPath), fit: BoxFit.contain)
+                        : Image.network(
+                            url,
+                            fit: BoxFit.contain,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(32.0),
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(32.0),
+                                  child: Column(
+                                    children: [
+                                      Icon(Icons.broken_image_rounded, size: 48, color: Colors.grey),
+                                      SizedBox(height: 8),
+                                      Text("Failed to load image online", style: TextStyle(color: Colors.grey)),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    if (isDownloaded && filename != null)
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.open_in_new_rounded),
+                        label: const Text("Open Externally"),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          DownloadService().openDownloadedFile(filename);
+                        },
+                      )
+                    else
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.download_rounded),
+                        label: const Text("Download to Device"),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _downloadDocument(doc);
+                        },
+                      ),
+                    if (isDownloaded)
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.sync_rounded),
+                        label: const Text("Sync / Re-download"),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _downloadDocument(doc);
+                        },
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    } else {
+      if (isDownloaded && filename != null) {
+        DownloadService().openDownloadedFile(filename);
+      } else {
+        _downloadDocument(doc);
+      }
+    }
   }
 
   void _handleLogout() async {
@@ -49,43 +304,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     if (confirm == true && mounted) {
       await ref.read(authProvider.notifier).logout();
-    }
-  }
-
-  void _downloadDocument(String relativePath, String filename) async {
-    final url = ApiEndpoints.resolveAttachmentUrl(relativePath);
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Downloading $filename...")),
-    );
-
-    try {
-      final localPath = await DownloadService().downloadFile(
-        url: url,
-        filename: filename,
-      );
-
-      if (mounted && localPath != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Downloaded: $filename"),
-            backgroundColor: Colors.green,
-            action: SnackBarAction(
-              label: "Open",
-              textColor: Colors.white,
-              onPressed: () {
-                DownloadService().openDownloadedFile(filename);
-              },
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Download failed: ${e.toString()}"), backgroundColor: Colors.red),
-        );
-      }
     }
   }
 
@@ -220,12 +438,42 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             separatorBuilder: (_, __) => const Divider(height: 1),
                             itemBuilder: (context, index) {
                               final doc = profileState.documents[index];
+                              final isDownloaded = _downloadedDocsInfo.containsKey(doc.id.toString());
+                              final docInfo = isDownloaded ? _downloadedDocsInfo[doc.id.toString()] : null;
+                              final filename = docInfo != null ? docInfo['filename'] as String? : null;
+
                               return ListTile(
-                                leading: const Icon(Icons.file_present_rounded, color: Colors.blue),
+                                leading: Icon(
+                                  Icons.file_present_rounded,
+                                  color: isDownloaded ? Colors.green : Colors.blue,
+                                ),
                                 title: Text(doc.title),
-                                subtitle: const Text("Tap to download credentials"),
-                                trailing: const Icon(Icons.download_rounded),
-                                onTap: () => _downloadDocument(doc.filePath, '${doc.title.replaceAll(' ', '_')}.pdf'),
+                                subtitle: Text(
+                                  isDownloaded
+                                      ? "Downloaded locally (Tap to view)"
+                                      : "Tap to download credentials",
+                                  style: TextStyle(
+                                    color: isDownloaded ? Colors.green : Colors.grey,
+                                  ),
+                                ),
+                                trailing: isDownloaded
+                                    ? Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(Icons.open_in_new_rounded, color: Colors.green),
+                                            tooltip: "Open",
+                                            onPressed: () => _viewDocument(doc),
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.sync_rounded, color: Colors.blue),
+                                            tooltip: "Re-download",
+                                            onPressed: () => _downloadDocument(doc),
+                                          ),
+                                        ],
+                                      )
+                                    : const Icon(Icons.download_rounded),
+                                onTap: () => _viewDocument(doc),
                               );
                             },
                           ),

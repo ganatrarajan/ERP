@@ -8,6 +8,43 @@ import 'leave_apply_screen.dart';
 class LeaveListScreen extends ConsumerWidget {
   const LeaveListScreen({super.key});
 
+  void _handleCancel(BuildContext context, WidgetRef ref, String id) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Cancel Leave Request?"),
+        content: const Text("Are you sure you want to cancel this leave request?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text("No"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            child: const Text("Yes, Cancel"),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final success = await ref.read(leaveProvider.notifier).cancelLeave(id);
+      if (context.mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Leave request cancelled successfully"), backgroundColor: Colors.green),
+          );
+        } else {
+          final errorMsg = ref.read(leaveProvider).errorMessage ?? "Failed to cancel leave request";
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(errorMsg), backgroundColor: Colors.red),
+          );
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
@@ -85,9 +122,26 @@ class LeaveListScreen extends ConsumerWidget {
                               const SizedBox(height: 8),
                               Divider(color: theme.colorScheme.surfaceContainerHighest),
                               const SizedBox(height: 4),
-                              Text(
-                                "Requested on: ${item.requestedDate}",
-                                style: const TextStyle(fontSize: 10, color: Colors.grey),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Requested on: ${item.requestedDate}",
+                                    style: const TextStyle(fontSize: 10, color: Colors.grey),
+                                  ),
+                                  if (item.status == 'Pending')
+                                    TextButton.icon(
+                                      onPressed: () => _handleCancel(context, ref, item.id),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Colors.red,
+                                        padding: EdgeInsets.zero,
+                                        minimumSize: const Size(50, 30),
+                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      ),
+                                      icon: const Icon(Icons.cancel_outlined, size: 14),
+                                      label: const Text("Cancel", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                    ),
+                                ],
                               ),
                             ],
                           ),
