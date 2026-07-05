@@ -648,7 +648,6 @@ class TeacherMobileApiController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'submission_date' => 'required|date_format:Y-m-d|after_or_equal:today',
-            'max_marks' => 'nullable|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -671,7 +670,6 @@ class TeacherMobileApiController extends Controller
             'title' => $request->title,
             'description' => $request->description,
             'submission_date' => $request->submission_date,
-            'max_marks' => $request->max_marks,
             'status' => 'active',
             'created_by' => $teacher->id,
         ]);
@@ -718,14 +716,13 @@ class TeacherMobileApiController extends Controller
             'title' => 'sometimes|required|string|max:255',
             'description' => 'sometimes|required|string',
             'submission_date' => 'sometimes|required|date_format:Y-m-d|after_or_equal:today',
-            'max_marks' => 'nullable|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
             return $this->errorResponse('Validation error', 422, $validator->errors());
         }
 
-        $homework->update($request->only(['title', 'description', 'submission_date', 'max_marks']));
+        $homework->update($request->only(['title', 'description', 'submission_date']));
 
         try {
             $homework->load('subject');
