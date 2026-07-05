@@ -39,4 +39,14 @@ class StudentFeeAssignment extends Model
     {
         return $this->belongsTo(FeeStructure::class, 'fee_structure_id');
     }
+
+    protected static function booted()
+    {
+        $clearCache = function ($model) {
+            \Illuminate\Support\Facades\Cache::forget("student_fee_dues_{$model->student_id}_{$model->academic_year_id}");
+        };
+
+        static::saved($clearCache);
+        static::deleted($clearCache);
+    }
 }

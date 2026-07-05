@@ -33,4 +33,14 @@ class StudentOptionalFee extends Model
     {
         return $this->belongsTo(FeeType::class, 'fee_type_id');
     }
+
+    protected static function booted()
+    {
+        $clearCache = function ($model) {
+            \Illuminate\Support\Facades\Cache::forget("student_fee_dues_{$model->student_id}_{$model->academic_year_id}");
+        };
+
+        static::saved($clearCache);
+        static::deleted($clearCache);
+    }
 }

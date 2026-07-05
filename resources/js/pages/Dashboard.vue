@@ -31,7 +31,7 @@
                         v-model="classSearchQuery" 
                         type="text" 
                         placeholder="Search classes or items..." 
-                        class="w-full pl-9 pr-4 py-2 text-xs font-semibold bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-400 transition-all placeholder-slate-400 dark:placeholder-slate-500 text-slate-700 dark:text-slate-200"
+                        class="w-full pl-9 pr-4 py-2 text-xs font-semibold bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-555/20 focus:border-indigo-500 dark:focus:border-indigo-400 transition-all placeholder-slate-400 dark:placeholder-slate-500 text-slate-700 dark:text-slate-202"
                     />
                 </div>
 
@@ -48,7 +48,7 @@
                 <div class="relative">
                     <button 
                         @click="showNotifications = !showNotifications"
-                        class="p-2 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl relative transition-all duration-200 cursor-pointer text-slate-600 dark:text-slate-400"
+                        class="p-2 bg-slate-50 dark:bg-slate-955 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl relative transition-all duration-200 cursor-pointer text-slate-600 dark:text-slate-400"
                     >
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                         <span v-if="unreadNoticeCount > 0" class="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full border border-white dark:border-slate-950 animate-ping"></span>
@@ -60,7 +60,7 @@
                         v-if="showNotifications" 
                         class="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-50 overflow-hidden animate-fade-in"
                     >
-                        <div class="p-4 border-b border-slate-105 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950/50">
+                        <div class="p-4 border-b border-slate-105 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-955/50">
                             <span class="text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400">Notice Bulletin</span>
                             <span class="px-2 py-0.5 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 text-[10px] font-black rounded-full">{{ unreadNoticeCount }} New</span>
                         </div>
@@ -78,7 +78,7 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                                 </div>
                                 <div class="space-y-0.5 min-w-0 flex-1">
-                                    <h4 class="font-bold text-slate-900 dark:text-white truncate">{{ item.title }}</h4>
+                                    <h4 class="font-bold text-slate-905 dark:text-white truncate">{{ item.title }}</h4>
                                     <p class="text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed text-[11px]">{{ item.description }}</p>
                                     <div class="flex justify-between items-center text-[10px] text-slate-400 pt-1 font-semibold">
                                         <span>By {{ item.user_name }}</span>
@@ -143,7 +143,7 @@
                                 'w-10 h-10 rounded-xl flex items-center justify-center border shrink-0',
                                 stat.color === 'indigo' ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400' : '',
                                 stat.color === 'emerald' ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400' : '',
-                                stat.color === 'rose' ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20 text-rose-600 dark:text-rose-400' : '',
+                                stat.color === 'rose' ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20 text-rose-600 dark:text-rose-455' : '',
                                 stat.color === 'blue' ? 'bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20 text-blue-600 dark:text-blue-400' : '',
                             ]">
                                 <svg v-if="stat.icon === 'AcademicCapIcon'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path></svg>
@@ -159,7 +159,7 @@
                 <!-- Platform Information Section -->
                 <div class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 md:p-8 rounded-2xl shadow-sm space-y-4">
                     <h3 class="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                        <svg class="w-4 h-4 text-indigo-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <svg class="w-4 h-4 text-indigo-505 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         SaaS Platform Information
                     </h3>
                     <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-3xl">
@@ -167,11 +167,11 @@
                     </p>
                     <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-6">
                         <div class="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 text-xs font-bold">
-                            <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                            <span class="w-2 h-2 rounded-full bg-indigo-505"></span>
                             Laravel 12 API Ready
                         </div>
                         <div class="flex items-center gap-2 text-sky-600 dark:text-sky-400 text-xs font-bold">
-                            <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                            <span class="w-2 h-2 rounded-full bg-sky-505"></span>
                             Vue 3 Pinia SPA
                         </div>
                     </div>
@@ -180,6 +180,58 @@
 
             <!-- B. SCHOOL ADMIN / TEACHER SCOPE -->
             <div v-else-if="scope === 'school'" class="space-y-6 animate-fade-in">
+                    
+                    <!-- Dashboard Filters Bar -->
+                    <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/80 p-4 rounded-2xl shadow-sm flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between z-20 transition-all duration-200">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                            <span class="text-[11px] font-black uppercase tracking-wider text-slate-705 dark:text-slate-300">Dashboard Analytics Filters</span>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <!-- Academic Year Selector -->
+                            <div class="flex-1 sm:flex-initial">
+                                <select v-model="selectedYear" class="w-full sm:w-44 px-3 py-1.5 text-xs font-bold bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-550/20 text-slate-705 dark:text-slate-255">
+                                    <option v-for="y in availableYears" :key="y.id" :value="y.id">Session: {{ y.title }}</option>
+                                </select>
+                            </div>
+                            <!-- Month Selector -->
+                            <div class="flex-1 sm:flex-initial">
+                                <select v-model="selectedMonth" class="w-full sm:w-36 px-3 py-1.5 text-xs font-bold bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-555/20 text-slate-705 dark:text-slate-255">
+                                    <option value="">All Months</option>
+                                    <option value="1">January</option>
+                                    <option value="2">February</option>
+                                    <option value="3">March</option>
+                                    <option value="4">April</option>
+                                    <option value="5">May</option>
+                                    <option value="6">June</option>
+                                    <option value="7">July</option>
+                                    <option value="8">August</option>
+                                    <option value="9">September</option>
+                                    <option value="10">October</option>
+                                    <option value="11">November</option>
+                                    <option value="12">December</option>
+                                </select>
+                            </div>
+                            <!-- Class Selector -->
+                            <div class="flex-1 sm:flex-initial">
+                                <select v-model="selectedClass" class="w-full sm:w-40 px-3 py-1.5 text-xs font-bold bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-555/20 text-slate-705 dark:text-slate-255">
+                                    <option value="">All Classes</option>
+                                    <option v-for="c in availableClasses" :key="c.id" :value="c.id">{{ c.name }}</option>
+                                </select>
+                            </div>
+                            <!-- Section Selector -->
+                            <div class="flex-1 sm:flex-initial">
+                                <select v-model="selectedSection" :disabled="!selectedClass" class="w-full sm:w-40 px-3 py-1.5 text-xs font-bold bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-555/20 text-slate-705 dark:text-slate-255 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <option value="">All Sections</option>
+                                    <option v-for="s in availableSections" :key="s.id" :value="s.id">{{ s.name }}</option>
+                                </select>
+                            </div>
+                            <!-- Reset Button -->
+                            <button @click="resetFilters" class="px-3 py-1.5 text-xs font-black bg-indigo-50 dark:bg-indigo-950/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-xl border border-indigo-100 dark:border-indigo-900/40 transition-colors cursor-pointer shrink-0">
+                                Reset
+                            </button>
+                        </div>
+                    </div>
                     
                     <!-- Section 1 - Overview Cards Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -192,7 +244,7 @@
                             <div class="flex items-start justify-between">
                                 <div class="space-y-1.5">
                                     <span class="text-[10px] font-extrabold text-slate-400 dark:text-slate-505 tracking-wider uppercase block">Students</span>
-                                    <h3 class="text-3.5xl font-black text-slate-850 dark:text-white tracking-tight tabular-nums group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                    <h3 class="text-3.5xl font-black text-slate-855 dark:text-white tracking-tight tabular-nums group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                                         {{ studentsCount }}
                                     </h3>
                                 </div>
@@ -212,7 +264,7 @@
                             <div class="flex items-start justify-between">
                                 <div class="space-y-1.5">
                                     <span class="text-[10px] font-extrabold text-slate-405 dark:text-slate-505 tracking-wider uppercase block">Teachers</span>
-                                    <h3 class="text-3.5xl font-black text-slate-850 dark:text-white tracking-tight tabular-nums group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
+                                    <h3 class="text-3.5xl font-black text-slate-855 dark:text-white tracking-tight tabular-nums group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
                                         {{ teachersCount }}
                                     </h3>
                                 </div>
@@ -231,8 +283,8 @@
                         >
                             <div class="flex items-start justify-between">
                                 <div class="space-y-1.5">
-                                    <span class="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 tracking-wider uppercase block">Classes</span>
-                                    <h3 class="text-3.5xl font-black text-slate-850 dark:text-white tracking-tight tabular-nums group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                    <span class="text-[10px] font-extrabold text-slate-400 dark:text-slate-550 tracking-wider uppercase block">Classes</span>
+                                    <h3 class="text-3.5xl font-black text-slate-855 dark:text-white tracking-tight tabular-nums group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                                         {{ classesCount }}
                                     </h3>
                                 </div>
@@ -251,8 +303,8 @@
                         >
                             <div class="flex items-start justify-between">
                                 <div class="space-y-1.5">
-                                    <span class="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 tracking-wider uppercase block">Total Fee Assigned</span>
-                                    <h3 class="text-2.5xl font-black text-slate-850 dark:text-white tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                    <span class="text-[10px] font-extrabold text-slate-400 dark:text-slate-550 tracking-wider uppercase block">Total Fee Assigned</span>
+                                    <h3 class="text-2.5xl font-black text-slate-855 dark:text-white tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                                         {{ totalAssignedFeesValue }}
                                     </h3>
                                 </div>
@@ -271,8 +323,8 @@
                         >
                             <div class="flex items-start justify-between">
                                 <div class="space-y-1.5">
-                                    <span class="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 tracking-wider uppercase block">Pending Fees</span>
-                                    <h3 class="text-2.5xl font-black text-slate-850 dark:text-white tracking-tight group-hover:text-amber-655 dark:group-hover:text-amber-400 transition-colors">
+                                    <span class="text-[10px] font-extrabold text-slate-400 dark:text-slate-550 tracking-wider uppercase block">Pending Fees</span>
+                                    <h3 class="text-2.5xl font-black text-slate-855 dark:text-white tracking-tight group-hover:text-amber-655 dark:group-hover:text-amber-400 transition-colors">
                                         {{ pendingFeesValue }}
                                     </h3>
                                 </div>
@@ -291,8 +343,8 @@
                         >
                             <div class="flex items-start justify-between">
                                 <div class="space-y-1.5">
-                                    <span class="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 tracking-wider uppercase block">Today's Collection</span>
-                                    <h3 class="text-2.5xl font-black text-slate-850 dark:text-white tracking-tight group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">
+                                    <span class="text-[10px] font-extrabold text-slate-400 dark:text-slate-555 tracking-wider uppercase block">Today's Collection</span>
+                                    <h3 class="text-2.5xl font-black text-slate-855 dark:text-white tracking-tight group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">
                                         {{ todayCollectionValue }}
                                     </h3>
                                 </div>
@@ -311,13 +363,13 @@
                         <div class="lg:col-span-1 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 p-6 rounded-2xl shadow-sm flex flex-col justify-between">
                             <div>
                                 <h3 class="text-xs font-black text-slate-455 dark:text-slate-500 uppercase tracking-widest mb-2">Section 2 - Quick Shortcuts</h3>
-                                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-normal mb-5">Instantly launch forms and tasks for school workflow components.</p>
+                                <p class="text-[11px] text-slate-550 dark:text-slate-400 leading-normal mb-5">Instantly launch forms and tasks for school workflow components.</p>
                             </div>
                             <div class="space-y-5 mt-2">
                                 <!-- Student Management Group -->
                                 <div v-if="(authStore.hasPermission('student.create') && authStore.hasModule('students')) || (authStore.hasPermission('attendance.create') && authStore.hasModule('attendance'))" class="space-y-2">
                                     <div class="flex items-center gap-1.5 pb-1 border-b border-slate-100 dark:border-slate-800/60 mb-2">
-                                        <span class="w-1 h-3 rounded bg-indigo-500"></span>
+                                        <span class="w-1 h-3 rounded bg-indigo-505"></span>
                                         <h4 class="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Student Management</h4>
                                     </div>
                                     
@@ -336,7 +388,7 @@
                                     <router-link 
                                         v-if="authStore.hasPermission('attendance.create') && authStore.hasModule('attendance')" 
                                         to="/attendance" 
-                                        class="w-full py-2.5 px-4 bg-violet-50/70 hover:bg-violet-100 dark:bg-violet-950/20 dark:hover:bg-violet-900/30 text-violet-600 dark:text-violet-400 border border-violet-100 dark:border-violet-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group animate-fade-in"
+                                        class="w-full py-2.5 px-4 bg-violet-50/70 hover:bg-violet-100 dark:bg-violet-955/20 dark:hover:bg-violet-900/30 text-violet-600 dark:text-violet-400 border border-violet-100 dark:border-violet-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group animate-fade-in"
                                     >
                                         <span class="flex items-center gap-2">
                                             <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
@@ -349,14 +401,14 @@
                                 <!-- Staff & Teacher Management Group -->
                                 <div v-if="authStore.hasPermission('user.create') || canViewUsers" class="space-y-2">
                                     <div class="flex items-center gap-1.5 pb-1 border-b border-slate-100 dark:border-slate-800/60 mb-2">
-                                        <span class="w-1 h-3 rounded bg-sky-500"></span>
+                                        <span class="w-1 h-3 rounded bg-sky-505"></span>
                                         <h4 class="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Staff & Teacher Management</h4>
                                     </div>
                                     
                                     <router-link 
                                         v-if="authStore.hasPermission('user.create')" 
                                         to="/users/create?role=Teacher" 
-                                        class="w-full py-2.5 px-4 bg-sky-50/70 hover:bg-sky-100 dark:bg-sky-950/20 dark:hover:bg-sky-900/30 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group animate-fade-in"
+                                        class="w-full py-2.5 px-4 bg-sky-50/70 hover:bg-sky-100 dark:bg-sky-955/20 dark:hover:bg-sky-900/30 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group animate-fade-in"
                                     >
                                         <span class="flex items-center gap-2">
                                             <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
@@ -380,7 +432,7 @@
                                     <router-link 
                                         v-if="canViewUsers" 
                                         to="/assignments" 
-                                        class="w-full py-2.5 px-4 bg-sky-50/70 hover:bg-sky-100 dark:bg-sky-950/20 dark:hover:bg-sky-900/30 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group animate-fade-in"
+                                        class="w-full py-2.5 px-4 bg-sky-50/70 hover:bg-sky-100 dark:bg-sky-955/20 dark:hover:bg-sky-900/30 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group animate-fade-in"
                                     >
                                         <span class="flex items-center gap-2">
                                             <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
@@ -393,7 +445,7 @@
                                 <!-- Finance & Fees Group -->
                                 <div v-if="authStore.hasPermission('fee_collection.create') && authStore.hasModule('fees')" class="space-y-2">
                                     <div class="flex items-center gap-1.5 pb-1 border-b border-slate-100 dark:border-slate-800/60 mb-2">
-                                        <span class="w-1 h-3 rounded bg-emerald-500"></span>
+                                        <span class="w-1 h-3 rounded bg-emerald-505"></span>
                                         <h4 class="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Finance & Fees</h4>
                                     </div>
                                     
@@ -412,14 +464,14 @@
                                 <!-- Communication & Reports Group -->
                                 <div v-if="(authStore.hasPermission('notice.create') && authStore.hasModule('notices')) || (authStore.hasPermission('report.view') && authStore.hasModule('fees'))" class="space-y-2">
                                     <div class="flex items-center gap-1.5 pb-1 border-b border-slate-100 dark:border-slate-800/60 mb-2">
-                                        <span class="w-1 h-3 rounded bg-amber-500"></span>
+                                        <span class="w-1 h-3 rounded bg-amber-505"></span>
                                         <h4 class="text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Communication & Reports</h4>
                                     </div>
                                     
                                     <router-link 
                                         v-if="authStore.hasPermission('notice.create') && authStore.hasModule('notices')" 
                                         to="/notices" 
-                                        class="w-full py-2.5 px-4 bg-amber-50/70 hover:bg-amber-100 dark:bg-amber-950/20 dark:hover:bg-amber-900/30 text-amber-600 dark:text-amber-455 border border-amber-100 dark:border-amber-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group animate-fade-in"
+                                        class="w-full py-2.5 px-4 bg-amber-50/70 hover:bg-amber-100 dark:bg-amber-955/20 dark:hover:bg-amber-900/30 text-amber-600 dark:text-amber-455 border border-amber-100 dark:border-amber-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group animate-fade-in"
                                     >
                                         <span class="flex items-center gap-2">
                                             <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
@@ -431,7 +483,7 @@
                                     <router-link 
                                         v-if="authStore.hasPermission('report.view') && authStore.hasModule('fees')" 
                                         to="/fees/reports" 
-                                        class="w-full py-2.5 px-4 bg-pink-50/70 hover:bg-pink-100 dark:bg-pink-950/20 dark:hover:bg-pink-900/30 text-pink-600 dark:text-pink-400 border border-pink-100 dark:border-pink-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group animate-fade-in"
+                                        class="w-full py-2.5 px-4 bg-pink-50/70 hover:bg-pink-100 dark:bg-pink-955/20 dark:hover:bg-pink-900/30 text-pink-600 dark:text-pink-400 border border-pink-100 dark:border-pink-900/30 text-xs font-bold rounded-xl transition-all flex items-center justify-between group animate-fade-in"
                                     >
                                         <span class="flex items-center gap-2">
                                             <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
@@ -449,7 +501,7 @@
                                 <div class="flex justify-between items-center mb-4">
                                     <h3 class="text-xs font-black text-slate-455 dark:text-slate-500 uppercase tracking-widest">Section 3 - Today's Attendance Rates</h3>
                                 </div>
-                                <div v-if="!canViewAttendance || !attendanceStats" class="h-44 flex flex-col items-center justify-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+                                <div v-if="!canViewAttendance || !attendanceStats" class="h-44 flex flex-col items-center justify-center border border-dashed border-slate-202 dark:border-slate-800 rounded-xl">
                                     <svg class="w-10 h-10 text-slate-300 dark:text-slate-700 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                     <span class="text-xs font-bold text-slate-400">Attendance tracking is inactive</span>
                                 </div>
@@ -468,12 +520,12 @@
                                                             stroke-dasharray="251.35" :stroke-dashoffset="getStrokeDashOffset(studentAttendancePercent, 40)"
                                                             stroke-linecap="round" class="transition-all duration-1000 ease-out" />
                                                 </svg>
-                                                <span class="absolute text-sm font-black text-slate-900 dark:text-white">{{ studentAttendancePercent }}%</span>
+                                                <span class="absolute text-sm font-black text-slate-909 dark:text-white">{{ studentAttendancePercent }}%</span>
                                             </div>
                                             <div class="space-y-1">
-                                                <h4 class="text-xs font-black text-slate-900 dark:text-white">Students Attendance</h4>
+                                                <h4 class="text-xs font-black text-slate-909 dark:text-white">Students Attendance</h4>
                                                 <div class="text-[10px] text-slate-500 font-bold space-y-0.5">
-                                                    <div class="font-extrabold text-slate-700 dark:text-slate-350">Total Students: {{ (attendanceStats.student.present || 0) + (attendanceStats.student.absent || 0) }}</div>
+                                                    <div class="font-extrabold text-slate-707 dark:text-slate-350">Total Students: {{ (attendanceStats.student.present || 0) + (attendanceStats.student.absent || 0) }}</div>
                                                     <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Present: {{ attendanceStats.student.present }}</div>
                                                     <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Absent: {{ attendanceStats.student.absent }}</div>
                                                 </div>
@@ -483,7 +535,7 @@
                                         <!-- Staff Attendance Ring -->
                                         <router-link 
                                             to="/attendance?tab=staff&auto=true"
-                                            class="flex items-center gap-4 bg-slate-50/50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-850 p-4 rounded-xl hover:border-indigo-300 dark:hover:border-indigo-900/60 hover:bg-slate-50 dark:hover:bg-slate-950/50 hover:shadow-sm transition-all"
+                                            class="flex items-center gap-4 bg-slate-50/50 dark:bg-slate-955/40 border border-slate-100 dark:border-slate-850 p-4 rounded-xl hover:border-indigo-300 dark:hover:border-indigo-900/60 hover:bg-slate-50 dark:hover:bg-slate-950/50 hover:shadow-sm transition-all"
                                         >
                                             <div class="relative w-18 h-18 flex items-center justify-center shrink-0">
                                                 <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
@@ -492,12 +544,12 @@
                                                             stroke-dasharray="251.35" :stroke-dashoffset="getStrokeDashOffset(staffAttendancePercent, 40)"
                                                             stroke-linecap="round" class="transition-all duration-1000 ease-out" />
                                                 </svg>
-                                                <span class="absolute text-sm font-black text-slate-900 dark:text-white">{{ staffAttendancePercent }}%</span>
+                                                <span class="absolute text-sm font-black text-slate-909 dark:text-white">{{ staffAttendancePercent }}%</span>
                                             </div>
                                             <div class="space-y-1">
-                                                <h4 class="text-xs font-black text-slate-900 dark:text-white">Staff Attendance</h4>
+                                                <h4 class="text-xs font-black text-slate-909 dark:text-white">Staff Attendance</h4>
                                                 <div class="text-[10px] text-slate-500 font-bold space-y-0.5">
-                                                    <div class="font-extrabold text-slate-700 dark:text-slate-350">Total Staff: {{ (attendanceStats.staff.present || 0) + (attendanceStats.staff.absent || 0) }}</div>
+                                                    <div class="font-extrabold text-slate-707 dark:text-slate-350">Total Staff: {{ (attendanceStats.staff.present || 0) + (attendanceStats.staff.absent || 0) }}</div>
                                                     <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-violet-500"></span> Present: {{ attendanceStats.staff.present }}</div>
                                                     <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Absent: {{ attendanceStats.staff.absent }}</div>
                                                 </div>
@@ -511,11 +563,11 @@
                                         <div v-if="classWiseOverview.length === 0" class="text-center py-4 text-xs font-bold text-slate-400">
                                             No class-wise data available
                                         </div>
-                                        <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-1">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-1">
                                             <div 
                                                 v-for="c in classWiseOverview" 
                                                 :key="c.class_id"
-                                                class="flex flex-col gap-2 p-3.5 bg-slate-50/50 dark:bg-slate-950/30 border border-slate-100 dark:border-slate-850 rounded-xl hover:border-indigo-250 dark:hover:border-indigo-900/50 hover:bg-slate-50 dark:hover:bg-slate-950/50 transition-all cursor-pointer"
+                                                class="flex flex-col gap-2 p-3.5 bg-slate-50/50 dark:bg-slate-950/30 border border-slate-100 dark:border-slate-850 rounded-xl hover:border-indigo-250 dark:hover:border-indigo-900/50 hover:bg-slate-50 dark:hover:bg-slate-955/50 transition-all cursor-pointer"
                                                 @click="toggleClassExpansion(c.class_id)"
                                             >
                                                 <div class="flex justify-between items-start text-xs">
@@ -524,7 +576,7 @@
                                                         <svg class="w-3.5 h-3.5 text-slate-405 transform transition-transform duration-200" :class="{ 'rotate-180': expandedClasses.includes(c.class_id) }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
                                                     </span>
                                                     <div class="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 flex flex-col items-end gap-0.5">
-                                                        <div class="font-extrabold text-slate-705 dark:text-slate-300 mb-0.5">Total Students: {{ c.students }}</div>
+                                                        <div class="font-extrabold text-slate-705 dark:text-slate-303 mb-0.5">Total Students: {{ c.students }}</div>
                                                         <div class="flex items-center gap-1">
                                                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {{ c.present }} Present
                                                         </div>
@@ -536,7 +588,7 @@
                                                 <div class="flex items-center gap-2">
                                                     <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
                                                         <div 
-                                                            class="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                                                            class="h-full bg-emerald-505 rounded-full transition-all duration-500"
                                                             :style="{ width: c.students > 0 ? (c.present / c.students * 100) + '%' : '0%' }"
                                                         ></div>
                                                     </div>
@@ -558,12 +610,12 @@
                                                         v-for="sec in c.sections"
                                                         :key="sec.section_id"
                                                         @click="goToSectionAttendance(c.class_id, sec.section_id)"
-                                                        class="flex items-center justify-between p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/60 hover:border-indigo-500 dark:hover:border-indigo-500/50 hover:bg-indigo-50/20 dark:hover:bg-indigo-950/20 transition-all cursor-pointer group"
+                                                        class="flex items-center justify-between p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-202 dark:border-slate-800/60 hover:border-indigo-500 dark:hover:border-indigo-500/50 hover:bg-indigo-50/20 dark:hover:bg-indigo-950/20 transition-all cursor-pointer group"
                                                     >
                                                         <span class="text-[11px] font-black text-slate-705 dark:text-slate-300">{{ sec.section_name }}</span>
                                                         <div class="flex items-center gap-3">
                                                             <div class="text-[9px] font-bold text-slate-400 flex items-center gap-2">
-                                                                <span class="font-extrabold text-slate-700 dark:text-slate-350">Total: {{ sec.students }}</span>
+                                                                <span class="font-extrabold text-slate-707 dark:text-slate-350">Total: {{ sec.students }}</span>
                                                                 <span class="text-slate-205 dark:text-slate-800">|</span>
                                                                 <span class="text-emerald-600 dark:text-emerald-450 font-black">{{ sec.present }} Present</span>
                                                                 <span class="text-slate-205 dark:text-slate-800">|</span>
@@ -581,7 +633,360 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
 
+                    <!-- ANALYTICS WORKSPACE -->
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-3xl p-6 shadow-md space-y-6">
+                        <!-- Header with tab switcher -->
+                        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-4 border-b border-slate-100 dark:border-slate-850">
+                            <div>
+                                <h3 class="text-lg font-black tracking-tight text-slate-850 dark:text-white">Analytics Workspace</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Intelligent performance segments computed directly from school records.</p>
+                            </div>
+                            <div class="flex flex-wrap gap-2 bg-slate-50 dark:bg-slate-950 p-1.5 rounded-2xl border border-slate-200/50 dark:border-slate-800/50">
+                                <button 
+                                    v-for="t in ['fee', 'attendance', 'examination', 'student', 'teacher']" 
+                                    :key="t"
+                                    @click="fetchTabStats(t)"
+                                    :class="[
+                                        'px-4 py-2 text-xs font-black rounded-xl transition-all duration-200 cursor-pointer capitalize flex items-center gap-2',
+                                        activeAnalyticsTab === t 
+                                            ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-200/30 dark:border-slate-850' 
+                                            : 'text-slate-505 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-202'
+                                    ]"
+                                >
+                                    <span v-if="t === 'fee'">💰 Fee</span>
+                                    <span v-else-if="t === 'attendance'">📅 Attendance</span>
+                                    <span v-else-if="t === 'examination'">📝 Exam</span>
+                                    <span v-else-if="t === 'student'">🎓 Student</span>
+                                    <span v-else-if="t === 'teacher'">👩‍🏫 Teacher</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Tab Content Container -->
+                        <div v-if="tabLoading" class="h-80 flex flex-col items-center justify-center gap-3">
+                            <div class="w-8 h-8 rounded-full border-4 border-indigo-600/35 border-t-indigo-600 animate-spin"></div>
+                            <span class="text-xs font-bold text-slate-400">Computing analytics insights...</span>
+                        </div>
+
+                        <div v-else-if="!tabData" class="h-80 flex flex-col items-center justify-center text-xs font-bold text-slate-400">
+                            No analytics data found for this tab and filters.
+                        </div>
+
+                        <div v-else class="animate-fade-in space-y-6">
+                            <!-- FEE ANALYTICS TAB -->
+                            <div v-if="activeAnalyticsTab === 'fee'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <!-- Stats column -->
+                                <div class="lg:col-span-1 space-y-4">
+                                    <h4 class="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Fee Performance KPIs</h4>
+                                    <div class="grid grid-cols-1 gap-4">
+                                        <!-- KPI 1 -->
+                                        <div class="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-850 flex items-center justify-between">
+                                            <div class="space-y-1">
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase">Collection (Selected)</span>
+                                                <div class="text-lg font-black text-slate-900 dark:text-white">₹{{ formatCurrency(tabData.current_month_collection) }}</div>
+                                            </div>
+                                            <div class="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black">₹</div>
+                                        </div>
+                                        <!-- KPI 2 -->
+                                        <div class="bg-slate-50 dark:bg-slate-955/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-850 flex items-center justify-between">
+                                            <div class="space-y-1">
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase">Total Outstanding</span>
+                                                <div class="text-lg font-black text-rose-600 dark:text-rose-455">₹{{ formatCurrency(tabData.pending_fee_amount) }}</div>
+                                            </div>
+                                            <div class="w-9 h-9 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-450 flex items-center justify-center font-black">!</div>
+                                        </div>
+                                        <!-- KPI 3 -->
+                                        <div class="bg-slate-50 dark:bg-slate-955/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-850 flex items-center justify-between">
+                                            <div class="space-y-1">
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase">Extreme Months</span>
+                                                <div class="text-xs font-extrabold text-slate-705 dark:text-slate-300">
+                                                    Peak: {{ tabData.highest_collection_month }} <br/>
+                                                    Low: {{ tabData.lowest_collection_month }}
+                                                </div>
+                                            </div>
+                                            <div class="w-9 h-9 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black">📈</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Chart column -->
+                                <div class="lg:col-span-2 space-y-4">
+                                    <h4 class="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">6-Month Trend & Insights</h4>
+                                    <!-- Trend line chart -->
+                                    <div class="relative h-44 w-full border border-slate-100 dark:border-slate-850 rounded-2xl p-2 bg-slate-50/20 dark:bg-slate-950/20">
+                                        <svg v-if="tabData.monthly_trends && tabData.monthly_trends.length > 0" class="w-full h-full" viewBox="0 0 600 180">
+                                            <path :d="workspaceFeeLineD(tabData.monthly_trends)" fill="transparent" stroke="#4f46e5" stroke-width="3" stroke-linecap="round" />
+                                            <path :d="workspaceFeeAreaD(tabData.monthly_trends)" fill="url(#feeAreaGrad)" class="opacity-15" />
+                                            <g v-for="(p, idx) in workspaceFeePoints(tabData.monthly_trends)" :key="idx">
+                                                <circle :cx="p.x" :cy="p.y" r="4.5" fill="#4f46e5" stroke="#FFFFFF" stroke-width="2" class="dark:stroke-slate-900" />
+                                                <text :x="p.x" y="165" font-size="8" font-weight="black" fill="currentColor" class="opacity-60 text-slate-400" text-anchor="middle">{{ p.label }}</text>
+                                                <text :x="p.x" :y="p.y - 10" font-size="8" font-weight="black" fill="currentColor" class="opacity-80 text-slate-600 dark:text-slate-355" text-anchor="middle">₹{{ formatShortCurrency(p.val) }}</text>
+                                            </g>
+                                        </svg>
+                                    </div>
+
+                                    <!-- Top pending class items -->
+                                    <div class="p-4 bg-amber-50/20 dark:bg-amber-955/10 border border-amber-100/50 dark:border-amber-900/30 rounded-2xl space-y-2">
+                                        <h5 class="text-[10px] font-black text-amber-700 dark:text-amber-400 uppercase tracking-wider">Top Pending Classes</h5>
+                                        <div class="flex flex-wrap gap-3">
+                                            <div v-for="c in tabData.top_pending_classes" :key="c.class_id" class="px-2.5 py-1.5 bg-white dark:bg-slate-905 rounded-xl border border-slate-205/50 dark:border-slate-800 text-[10px] font-bold">
+                                                {{ c.class_name }}: <span class="text-rose-600 dark:text-rose-455 font-black">₹{{ formatCurrency(c.pending_amount) }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ATTENDANCE ANALYTICS TAB -->
+                            <div v-if="activeAnalyticsTab === 'attendance'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <!-- KPIs -->
+                                <div class="lg:col-span-1 space-y-4">
+                                    <h4 class="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Attendance KPIs</h4>
+                                    <div class="grid grid-cols-1 gap-4">
+                                        <div class="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-850 flex items-center justify-between">
+                                            <div class="space-y-1">
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase">Today's Avg Rate</span>
+                                                <div class="text-lg font-black text-slate-900 dark:text-white">{{ tabData.today_attendance_percent }}%</div>
+                                            </div>
+                                            <div class="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">📅</div>
+                                        </div>
+                                        <div class="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-850 flex items-center justify-between">
+                                            <div class="space-y-1">
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase">Highest Attendance Class</span>
+                                                <div class="text-xs font-black text-emerald-600 dark:text-emerald-400">{{ tabData.highest_attendance_class }}</div>
+                                            </div>
+                                            <div class="w-9 h-9 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">🏆</div>
+                                        </div>
+                                        <div class="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-850 flex items-center justify-between">
+                                            <div class="space-y-1">
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase">Lowest Attendance Class</span>
+                                                <div class="text-xs font-black text-rose-600 dark:text-rose-455">{{ tabData.lowest_attendance_class }}</div>
+                                            </div>
+                                            <div class="w-9 h-9 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">⚠️</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Trend -->
+                                <div class="lg:col-span-2 space-y-4">
+                                    <h4 class="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">7-Day Attendance Trend</h4>
+                                    <div class="relative h-44 w-full border border-slate-100 dark:border-slate-850 rounded-2xl p-2 bg-slate-50/20 dark:bg-slate-955/20">
+                                        <svg v-if="tabData.weekly_trend && tabData.weekly_trend.length > 0" class="w-full h-full" viewBox="0 0 600 180">
+                                            <path :d="workspaceAttLineD(tabData.weekly_trend)" fill="transparent" stroke="#10b981" stroke-width="3" stroke-linecap="round" />
+                                            <path :d="workspaceAttAreaD(tabData.weekly_trend)" fill="url(#attAreaGrad)" class="opacity-10" />
+                                            <g v-for="(p, idx) in workspaceAttPoints(tabData.weekly_trend)" :key="idx">
+                                                <circle :cx="p.x" :cy="p.y" r="4.5" fill="#10b981" stroke="#FFFFFF" stroke-width="2" class="dark:stroke-slate-900" />
+                                                <text :x="p.x" y="165" font-size="8" font-weight="black" fill="currentColor" class="opacity-60 text-slate-400" text-anchor="middle">{{ p.label }}</text>
+                                                <text :x="p.x" :y="p.y - 10" font-size="8" font-weight="black" fill="currentColor" class="opacity-80 text-slate-600 dark:text-slate-350" text-anchor="middle">{{ p.rate }}%</text>
+                                            </g>
+                                        </svg>
+                                    </div>
+
+                                    <!-- Below threshold alert -->
+                                    <div v-if="tabData.classes_below_target && tabData.classes_below_target.length > 0" class="p-3.5 bg-rose-50/20 dark:bg-rose-955/10 border border-rose-100 dark:border-rose-900/30 rounded-2xl flex items-center gap-2">
+                                        <span class="text-rose-500 font-extrabold text-xs">⚠️ Warning:</span>
+                                        <span class="text-[10px] text-slate-550">
+                                            Classes below target: 
+                                            <span class="font-extrabold text-rose-600 dark:text-rose-455">
+                                                {{ tabData.classes_below_target.map(c => `${c.class_name} (${c.rate}%)`).join(', ') }}
+                                            </span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- EXAMINATION ANALYTICS TAB -->
+                            <div v-if="activeAnalyticsTab === 'examination'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <div class="lg:col-span-1 space-y-4">
+                                    <h4 class="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Exam Progress KPIs</h4>
+                                    <div class="grid grid-cols-1 gap-4">
+                                        <div class="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-850 flex items-center justify-between">
+                                            <div class="space-y-1">
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase">Marks entry completion</span>
+                                                <div class="text-lg font-black text-indigo-600 dark:text-indigo-400">{{ tabData.marks_entry_progress_percent }}%</div>
+                                            </div>
+                                            <div class="w-9 h-9 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 flex items-center justify-center">📊</div>
+                                        </div>
+                                        <div class="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-850 flex items-center justify-between">
+                                            <div class="space-y-1">
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase">Pending Schedules</span>
+                                                <div class="text-lg font-black text-amber-600 dark:text-amber-400">{{ tabData.pending_marks_entry_count }}</div>
+                                            </div>
+                                            <div class="w-9 h-9 rounded-lg bg-amber-50 dark:bg-amber-500/10 text-amber-600 flex items-center justify-center font-black">!</div>
+                                        </div>
+                                        <div class="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-850 flex items-center justify-between">
+                                            <div class="space-y-1">
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase">Marks Submission</span>
+                                                <div class="text-xs font-black text-slate-705 dark:text-slate-350">{{ tabData.result_completion_status }}</div>
+                                            </div>
+                                            <div class="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 flex items-center justify-center">✔️</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="lg:col-span-2 space-y-4">
+                                    <h4 class="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Class Averages & Exam Schedules</h4>
+                                    <!-- Bar Chart of Top Classes -->
+                                    <div class="space-y-3 bg-slate-50/50 dark:bg-slate-955/20 p-4 rounded-2xl border border-slate-100 dark:border-slate-850">
+                                        <h5 class="text-[10px] font-black uppercase text-slate-455">Average Score per Class</h5>
+                                        <div v-if="!tabData.top_performing_classes || tabData.top_performing_classes.length === 0" class="text-xs font-bold text-slate-400 text-center py-4">No marks records found</div>
+                                        <div v-else class="space-y-2.5">
+                                            <div v-for="c in tabData.top_performing_classes" :key="c.class_id" class="space-y-1">
+                                                <div class="flex justify-between text-[10px] font-bold">
+                                                    <span>{{ c.class_name }}</span>
+                                                    <span class="font-extrabold">{{ c.average_score }} / 100</span>
+                                                </div>
+                                                <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                                                    <div class="h-full bg-indigo-600 rounded-full" :style="{ width: c.average_score + '%' }"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex gap-4">
+                                        <div class="flex-1 bg-emerald-50/30 dark:bg-emerald-950/10 p-3 rounded-xl border border-emerald-100 dark:border-emerald-900/30 text-[10px] font-bold">
+                                            Peak Performing Class: <span class="text-emerald-600 dark:text-emerald-400 font-extrabold">{{ tabData.highest_performing_class }}</span>
+                                        </div>
+                                        <div class="flex-1 bg-rose-50/30 dark:bg-rose-950/10 p-3 rounded-xl border border-rose-100 dark:border-rose-900/30 text-[10px] font-bold">
+                                            lowest Performing Class: <span class="text-rose-600 dark:text-rose-455 font-extrabold">{{ tabData.lowest_performing_class }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- STUDENT ANALYTICS TAB -->
+                            <div v-if="activeAnalyticsTab === 'student'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <div class="lg:col-span-1 space-y-4">
+                                    <h4 class="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Enrollment KPIs</h4>
+                                    <div class="grid grid-cols-1 gap-4">
+                                        <div class="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-850 flex items-center justify-between">
+                                            <div class="space-y-1">
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase">New Admissions (Session)</span>
+                                                <div class="text-lg font-black text-slate-900 dark:text-white">{{ tabData.new_admissions_count }}</div>
+                                            </div>
+                                            <div class="w-9 h-9 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 flex items-center justify-center">🎓</div>
+                                        </div>
+                                        <div class="bg-slate-50 dark:bg-slate-955/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-850 flex items-center justify-between">
+                                            <div class="space-y-1">
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase">Total Strength</span>
+                                                <div class="text-lg font-black text-slate-900 dark:text-white">{{ tabData.total_strength }}</div>
+                                            </div>
+                                            <div class="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 flex items-center justify-center">👥</div>
+                                        </div>
+                                        <div class="bg-slate-50 dark:bg-slate-955/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-850 flex items-center justify-between">
+                                            <div class="space-y-1">
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase">Boys / Girls Ratio</span>
+                                                <div class="text-sm font-black text-slate-705 dark:text-slate-305">{{ tabData.ratio }}</div>
+                                            </div>
+                                            <div class="w-9 h-9 rounded-lg bg-violet-50 dark:bg-violet-500/10 text-violet-600 flex items-center justify-center">👫</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="lg:col-span-2 space-y-4">
+                                    <h4 class="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Class Distribution & Admissions</h4>
+                                    <!-- List of biggest classes -->
+                                    <div class="space-y-3 bg-slate-50/50 dark:bg-slate-950/25 p-4 rounded-2xl border border-slate-100 dark:border-slate-850">
+                                        <h5 class="text-[10px] font-black uppercase text-slate-455">Student Distribution by Class</h5>
+                                        <div class="space-y-2">
+                                            <div v-for="c in tabData.class_distribution" :key="c.class_id" class="flex justify-between items-center text-[10px] font-bold">
+                                                <span class="font-extrabold text-slate-705 dark:text-slate-300">{{ c.class_name }}</span>
+                                                <span class="px-2 py-0.5 bg-slate-200 dark:bg-slate-800 rounded-lg text-slate-655 dark:text-slate-350">{{ c.student_count }} Students</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="p-3.5 bg-indigo-50/30 dark:bg-indigo-950/15 border border-indigo-100 dark:border-indigo-900/35 rounded-2xl flex items-center gap-2 text-[10px] font-bold">
+                                        <span class="text-indigo-650 dark:text-indigo-400">📈 Year-on-Year Growth:</span>
+                                        <span>Annual registration strength increased by <span class="font-black text-emerald-600 dark:text-emerald-400">{{ tabData.growth_rate }}%</span> relative to last session.</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TEACHER ANALYTICS TAB -->
+                            <div v-if="activeAnalyticsTab === 'teacher'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <div class="lg:col-span-1 space-y-4">
+                                    <h4 class="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Teacher KPIs</h4>
+                                    <div class="grid grid-cols-1 gap-4">
+                                        <div class="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-850 flex items-center justify-between">
+                                            <div class="space-y-1">
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase">Attendance Rate Today</span>
+                                                <div class="text-lg font-black text-emerald-600 dark:text-emerald-400">{{ tabData.teacher_attendance_rate }}%</div>
+                                            </div>
+                                            <div class="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 flex items-center justify-center">✔️</div>
+                                        </div>
+                                        <div class="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-850 flex items-center justify-between">
+                                            <div class="space-y-1">
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase">Homework Assigned Today</span>
+                                                <div class="text-lg font-black text-indigo-600 dark:text-indigo-400">{{ tabData.homework_assigned_today }}</div>
+                                            </div>
+                                            <div class="w-9 h-9 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 flex items-center justify-center">📝</div>
+                                        </div>
+                                        <div class="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-850 flex items-center justify-between">
+                                            <div class="space-y-1">
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase">Pending Leaves</span>
+                                                <div class="text-lg font-black text-rose-605 dark:text-rose-455">{{ tabData.pending_leaves_count }}</div>
+                                            </div>
+                                            <div class="w-9 h-9 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-600 flex items-center justify-center font-black">!</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="lg:col-span-2 space-y-4">
+                                    <h4 class="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Teacher Activity & Status</h4>
+                                    <!-- Attendance donut values list -->
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="bg-slate-50/50 dark:bg-slate-955/20 p-4 rounded-2xl border border-slate-100 dark:border-slate-855 space-y-2">
+                                            <h5 class="text-[10px] font-black uppercase text-slate-455">Attendance Distribution</h5>
+                                            <div class="space-y-1.5">
+                                                <div v-for="d in tabData.attendance_chart_data" :key="d.label" class="flex justify-between items-center text-[10px] font-bold">
+                                                    <span class="text-slate-505 capitalize">{{ d.label }}</span>
+                                                    <span class="font-extrabold text-slate-805 dark:text-slate-205">{{ d.count }} Teachers</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="bg-slate-50/50 dark:bg-slate-955/20 p-4 rounded-2xl border border-slate-105 dark:border-slate-855 space-y-2">
+                                            <h5 class="text-[10px] font-black uppercase text-slate-455">Weekly Homework Trend</h5>
+                                            <div class="space-y-1.5">
+                                                <div v-for="w in tabData.weekly_homework_trend" :key="w.label" class="flex justify-between items-center text-[10px] font-bold">
+                                                    <span class="text-slate-505">{{ w.label }}</span>
+                                                    <span class="font-extrabold text-indigo-600 dark:text-indigo-400">{{ w.count }} Tasks</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Overdue homework list -->
+                                    <div class="p-4 bg-slate-50/30 dark:bg-slate-955/10 rounded-2xl border border-slate-100 dark:border-slate-850 space-y-2">
+                                        <h5 class="text-[10px] font-black text-slate-455 uppercase tracking-wider">Active Homework Awaiting Submissions</h5>
+                                        <div v-if="!tabData.pending_homeworks || tabData.pending_homeworks.length === 0" class="text-[10px] text-slate-400 italic">No pending homework logs</div>
+                                        <div v-else class="space-y-1.5">
+                                            <div v-for="hw in tabData.pending_homeworks" :key="hw.title" class="flex justify-between text-[10px] font-medium text-slate-655 dark:text-slate-350">
+                                                <span>{{ hw.class_name }} ({{ hw.subject_name }}): "{{ hw.title }}"</span>
+                                                <span class="font-black text-rose-505">Due: {{ hw.submission_date }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Insights & Recommendations Panel -->
+                            <div class="p-4 bg-indigo-50/40 dark:bg-indigo-955/10 border border-indigo-100/50 dark:border-indigo-900/35 rounded-2xl space-y-3">
+                                <h4 class="text-xs font-black text-indigo-805 dark:text-indigo-400 uppercase tracking-widest flex items-center gap-2">
+                                    <span>🧠</span>
+                                    <span>Workspace Decision-Making Insights</span>
+                                </h4>
+                                <div class="space-y-2">
+                                    <div v-for="(ins, idx) in tabData.insights" :key="idx" class="flex gap-2.5 text-xs items-start">
+                                        <span class="text-indigo-500 shrink-0 select-none">•</span>
+                                        <p class="text-slate-705 dark:text-slate-300 font-bold leading-relaxed">{{ ins }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Section 6 - Recent Activities Timeline -->
@@ -603,7 +1008,7 @@
                                 <!-- Marker Dot -->
                                 <span :class="[
                                     'absolute -left-[31px] top-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-900 transition-all group-hover:scale-125 z-10',
-                                    act.type === 'student_added' ? 'bg-indigo-600' : '',
+                                    act.type === 'student_added' ? 'bg-indigo-650' : '',
                                     act.type === 'fee_collected' ? 'bg-emerald-500' : '',
                                     act.type === 'attendance_submitted' ? 'bg-violet-500' : '',
                                     act.type === 'teacher_added' ? 'bg-sky-500' : '',
@@ -615,9 +1020,121 @@
                                         <h4 class="text-xs font-bold text-slate-800 dark:text-white">{{ act.title }}</h4>
                                         <span class="text-[10px] text-slate-400 font-bold">{{ formatRelativeTime(act.timestamp) }}</span>
                                     </div>
-                                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{{ act.description }}</p>
+                                    <p class="text-xs text-slate-505 dark:text-slate-400 leading-relaxed">{{ act.description }}</p>
                                     <div class="text-[10px] text-slate-400/80 font-bold">
                                         Action Performed By: <span class="text-slate-500 dark:text-slate-400">{{ act.user_name }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 1: Today's Action Center & Smart Insights -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Action Center -->
+                        <div class="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 p-6 rounded-2xl shadow-sm flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="text-xs font-black text-slate-455 dark:text-slate-500 uppercase tracking-widest">Today's Action Center</h3>
+                                    <span class="px-2 py-0.5 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-450 text-[10px] font-black rounded-full">Attention Required</span>
+                                </div>
+                                <p class="text-[11px] text-slate-550 dark:text-slate-400 leading-normal mb-5">Unfinished tasks and approvals pending for today.</p>
+                                
+                                <div class="space-y-3.5">
+                                    <!-- Attendance Pending -->
+                                    <div v-if="todayActions.attendance_pending && todayActions.attendance_pending.length > 0" class="flex items-center justify-between p-3.5 bg-rose-50/40 dark:bg-rose-950/10 border border-rose-100/50 dark:border-rose-950/30 rounded-xl hover:shadow-sm transition-all">
+                                        <div class="flex items-center gap-3">
+                                            <span class="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-950/40 text-rose-600 dark:text-rose-455 flex items-center justify-center font-black text-xs shrink-0">
+                                                {{ todayActions.attendance_pending.length }}
+                                            </span>
+                                            <div>
+                                                <h4 class="text-xs font-extrabold text-slate-900 dark:text-white">Attendance Submission Pending</h4>
+                                                <p class="text-[10px] text-slate-550">Unmarked attendance in Class {{ todayActions.attendance_pending.map(c => c.class_name + '-' + c.section_name).slice(0, 3).join(', ') }}<span v-if="todayActions.attendance_pending.length > 3">...</span></p>
+                                            </div>
+                                        </div>
+                                        <router-link to="/attendance" class="px-2.5 py-1 text-[10px] font-black text-rose-600 dark:text-rose-400 bg-rose-50/50 dark:bg-rose-950/20 rounded-lg border border-rose-150 dark:border-rose-900/30 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-all">Mark Today &rarr;</router-link>
+                                    </div>
+
+                                    <!-- Leaves Pending -->
+                                    <div v-if="todayActions.leave_approvals_pending && todayActions.leave_approvals_pending.length > 0" class="flex items-center justify-between p-3.5 bg-violet-50/40 dark:bg-violet-950/10 border border-violet-100/50 dark:border-violet-955/30 rounded-xl hover:shadow-sm transition-all">
+                                        <div class="flex items-center gap-3">
+                                            <span class="w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-950/40 text-violet-600 dark:text-violet-455 flex items-center justify-center font-black text-xs shrink-0">
+                                                {{ todayActions.leave_approvals_pending.length }}
+                                            </span>
+                                            <div>
+                                                <h4 class="text-xs font-extrabold text-slate-905 dark:text-white">Staff Leaves Awaiting Approval</h4>
+                                                <p class="text-[10px] text-slate-555">Pending leaves from: {{ todayActions.leave_approvals_pending.map(l => l.staff_name).slice(0, 3).join(', ') }}</p>
+                                            </div>
+                                        </div>
+                                        <router-link to="/attendance?tab=leaves" class="px-2.5 py-1 text-[10px] font-black text-violet-600 dark:text-violet-450 bg-violet-50/50 dark:bg-violet-955/20 rounded-lg border border-violet-150 dark:border-violet-900/30 hover:bg-violet-100 dark:hover:bg-violet-900/40 transition-all">Review &rarr;</router-link>
+                                    </div>
+
+                                    <!-- Marks Entry Pending -->
+                                    <div v-if="todayActions.marks_entry_pending && todayActions.marks_entry_pending.length > 0" class="flex items-center justify-between p-3.5 bg-amber-50/40 dark:bg-amber-955/10 border border-amber-100/50 dark:border-amber-955/30 rounded-xl hover:shadow-sm transition-all">
+                                        <div class="flex items-center gap-3">
+                                            <span class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-955/40 text-amber-600 dark:text-amber-455 flex items-center justify-center font-black text-xs shrink-0">
+                                                {{ todayActions.marks_entry_pending.length }}
+                                            </span>
+                                            <div>
+                                                <h4 class="text-xs font-extrabold text-slate-905 dark:text-white">Exam Marks Entry Incomplete</h4>
+                                                <p class="text-[10px] text-slate-555">No marks entered for {{ todayActions.marks_entry_pending[0].exam_name }} ({{ todayActions.marks_entry_pending[0].class_name }} - {{ todayActions.marks_entry_pending[0].subject_name }})</p>
+                                            </div>
+                                        </div>
+                                        <router-link to="/exams" class="px-2.5 py-1 text-[10px] font-black text-amber-655 dark:text-amber-400 bg-amber-50/50 dark:bg-amber-955/20 rounded-lg border border-amber-150 dark:border-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all">Enter Marks &rarr;</router-link>
+                                    </div>
+
+                                    <!-- Homework Pending -->
+                                    <div v-if="todayActions.homework_pending && todayActions.homework_pending.length > 0" class="flex items-center justify-between p-3.5 bg-indigo-50/40 dark:bg-indigo-950/10 border border-indigo-100/50 dark:border-indigo-955/30 rounded-xl hover:shadow-sm transition-all">
+                                        <div class="flex items-center gap-3">
+                                            <span class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black text-xs shrink-0">
+                                                {{ todayActions.homework_pending.length }}
+                                            </span>
+                                            <div>
+                                                <h4 class="text-xs font-extrabold text-slate-905 dark:text-white">Homework Submission Date Pending</h4>
+                                                <p class="text-[10px] text-slate-555">Latest: "{{ todayActions.homework_pending[0].title }}" for Class {{ todayActions.homework_pending[0].class_name }}</p>
+                                            </div>
+                                        </div>
+                                        <router-link to="/homeworks" class="px-2.5 py-1 text-[10px] font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/20 rounded-lg border border-indigo-150 dark:border-indigo-900/30 hover:bg-indigo-105 dark:hover:bg-indigo-900/30 transition-all">Manage &rarr;</router-link>
+                                    </div>
+
+                                    <!-- Fee Follow-ups Pending -->
+                                    <div v-if="todayActions.fee_followups_count > 0" class="flex items-center justify-between p-3.5 bg-pink-50/40 dark:bg-pink-955/10 border border-pink-100/50 dark:border-pink-955/30 rounded-xl hover:shadow-sm transition-all">
+                                        <div class="flex items-center gap-3">
+                                            <span class="w-8 h-8 rounded-lg bg-pink-100 dark:bg-pink-950/40 text-pink-600 dark:text-rose-455 flex items-center justify-center font-black text-xs shrink-0">
+                                                {{ todayActions.fee_followups_count }}
+                                            </span>
+                                            <div>
+                                                <h4 class="text-xs font-extrabold text-slate-905 dark:text-white">Fee Defaulters Follow-up Awaiting</h4>
+                                                <p class="text-[10px] text-slate-555">Students with outstanding fees past due installment dates.</p>
+                                            </div>
+                                        </div>
+                                        <router-link :to="{ path: '/fees/reports', query: { report_type: 'pending' } }" class="px-2.5 py-1 text-[10px] font-black text-pink-600 dark:text-pink-450 bg-pink-50/50 dark:bg-pink-955/20 rounded-lg border border-pink-150 dark:border-pink-900/30 hover:bg-pink-100 dark:hover:bg-pink-900/40 transition-all">Follow Up &rarr;</router-link>
+                                    </div>
+
+                                    <!-- Empty State -->
+                                    <div v-if="(!todayActions.attendance_pending || todayActions.attendance_pending.length === 0) && (!todayActions.leave_approvals_pending || todayActions.leave_approvals_pending.length === 0) && (!todayActions.marks_entry_pending || todayActions.marks_entry_pending.length === 0) && (!todayActions.homework_pending || todayActions.homework_pending.length === 0) && todayActions.fee_followups_count === 0" class="text-center py-6 text-xs text-slate-455 font-bold">
+                                        <svg class="w-8 h-8 text-emerald-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        All tasks are up to date! Great job.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Smart Insights Widget -->
+                        <div class="lg:col-span-1 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 p-6 rounded-2xl shadow-sm flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="text-xs font-black text-slate-455 dark:text-slate-500 uppercase tracking-widest">Smart Insights</h3>
+                                    <span class="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black rounded-full">Dynamic Updates</span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-normal mb-5">Operational insights computed directly from live ERP modules.</p>
+                                
+                                <div class="space-y-4">
+                                    <div v-for="(ins, idx) in smartInsights" :key="idx" class="flex gap-3 text-xs items-start">
+                                        <div class="w-6 h-6 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        </div>
+                                        <p class="text-slate-705 dark:text-slate-300 font-bold leading-relaxed pt-0.5">{{ ins }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -639,13 +1156,21 @@
                     <stop offset="0%" stop-color="#8B5CF6" />
                     <stop offset="100%" stop-color="#EC4899" />
                 </linearGradient>
+                <linearGradient id="feeAreaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#4F46E5" stop-opacity="0.4" />
+                    <stop offset="100%" stop-color="#4F46E5" stop-opacity="0.0" />
+                </linearGradient>
+                <linearGradient id="attAreaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#10B981" stop-opacity="0.4" />
+                    <stop offset="100%" stop-color="#10B981" stop-opacity="0.0" />
+                </linearGradient>
             </defs>
         </svg>
     </div>
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 
@@ -672,6 +1197,39 @@ export default {
         const expandedClasses = ref([]);
         const recentActivities = ref([]);
         const activeAcademicYear = ref(null);
+
+        // V2 Analytics Filter State
+        const selectedYear = ref('');
+        const selectedMonth = ref('');
+        const selectedClass = ref('');
+        const selectedSection = ref('');
+        
+        const availableYears = ref([]);
+        const availableClasses = ref([]);
+        const availableSections = ref([]);
+
+        // V2 Metrics State
+        const todayActions = ref({ attendance_pending: [], homework_pending: [], marks_entry_pending: [], leave_approvals_pending: [], fee_followups_count: 0 });
+        const feeAnalytics = ref({ current_month_collection: 0, prev_month_collection: 0, highest_collection_month: null, lowest_collection_month: null, collection_growth_percent: 0, pending_fee_trend: [] });
+        const attendanceAnalytics = ref({ today_attendance_percent: 100, weekly_attendance_trend: [], monthly_attendance_trend: [], highest_attendance_class: null, lowest_attendance_class: null, classes_below_threshold: [] });
+        const classHealth = ref([]);
+        const feeDefaulters = ref([]);
+        const smartInsights = ref([]);
+        const performanceSummary = ref({ admissions_this_month: 0, admissions_prev_month: 0, fee_this_month: 0, fee_prev_month: 0, attendance_rate: 100, homeworks_this_month: 0, homeworks_prev_month: 0 });
+
+        // Workspace tab refs
+        const activeAnalyticsTab = ref('fee');
+        const tabLoading = ref(false);
+        const tabData = ref(null);
+
+        const resetFilters = () => {
+            selectedMonth.value = '';
+            selectedClass.value = '';
+            selectedSection.value = '';
+            if (activeAcademicYear.value) {
+                selectedYear.value = activeAcademicYear.value.id;
+            }
+        };
 
         const toggleClassExpansion = (classId) => {
             if (expandedClasses.value.includes(classId)) {
@@ -729,7 +1287,7 @@ export default {
         const canViewSchedules = computed(() => authStore.hasPermission('exam_schedule.view') && authStore.hasModule('examinations'));
         const canViewAcademics = computed(() => canViewSubjects.value || canViewExams.value || canViewSchedules.value);
 
-        // Time-based dynamic greeting
+        // Time-based greeting
         const greeting = computed(() => {
             const hr = new Date().getHours();
             if (hr < 12) return 'Good Morning';
@@ -830,7 +1388,7 @@ export default {
             return c - (percent / 100) * c;
         };
 
-        // Monthly trends chart coordinates
+        // Monthly trends chart coordinates (legacy)
         const maxTrendVal = computed(() => {
             if (monthlyTrends.value.length === 0) return 1000;
             return Math.max(...monthlyTrends.value.map(d => d.total), 1000);
@@ -947,25 +1505,22 @@ export default {
         const filteredClasses = computed(() => {
             let list = [...classWiseOverview.value];
 
-            // 1. Search Query (Class name)
             if (classSearchQuery.value.trim() !== '') {
                 const q = classSearchQuery.value.toLowerCase();
                 list = list.filter(c => c.class_name.toLowerCase().includes(q));
             }
 
-            // 2. Dropdown Filter Type
             if (classFilterType.value === 'has_pending_fees') {
                 list = list.filter(c => c.pending_fee > 0);
             } else if (classFilterType.value === 'low_attendance') {
                 list = list.filter(c => {
                     const total = c.present + c.absent;
                     if (total === 0) return false;
-                    const rate = (c.present / total) * 105;
+                    const rate = (c.present / total) * 100;
                     return rate < 90;
                 });
             }
 
-            // 3. Table Column Sorting
             list.sort((a, b) => {
                 let valA = a[classSortKey.value];
                 let valB = b[classSortKey.value];
@@ -1041,10 +1596,81 @@ export default {
             return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         };
 
+        // Workspace SVG mapping coords functions
+        const workspaceFeePoints = (trends) => {
+            if (!trends || trends.length === 0) return [];
+            const maxVal = Math.max(...trends.map(d => d.total), 1000);
+            const chartWidth = 520;
+            const chartHeight = 110;
+            const leftPadding = 40;
+            const topPadding = 20;
+
+            return trends.map((d, index) => {
+                const x = leftPadding + (index / (trends.length - 1 || 1)) * chartWidth;
+                const y = topPadding + chartHeight - (d.total / maxVal) * chartHeight;
+                return { x, y, val: d.total, label: d.label };
+            });
+        };
+
+        const workspaceFeeLineD = (trends) => {
+            const points = workspaceFeePoints(trends);
+            if (points.length === 0) return '';
+            return points.reduce((path, p, i) => {
+                return i === 0 ? `M ${p.x} ${p.y}` : `${path} L ${p.x} ${p.y}`;
+            }, '');
+        };
+
+        const workspaceFeeAreaD = (trends) => {
+            const points = workspaceFeePoints(trends);
+            if (points.length === 0) return '';
+            const startX = points[0].x;
+            const endX = points[points.length - 1].x;
+            const baseY = 150;
+            return `${workspaceFeeLineD(trends)} L ${endX} ${baseY} L ${startX} ${baseY} Z`;
+        };
+
+        const workspaceAttPoints = (trend) => {
+            if (!trend || trend.length === 0) return [];
+            const chartWidth = 520;
+            const chartHeight = 110;
+            const leftPadding = 40;
+            const topPadding = 20;
+
+            return trend.map((d, index) => {
+                const x = leftPadding + (index / (trend.length - 1 || 1)) * chartWidth;
+                const y = topPadding + chartHeight - (d.rate / 100) * chartHeight;
+                return { x, y, rate: d.rate, label: d.label };
+            });
+        };
+
+        const workspaceAttLineD = (trend) => {
+            const points = workspaceAttPoints(trend);
+            if (points.length === 0) return '';
+            return points.reduce((path, p, i) => {
+                return i === 0 ? `M ${p.x} ${p.y}` : `${path} L ${p.x} ${p.y}`;
+            }, '');
+        };
+
+        const workspaceAttAreaD = (trend) => {
+            const points = workspaceAttPoints(trend);
+            if (points.length === 0) return '';
+            const startX = points[0].x;
+            const endX = points[points.length - 1].x;
+            const baseY = 150;
+            return `${workspaceAttLineD(trend)} L ${endX} ${baseY} L ${startX} ${baseY} Z`;
+        };
+
+        // Fetch overall stats
         const fetchStats = async () => {
             loading.value = true;
             try {
-                const response = await window.axios.get('/api/dashboard/stats');
+                const params = {};
+                if (selectedYear.value) params.academic_year_id = selectedYear.value;
+                if (selectedMonth.value) params.month = selectedMonth.value;
+                if (selectedClass.value) params.class_id = selectedClass.value;
+                if (selectedSection.value) params.section_id = selectedSection.value;
+
+                const response = await window.axios.get('/api/dashboard/stats', { params });
                 scope.value = response.data.scope || 'school';
                 stats.value = response.data.stats || [];
                 attendanceStats.value = response.data.attendance_stats || null;
@@ -1053,17 +1679,61 @@ export default {
                 monthlyTrends.value = response.data.monthly_trends || [];
                 classCollections.value = response.data.class_collections || [];
                 
-                // Redesigned response inputs
                 pendingStudentsCount.value = response.data.pending_students_count || 0;
                 classWiseOverview.value = response.data.class_wise_overview || [];
                 recentActivities.value = response.data.recent_activities || [];
                 activeAcademicYear.value = response.data.active_academic_year || null;
+
+                todayActions.value = response.data.today_actions || { attendance_pending: [], homework_pending: [], marks_entry_pending: [], leave_approvals_pending: [], fee_followups_count: 0 };
+                feeAnalytics.value = response.data.fee_analytics || { current_month_collection: 0, prev_month_collection: 0, highest_collection_month: null, lowest_collection_month: null, collection_growth_percent: 0, pending_fee_trend: [] };
+                attendanceAnalytics.value = response.data.attendance_analytics || { today_attendance_percent: 100, weekly_attendance_trend: [], monthly_attendance_trend: [], highest_attendance_class: null, lowest_attendance_class: null, classes_below_threshold: [] };
+                classHealth.value = response.data.class_health || [];
+                feeDefaulters.value = response.data.fee_defaulters || [];
+                smartInsights.value = response.data.smart_insights || [];
+                performanceSummary.value = response.data.performance_summary || { admissions_this_month: 0, admissions_prev_month: 0, fee_this_month: 0, fee_prev_month: 0, attendance_rate: 100, homeworks_this_month: 0, homeworks_prev_month: 0 };
+
+                availableYears.value = response.data.available_years || [];
+                availableClasses.value = response.data.available_classes || [];
+                availableSections.value = response.data.available_sections || [];
+
+                if (!selectedYear.value && activeAcademicYear.value) {
+                    selectedYear.value = activeAcademicYear.value.id;
+                }
             } catch (error) {
                 console.error('Failed to load dashboard stats', error);
             } finally {
                 loading.value = false;
             }
         };
+
+        // Fetch tab specific stats
+        const fetchTabStats = async (tabName) => {
+            activeAnalyticsTab.value = tabName;
+            tabLoading.value = true;
+            try {
+                const params = { tab: tabName };
+                if (selectedYear.value) params.academic_year_id = selectedYear.value;
+                if (selectedMonth.value) params.month = selectedMonth.value;
+                if (selectedClass.value) params.class_id = selectedClass.value;
+                if (selectedSection.value) params.section_id = selectedSection.value;
+
+                const response = await window.axios.get('/api/dashboard/stats', { params });
+                tabData.value = response.data.data || null;
+            } catch (error) {
+                console.error(`Failed to load stats for tab ${tabName}`, error);
+            } finally {
+                tabLoading.value = false;
+            }
+        };
+
+        watch(selectedClass, () => {
+            selectedSection.value = '';
+        });
+
+        watch([selectedYear, selectedMonth, selectedClass, selectedSection], () => {
+            fetchStats();
+            fetchTabStats(activeAnalyticsTab.value);
+        });
 
         const updateClock = () => {
             const now = new Date();
@@ -1079,6 +1749,7 @@ export default {
 
         onMounted(() => {
             fetchStats();
+            fetchTabStats('fee');
             updateClock();
             clockInterval = setInterval(updateClock, 1000);
         });
@@ -1117,7 +1788,6 @@ export default {
             formattedTodayDate,
             todayDateString,
             
-            // New Reactive Refs
             pendingStudentsCount,
             classWiseOverview,
             expandedClasses,
@@ -1146,6 +1816,34 @@ export default {
             pendingFeesValue,
             totalAssignedFeesValue,
             todayCollectionValue,
+            
+            selectedYear,
+            selectedMonth,
+            selectedClass,
+            selectedSection,
+            availableYears,
+            availableClasses,
+            availableSections,
+            todayActions,
+            feeAnalytics,
+            attendanceAnalytics,
+            classHealth,
+            feeDefaulters,
+            smartInsights,
+            performanceSummary,
+            resetFilters,
+            
+            // Workspace tab reactive properties
+            activeAnalyticsTab,
+            tabLoading,
+            tabData,
+            fetchTabStats,
+            workspaceFeePoints,
+            workspaceFeeLineD,
+            workspaceFeeAreaD,
+            workspaceAttPoints,
+            workspaceAttLineD,
+            workspaceAttAreaD,
             
             // Computed Permission Flags
             canViewStudents,
