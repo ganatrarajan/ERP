@@ -37,6 +37,7 @@ use App\Http\Controllers\Api\FeeReportController;
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
+Route::post('/webhooks/payment/{gateway}', [\App\Http\Controllers\Api\OnlinePaymentController::class, 'handleWebhook']);
 
 // Protected API Routes (using session auth)
 Route::middleware('auth')->group(function () {
@@ -85,6 +86,10 @@ Route::middleware('auth')->group(function () {
     // Password Resets (Super Admin only)
     Route::get('/password-resets', [\App\Http\Controllers\Api\PasswordResetController::class, 'index']);
     Route::post('/password-resets/{id}/action', [\App\Http\Controllers\Api\PasswordResetController::class, 'handleAction']);
+
+    // Super Admin Payment Module Enablement
+    Route::get('/super-admin/school-payment-settings', [\App\Http\Controllers\Api\OnlinePaymentController::class, 'superAdminListSchools']);
+    Route::post('/super-admin/school-payment-settings/{school}/toggle', [\App\Http\Controllers\Api\OnlinePaymentController::class, 'superAdminToggleModule']);
 
     // Academics Module Secured Routes
     Route::middleware(['module:academics'])->group(function () {
@@ -308,6 +313,13 @@ Route::middleware('auth')->group(function () {
         // Reports
         Route::get('/fee-reports', [FeeReportController::class, 'index'])->middleware('permission:report.view');
         Route::get('/fee-reports/pdf', [FeeReportController::class, 'downloadPdf'])->middleware('permission:report.view');
+
+        // Online Gateway Config, logs, and reports
+        Route::get('/payment-gateway-settings', [\App\Http\Controllers\Api\OnlinePaymentController::class, 'getGatewaySettings'])->middleware('permission:payment_gateway.manage');
+        Route::post('/payment-gateway-settings', [\App\Http\Controllers\Api\OnlinePaymentController::class, 'saveGatewaySettings'])->middleware('permission:payment_gateway.manage');
+        Route::post('/payment-gateway-settings/test-connection', [\App\Http\Controllers\Api\OnlinePaymentController::class, 'testConnection'])->middleware('permission:payment_gateway.manage');
+        Route::get('/online-payments', [\App\Http\Controllers\Api\OnlinePaymentController::class, 'listTransactions'])->middleware('permission:payment_gateway.view');
+        Route::get('/online-payments/reports', [\App\Http\Controllers\Api\OnlinePaymentController::class, 'getReports'])->middleware('permission:payment_gateway.view');
     });
 });
 
@@ -333,6 +345,9 @@ Route::middleware(['auth:sanctum', 'mobile.context'])->prefix('mobile')->group(f
     Route::get('/report-card/{id}/download', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'downloadReportCard']);
     Route::get('/report-card/{id}', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'reportCardUrl']);
     Route::get('/fees', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'fees']);
+    Route::post('/fees/create-order', [\App\Http\Controllers\Api\OnlinePaymentController::class, 'parentCreateOrder']);
+    Route::post('/fees/verify-payment', [\App\Http\Controllers\Api\OnlinePaymentController::class, 'parentVerifyPayment']);
+    Route::get('/fees/history', [\App\Http\Controllers\Api\OnlinePaymentController::class, 'parentPaymentHistory']);
     Route::get('/receipts', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'receipts']);
     Route::get('/receipt/{id}', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'receiptUrl']);
     Route::get('/receipt/{id}/download', [\App\Http\Controllers\Api\StudentMobileApiController::class, 'downloadReceipt']);

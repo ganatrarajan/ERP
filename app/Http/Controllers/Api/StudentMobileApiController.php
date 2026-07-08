@@ -146,6 +146,25 @@ class StudentMobileApiController extends Controller
         $duesData = $this->feeCalcService->getStudentFeeDues($student->id, $academicYearId);
         $pendingFeeAmount = $duesData['outstanding_balance'] ?? 0.00;
 
+        $onlinePaymentEnabled = schoolHasModule('online-payments') && 
+            \App\Models\PaymentGatewayConfig::where('school_id', $student->school_id)
+                ->where('active', true)
+                ->exists();
+
+        $oldestDueDate = null;
+        $pendingInstallmentsCount = 0;
+
+        if ($pendingFeeAmount > 0 && isset($duesData['installments'])) {
+            foreach ($duesData['installments'] as $inst) {
+                if ($inst['status'] !== 'Paid') {
+                    $pendingInstallmentsCount++;
+                    if ($oldestDueDate === null || $inst['due_date'] < $oldestDueDate) {
+                        $oldestDueDate = $inst['due_date'];
+                    }
+                }
+            }
+        }
+
         // Latest Exam Result
         $latestExamResult = null;
         $latestExam = Exam::where('status', 'published')
@@ -186,6 +205,9 @@ class StudentMobileApiController extends Controller
             'pending_fee_amount' => $pendingFeeAmount,
             'latest_exam_result' => $latestExamResult,
             'mobile_academic_year' => $academicYear ? $academicYear->title : 'N/A',
+            'online_payment_enabled' => $onlinePaymentEnabled,
+            'pending_fee_due_date' => $oldestDueDate,
+            'pending_installments_count' => $pendingInstallmentsCount,
         ]);
     }
 
@@ -468,11 +490,18 @@ class StudentMobileApiController extends Controller
         $academicYearId = $request->attributes->get('academic_year_id');
 
         $duesData = $this->feeCalcService->getStudentFeeDues($student->id, $academicYearId);
+
+        $onlinePaymentEnabled = schoolHasModule('online-payments') && 
+            \App\Models\PaymentGatewayConfig::where('school_id', $student->school_id)
+                ->where('active', true)
+                ->exists();
+
         return $this->successResponse([
             'total_fees' => $duesData['total_fee'] ?? 0.00,
             'paid_fees' => $duesData['total_paid'] ?? 0.00,
             'pending_fees' => $duesData['outstanding_balance'] ?? 0.00,
-            'installment_details' => $duesData['installments'] ?? []
+            'installment_details' => $duesData['installments'] ?? [],
+            'online_payment_enabled' => $onlinePaymentEnabled,
         ]);
     }
 

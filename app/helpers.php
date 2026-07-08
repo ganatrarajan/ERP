@@ -16,7 +16,7 @@ if (!function_exists('schoolHasModule')) {
         }
 
         // Super Admin bypasses all module restrictions
-        if ($user->isSuperAdmin()) {
+        if (method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin()) {
             return true;
         }
 

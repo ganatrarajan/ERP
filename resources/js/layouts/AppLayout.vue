@@ -62,15 +62,24 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"></path></svg>
                             Dashboard
                         </router-link>
-
                         <router-link 
                             v-if="authStore.hasPermission('school.view')" 
                             to="/schools" 
                             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-                            :class="[isRouteActive('/schools') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200']"
+                            :class="[route.path === '/schools' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10' : 'text-slate-655 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200']"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                             Schools List
+                        </router-link>
+
+                        <router-link 
+                            v-if="authStore.isSuperAdmin" 
+                            to="/schools/payment-settings" 
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                            :class="[isRouteActive('/schools/payment-settings') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10' : 'text-slate-655 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200']"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                            School Payment Settings
                         </router-link>
 
                         <router-link 
@@ -522,6 +531,26 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                             Reports
                         </router-link>
+
+                        <router-link 
+                            v-if="authStore.hasPermission('payment_gateway.manage') && authStore.hasModule('online-payments')" 
+                            to="/fees/payment-gateway-settings" 
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                            :class="[isRouteActive('/fees/payment-gateway-settings') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10' : 'text-slate-655 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200']"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                            Payment Gateway Settings
+                        </router-link>
+
+                        <router-link 
+                            v-if="authStore.hasPermission('payment_gateway.view') && authStore.hasModule('online-payments')" 
+                            to="/fees/online-payments" 
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                            :class="[isRouteActive('/fees/online-payments') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10' : 'text-slate-655 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200']"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                            Online Payments Log
+                        </router-link>
                     </div>
                 </div>
             </nav>
@@ -731,7 +760,7 @@ export default {
             Object.keys(expandedSections.value).forEach(key => {
                 expandedSections.value[key] = false;
             });
-            if (path === '/dashboard' || path === '/schools' || path === '/password-resets' || path === '/users' || path === '/roles') {
+            if (path === '/dashboard' || path.startsWith('/schools') || path === '/password-resets' || path === '/users' || path === '/roles') {
                 expandedSections.value.admin = true;
             }
             if (path.startsWith('/assignments') || path === '/academic-years' || path === '/classes' || path === '/sections' || path === '/subjects') {

@@ -127,6 +127,10 @@ class SchoolModuleController extends Controller
                     'fee_structure.view', 'fee_structure.create', 'fee_structure.edit', 'fee_structure.delete',
                     'fee_collection.view', 'fee_collection.create', 'fee_collection.edit',
                     'receipt.view', 'ledger.view', 'report.view'
+                ],
+                'online-payments' => [
+                    'payment_gateway.manage',
+                    'payment_gateway.view'
                 ]
             ];
 
