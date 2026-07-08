@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/fee_provider.dart';
 import '../../../providers/receipt_provider.dart';
+import '../../../providers/auth_provider.dart';
 import '../../widgets/loading_view.dart';
 import '../../widgets/error_view.dart';
 import '../../widgets/empty_view.dart';
 import '../pdf_viewer/pdf_viewer_screen.dart';
+import 'fee_details_screen.dart';
 
 class FeesScreen extends StatefulWidget {
   const FeesScreen({super.key});
@@ -63,6 +65,10 @@ class _FeesScreenState extends State<FeesScreen> with SingleTickerProviderStateM
   // --- TAB 1: FEES SUMMARY & INSTALLMENTS ---
   Widget _buildSummaryTab(ThemeData theme) {
     final feeProv = context.watch<FeeProvider>();
+    final authProv = context.watch<AuthProvider>();
+    final student = authProv.student;
+    final academicYear = student?.mobileAcademicYear ?? 'N/A';
+    final className = student?.academicRecord?.classInfo?.name ?? 'N/A';
 
     if (feeProv.isLoading && feeProv.feeResponse == null) {
       return const LoadingView(message: "Loading fee ledger details...");
@@ -141,7 +147,7 @@ class _FeesScreenState extends State<FeesScreen> with SingleTickerProviderStateM
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildFeeStat("Total structure", "₹${total.toStringAsFixed(2)}", theme),
+                        _buildFeeStat("Total Structure", "₹${total.toStringAsFixed(2)}", theme),
                         _buildFeeStat("Total Paid", "₹${paid.toStringAsFixed(2)}", theme, color: Colors.green),
                         _buildFeeStat("Pending", "₹${pending.toStringAsFixed(2)}", theme, color: Colors.orange),
                       ],
@@ -204,74 +210,138 @@ class _FeesScreenState extends State<FeesScreen> with SingleTickerProviderStateM
                       width: 1,
                     ),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              inst.name,
-                              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: (isPaid
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => FeeDetailsScreen(
+                            installment: inst,
+                            onlinePaymentEnabled: data.onlinePaymentEnabled,
+                          ),
+                        ),
+                      ).then((_) {
+                        context.read<FeeProvider>().fetchFees();
+                      });
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                inst.name,
+                                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: (isPaid
+                                          ? Colors.green
+                                          : isOver
+                                              ? Colors.red
+                                              : Colors.orange)
+                                      .withOpacity(0.12),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  inst.status.toUpperCase(),
+                                  style: TextStyle(
+                                    color: isPaid
                                         ? Colors.green
                                         : isOver
                                             ? Colors.red
-                                            : Colors.orange)
-                                    .withOpacity(0.12),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                inst.status.toUpperCase(),
-                                style: TextStyle(
-                                  color: isPaid
-                                      ? Colors.green
-                                      : isOver
-                                          ? Colors.red
-                                          : Colors.orange,
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 10,
+                                            : Colors.orange,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 10,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            _buildInstallmentCol("Amount", "₹${inst.amount}", theme),
-                            _buildInstallmentCol("Paid", "₹${inst.paid}", theme),
-                            _buildInstallmentCol("Due Balance", "₹${inst.remainingDue}", theme, color: inst.remainingDue > 0 ? Colors.red : null),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        const Divider(height: 1),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Due Date: ${inst.dueDate}",
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: isOver && !isPaid ? Colors.red : theme.textTheme.bodyMedium?.color,
-                                fontWeight: isOver && !isPaid ? FontWeight.bold : FontWeight.normal,
-                              ),
-                            ),
-                            if (inst.overdueDays > 0 && !isPaid)
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
                               Text(
-                                "(${inst.overdueDays} days overdue)",
+                                "Academic Year: $academicYear",
+                                style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                              ),
+                              Text(
+                                "Class: $className",
+                                style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              _buildInstallmentCol("Amount", "₹${inst.amount}", theme),
+                              _buildInstallmentCol("Paid", "₹${inst.paid}", theme),
+                              _buildInstallmentCol("Remaining Amount", "₹${inst.remainingDue}", theme, color: inst.remainingDue > 0 ? Colors.red : null),
+                            ],
+                          ),
+                          if (inst.fineDue > 0) ...[
+                            const SizedBox(height: 8),
+                            Center(
+                              child: Text(
+                                "Late Fee Fine: ₹${inst.fineDue.toStringAsFixed(2)}",
                                 style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 11),
                               ),
+                            ),
                           ],
-                        ),
-                      ],
+                          const SizedBox(height: 12),
+                          const Divider(height: 1),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Due Date: ${inst.dueDate}",
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: isOver && !isPaid ? Colors.red : theme.textTheme.bodyMedium?.color,
+                                  fontWeight: isOver && !isPaid ? FontWeight.bold : FontWeight.normal,
+                                ),
+                              ),
+                              if (inst.overdueDays > 0 && !isPaid)
+                                Text(
+                                  "(${inst.overdueDays} days overdue)",
+                                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 11),
+                                ),
+                            ],
+                          ),
+                          if (data.onlinePaymentEnabled && !isPaid && inst.remainingDue > 0) ...[
+                            const SizedBox(height: 12),
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => FeeDetailsScreen(
+                                      installment: inst,
+                                      onlinePaymentEnabled: data.onlinePaymentEnabled,
+                                    ),
+                                  ),
+                                ).then((_) {
+                                  context.read<FeeProvider>().fetchFees();
+                                });
+                              },
+                              icon: const Icon(Icons.payment_rounded, size: 16),
+                              label: const Text("Pay Now", style: TextStyle(fontSize: 13)),
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size.fromHeight(40),
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
                 );

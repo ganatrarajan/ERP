@@ -3,6 +3,7 @@ class StudentModel {
   final String firstName;
   final String lastName;
   final String admissionNo;
+  final String grNo;
   final ParentModel? parent;
   final AcademicRecordModel? academicRecord;
   final String? schoolName;
@@ -13,6 +14,7 @@ class StudentModel {
     required this.firstName,
     required this.lastName,
     required this.admissionNo,
+    required this.grNo,
     this.parent,
     this.academicRecord,
     this.schoolName,
@@ -27,6 +29,7 @@ class StudentModel {
       firstName: json['first_name'] ?? '',
       lastName: json['last_name'] ?? '',
       admissionNo: json['admission_no'] ?? '',
+      grNo: json['gr_no'] ?? '',
       parent: json['parent'] != null ? ParentModel.fromJson(json['parent']) : null,
       academicRecord: json['current_academic_record'] != null
           ? AcademicRecordModel.fromJson(json['current_academic_record'])
@@ -42,6 +45,7 @@ class StudentModel {
       'first_name': firstName,
       'last_name': lastName,
       'admission_no': admissionNo,
+      'gr_no': grNo,
       'parent': parent?.toJson(),
       'current_academic_record': academicRecord?.toJson(),
       'school_name': schoolName,

@@ -3,12 +3,14 @@ class FeeResponse {
   final double paidFees;
   final double pendingFees;
   final List<FeeInstallment> installments;
+  final bool onlinePaymentEnabled;
 
   FeeResponse({
     required this.totalFees,
     required this.paidFees,
     required this.pendingFees,
     required this.installments,
+    required this.onlinePaymentEnabled,
   });
 
   factory FeeResponse.fromJson(Map<String, dynamic> json) {
@@ -18,6 +20,7 @@ class FeeResponse {
       paidFees: (json['paid_fees'] as num?)?.toDouble() ?? 0.0,
       pendingFees: (json['pending_fees'] as num?)?.toDouble() ?? 0.0,
       installments: list.map((e) => FeeInstallment.fromJson(e)).toList(),
+      onlinePaymentEnabled: json['online_payment_enabled'] ?? false,
     );
   }
 }

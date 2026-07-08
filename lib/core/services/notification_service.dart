@@ -18,6 +18,7 @@ import '../../presentation/screens/academics/notice_list_screen.dart';
 import '../../presentation/screens/academics/notice_detail_screen.dart';
 import '../../presentation/screens/academics/results_screen.dart';
 import '../../presentation/screens/fees/fees_screen.dart';
+import '../../presentation/screens/fees/payment_history_screen.dart';
 
 class NotificationService {
   NotificationService._privateConstructor();
@@ -255,9 +256,13 @@ class NotificationService {
       navigatorKey.currentState?.push(
         MaterialPageRoute(builder: (_) => const ResultsScreen()),
       );
-    } else if (type == 'fees' || type == 'fee') {
+    } else if (type == 'fees' || type == 'fee' || type == 'fee_due_reminder') {
       navigatorKey.currentState?.push(
         MaterialPageRoute(builder: (_) => const FeesScreen()),
+      );
+    } else if (type == 'payment' || type == 'receipt' || type == 'payment_success' || type == 'payment_failed') {
+      navigatorKey.currentState?.push(
+        MaterialPageRoute(builder: (_) => const PaymentHistoryScreen()),
       );
     }
   }

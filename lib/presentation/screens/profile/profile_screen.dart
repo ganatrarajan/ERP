@@ -5,6 +5,7 @@ import '../../../core/services/notification_service.dart';
 import '../change_password_screen.dart';
 import '../onboarding/school_code_screen.dart';
 import '../login_screen.dart';
+import '../fees/payment_history_screen.dart';
 import '../../../providers/onboarding_provider.dart';
 import '../../../providers/theme_provider.dart';
 
@@ -182,6 +183,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   subtitle: Text(_getThemeModeName(context.watch<ThemeProvider>().themeMode)),
                   trailing: const Icon(Icons.keyboard_arrow_right_rounded),
                   onTap: () => _showThemeSelector(context),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: Icon(Icons.history_rounded, color: theme.colorScheme.primary),
+                  title: const Text("Payment History"),
+                  subtitle: const Text("View previous fee payments"),
+                  trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PaymentHistoryScreen(),
+                      ),
+                    );
+                  },
                 ),
                 const Divider(height: 1),
                 ListTile(

@@ -9,6 +9,7 @@ import '../models/exam_result_model.dart';
 import '../models/report_card_model.dart';
 import '../models/fee_model.dart';
 import '../models/receipt_model.dart';
+import '../models/payment_history_model.dart';
 
 class StudentRepository {
   final DioClient _dioClient = DioClient();
@@ -136,5 +137,50 @@ class StudentRepository {
       return data['pdf_url'] ?? '';
     }
     throw Exception(data['message'] ?? 'Failed to retrieve payment receipt download link');
+  }
+
+  Future<Map<String, dynamic>> createPaymentOrder(int installmentId, double amount) async {
+    final response = await _dioClient.post(
+      ApiEndpoints.createOrder,
+      data: {
+        'installment_id': installmentId,
+        'amount': amount,
+      },
+    );
+    final data = response.data;
+    if (data is Map && data['success'] == true) {
+      return Map<String, dynamic>.from(data);
+    }
+    throw Exception(data['message'] ?? 'Failed to create payment order');
+  }
+
+  Future<Map<String, dynamic>> verifyPayment({
+    required String razorpayOrderId,
+    required String razorpayPaymentId,
+    required String razorpaySignature,
+  }) async {
+    final response = await _dioClient.post(
+      ApiEndpoints.verifyPayment,
+      data: {
+        'razorpay_order_id': razorpayOrderId,
+        'razorpay_payment_id': razorpayPaymentId,
+        'razorpay_signature': razorpaySignature,
+      },
+    );
+    final data = response.data;
+    if (data is Map && data['success'] == true) {
+      return Map<String, dynamic>.from(data);
+    }
+    throw Exception(data['message'] ?? 'Failed to verify payment');
+  }
+
+  Future<List<PaymentHistoryModel>> getPaymentHistory() async {
+    final response = await _dioClient.get(ApiEndpoints.paymentHistory);
+    final data = response.data;
+    if (data is Map && data['success'] == true) {
+      final list = data['history'] as List? ?? [];
+      return list.map((e) => PaymentHistoryModel.fromJson(e)).toList();
+    }
+    throw Exception(data['message'] ?? 'Failed to load payment history');
   }
 }

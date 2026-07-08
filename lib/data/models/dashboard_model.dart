@@ -8,6 +8,9 @@ class DashboardData {
   final double pendingFeeAmount;
   final LatestExamResult? latestExamResult;
   final String mobileAcademicYear;
+  final bool onlinePaymentEnabled;
+  final String? pendingFeeDueDate;
+  final int pendingInstallmentsCount;
 
   DashboardData({
     required this.student,
@@ -17,6 +20,9 @@ class DashboardData {
     required this.pendingFeeAmount,
     this.latestExamResult,
     required this.mobileAcademicYear,
+    required this.onlinePaymentEnabled,
+    this.pendingFeeDueDate,
+    required this.pendingInstallmentsCount,
   });
 
   factory DashboardData.fromJson(Map<String, dynamic> json) {
@@ -30,6 +36,9 @@ class DashboardData {
           ? LatestExamResult.fromJson(json['latest_exam_result'])
           : null,
       mobileAcademicYear: json['mobile_academic_year'] ?? 'N/A',
+      onlinePaymentEnabled: json['online_payment_enabled'] ?? false,
+      pendingFeeDueDate: json['pending_fee_due_date'],
+      pendingInstallmentsCount: json['pending_installments_count'] ?? 0,
     );
   }
 }

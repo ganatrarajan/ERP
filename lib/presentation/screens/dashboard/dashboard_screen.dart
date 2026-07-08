@@ -6,6 +6,7 @@ import '../../../data/models/dashboard_model.dart';
 import '../../widgets/loading_view.dart';
 import '../../widgets/error_view.dart';
 import '../login_screen.dart';
+import '../main_navigation_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -180,6 +181,121 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             ),
           ),
+          
+          if (data.onlinePaymentEnabled && data.pendingFeeAmount > 0) ...[
+            const SizedBox(height: 16),
+            Card(
+              elevation: 0,
+              color: theme.brightness == Brightness.dark ? const Color(0xFF1E293B) : const Color(0xFFEFF6FF),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: theme.colorScheme.primary.withOpacity(0.2), width: 1.5),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.payment_rounded, color: theme.colorScheme.primary, size: 24),
+                            const SizedBox(width: 8),
+                            Text(
+                              "Pending Fees Due",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: theme.colorScheme.primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.red[50],
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            "UNPAID",
+                            style: TextStyle(
+                              color: Colors.red[900],
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      "₹${data.pendingFeeAmount.toStringAsFixed(2)}",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 24,
+                        color: theme.brightness == Brightness.dark ? Colors.white : Colors.blue[900],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Due Date",
+                              style: TextStyle(color: Colors.grey, fontSize: 11),
+                            ),
+                            Text(
+                              data.pendingFeeDueDate ?? 'N/A',
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Pending Installments",
+                              style: TextStyle(color: Colors.grey, fontSize: 11),
+                            ),
+                            Text(
+                              "${data.pendingInstallmentsCount}",
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => const MainNavigationScreen(initialIndex: 2)),
+                          (route) => false,
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: theme.colorScheme.primary,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size.fromHeight(48),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text("Pay Now"),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+          
           const SizedBox(height: 24),
 
           // 2. Metrics Title
