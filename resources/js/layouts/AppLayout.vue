@@ -53,6 +53,11 @@
                     </button>
                     
                     <div v-show="expandedSections.admin" class="space-y-1 pl-1 border-l border-slate-150 dark:border-slate-800/80 ml-2">
+                        <!-- Group: Portal & Config -->
+                        <div class="px-3 pt-1.5 pb-1 text-[10px] font-extrabold text-slate-400 dark:text-slate-550 uppercase tracking-wider select-none">
+                            Portal & Config
+                        </div>
+
                         <router-link 
                             v-if="authStore.hasPermission('dashboard.view')" 
                             to="/dashboard" 
@@ -81,6 +86,11 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                             School Payment Settings
                         </router-link>
+
+                        <!-- Group: Identity & Security -->
+                        <div class="px-3 pt-3.5 pb-1 border-t border-slate-200/55 dark:border-slate-805/40 mt-2 text-[10px] font-extrabold text-slate-400 dark:text-slate-550 uppercase tracking-wider select-none">
+                            Identity & Security
+                        </div>
 
                         <router-link 
                             v-if="authStore.isSuperAdmin" 
@@ -128,8 +138,12 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
                         </svg>
                     </button>
-                    
-                    <div v-show="expandedSections.academics" class="space-y-1 pl-1 border-l border-slate-150 dark:border-slate-800/80 ml-2">
+                                        <div v-show="expandedSections.academics" class="space-y-1 pl-1 border-l border-slate-150 dark:border-slate-800/80 ml-2">
+                        <!-- Group: Structure & Calendar -->
+                        <div class="px-3 pt-1.5 pb-1 text-[10px] font-extrabold text-slate-400 dark:text-slate-555 uppercase tracking-wider select-none">
+                            Structure & Calendar
+                        </div>
+
                         <router-link 
                             v-if="authStore.user?.school_id && authStore.hasModule('academics') && authStore.hasPermission('academic_year.view')" 
                             to="/academic-years" 
@@ -159,6 +173,11 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                             Sections
                         </router-link>
+
+                        <!-- Group: Course & Assignments -->
+                        <div class="px-3 pt-3.5 pb-1 border-t border-slate-200/55 dark:border-slate-805/40 mt-2 text-[10px] font-extrabold text-slate-400 dark:text-slate-555 uppercase tracking-wider select-none">
+                            Course & Assignments
+                        </div>
 
                         <router-link 
                             v-if="authStore.user?.school_id && authStore.hasModule('subjects') && authStore.hasPermission('subject.view')" 
@@ -208,6 +227,11 @@
                     </button>
                     
                     <div v-show="expandedSections.students" class="space-y-1 pl-1 border-l border-slate-150 dark:border-slate-800/80 ml-2">
+                        <!-- Group: Admissions & Promotion -->
+                        <div class="px-3 pt-1.5 pb-1 text-[10px] font-extrabold text-slate-400 dark:text-slate-555 uppercase tracking-wider select-none">
+                            Admissions & Promotion
+                        </div>
+
                         <router-link 
                             v-if="authStore.hasPermission('student.view')" 
                             to="/students" 
@@ -256,13 +280,18 @@
                     </button>
                     
                     <div v-show="expandedSections.operations" class="space-y-1 pl-1 border-l border-slate-150 dark:border-slate-800/80 ml-2">
+                        <!-- Group: Attendance Registers -->
+                        <div class="px-3 pt-1.5 pb-1 text-[10px] font-extrabold text-slate-400 dark:text-slate-555 uppercase tracking-wider select-none">
+                            Attendance Registers
+                        </div>
+
                         <router-link 
                             v-if="authStore.user?.school_id && authStore.hasModule('attendance') && authStore.hasPermission('attendance.view')" 
                             to="/attendance?tab=mark" 
                             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
                             :class="[route.path === '/attendance' && (route.query.tab === 'mark' || route.query.tab === 'monthly' || !route.query.tab) ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10' : 'text-slate-655 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200']"
                         >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                             Student Attendance
                         </router-link>
 
@@ -272,9 +301,14 @@
                             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
                             :class="[route.path === '/attendance' && route.query.tab === 'staff' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10' : 'text-slate-655 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200']"
                         >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                             Staff Attendance
                         </router-link>
+
+                        <!-- Group: Schedules & Reports -->
+                        <div class="px-3 pt-3.5 pb-1 border-t border-slate-200/55 dark:border-slate-805/40 mt-2 text-[10px] font-extrabold text-slate-400 dark:text-slate-555 uppercase tracking-wider select-none">
+                            Schedules & Reports
+                        </div>
 
                         <router-link 
                             v-if="authStore.user?.school_id && authStore.hasModule('attendance') && authStore.hasPermission('attendance.view')" 
@@ -296,6 +330,11 @@
                             Reports
                         </router-link>
 
+                        <!-- Group: Task boards & Bulletins -->
+                        <div class="px-3 pt-3.5 pb-1 border-t border-slate-200/55 dark:border-slate-805/40 mt-2 text-[10px] font-extrabold text-slate-400 dark:text-slate-555 uppercase tracking-wider select-none">
+                            Task boards & Bulletins
+                        </div>
+
                         <router-link 
                             v-if="authStore.user?.school_id && authStore.hasModule('attendance') && authStore.hasPermission('attendance.view')" 
                             to="/leaves" 
@@ -312,7 +351,7 @@
                             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
                             :class="[isRouteActive('/homeworks') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10' : 'text-slate-655 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200']"
                         >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                             Homework List
                         </router-link>
 
@@ -344,6 +383,11 @@
                     </button>
                     
                     <div v-show="expandedSections.exams" class="space-y-1 pl-1 border-l border-slate-150 dark:border-slate-800/80 ml-2">
+                        <!-- Group: Grading & Masters -->
+                        <div class="px-3 pt-1.5 pb-1 text-[10px] font-extrabold text-slate-400 dark:text-slate-555 uppercase tracking-wider select-none">
+                            Grading & Masters
+                        </div>
+
                         <router-link 
                             v-if="authStore.hasPermission('exam.view')" 
                             to="/exams/grade-scales" 
@@ -373,6 +417,11 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             Exams Master
                         </router-link>
+
+                        <!-- Group: Performance Ledger -->
+                        <div class="px-3 pt-3.5 pb-1 border-t border-slate-200/55 dark:border-slate-805/40 mt-2 text-[10px] font-extrabold text-slate-400 dark:text-slate-555 uppercase tracking-wider select-none">
+                            Performance Ledger
+                        </div>
 
                         <router-link 
                             v-if="authStore.hasPermission('exam_schedule.view') || authStore.hasPermission('exam_schedule.create') || authStore.hasPermission('exam_schedule.edit')" 
@@ -432,6 +481,11 @@
                     </button>
                     
                     <div v-show="expandedSections.fees" class="space-y-1 pl-1 border-l border-slate-150 dark:border-slate-800/80 ml-2">
+                        <!-- Group 1: Structure & Rules -->
+                        <div class="px-3 pt-1.5 pb-1 text-[10px] font-extrabold text-slate-400 dark:text-slate-550 uppercase tracking-wider select-none">
+                            Structure & Rules
+                        </div>
+
                         <router-link 
                             v-if="authStore.hasPermission('fee_type.view')" 
                             to="/fees/fee-types" 
@@ -492,6 +546,11 @@
                             Fine Rules
                         </router-link>
 
+                        <!-- Group 2: Billing & Cashier -->
+                        <div class="px-3 pt-3.5 pb-1 border-t border-slate-200/55 dark:border-slate-805/40 mt-2 text-[10px] font-extrabold text-slate-400 dark:text-slate-550 uppercase tracking-wider select-none">
+                            Billing & Cashier
+                        </div>
+
                         <router-link 
                             v-if="authStore.hasPermission('fee_collection.view')" 
                             to="/fees/collection" 
@@ -531,6 +590,14 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                             Reports
                         </router-link>
+
+                        <!-- Group 3: Online Integrations -->
+                        <div 
+                            v-if="authStore.hasModule('online-payments') && (authStore.hasPermission('payment_gateway.manage') || authStore.hasPermission('payment_gateway.view'))"
+                            class="px-3 pt-3.5 pb-1 border-t border-slate-200/55 dark:border-slate-805/40 mt-2 text-[10px] font-extrabold text-slate-400 dark:text-slate-555 uppercase tracking-wider select-none"
+                        >
+                            Online Integrations
+                        </div>
 
                         <router-link 
                             v-if="authStore.hasPermission('payment_gateway.manage') && authStore.hasModule('online-payments')" 
@@ -756,28 +823,10 @@ export default {
         });
 
         const autoExpandActiveSection = () => {
-            const path = route.path;
+            // Keep collapsed by default per user request
             Object.keys(expandedSections.value).forEach(key => {
                 expandedSections.value[key] = false;
             });
-            if (path === '/dashboard' || path.startsWith('/schools') || path === '/password-resets' || path === '/users' || path === '/roles') {
-                expandedSections.value.admin = true;
-            }
-            if (path.startsWith('/assignments') || path === '/academic-years' || path === '/classes' || path === '/sections' || path === '/subjects') {
-                expandedSections.value.academics = true;
-            }
-            if (path.startsWith('/students')) {
-                expandedSections.value.students = true;
-            }
-            if (path === '/attendance' || path === '/homeworks' || path === '/notices') {
-                expandedSections.value.operations = true;
-            }
-            if (path.startsWith('/exams')) {
-                expandedSections.value.exams = true;
-            }
-            if (path.startsWith('/fees')) {
-                expandedSections.value.fees = true;
-            }
         };
 
         watch(() => route.path, () => {

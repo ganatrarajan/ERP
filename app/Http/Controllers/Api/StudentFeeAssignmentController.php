@@ -189,6 +189,23 @@ class StudentFeeAssignmentController extends Controller
             return response()->json(['message' => 'The selected fee structure does not belong to the selected academic year.'], 422);
         }
 
+        // Validate that if the student has already paid any installment, the base assignment cannot be changed
+        $existingAssignment = StudentFeeAssignment::where('student_id', $studentId)
+            ->where('academic_year_id', $academicYearId)
+            ->first();
+
+        if ($existingAssignment && $existingAssignment->fee_structure_id !== $feeStructureId) {
+            $hasPaid = \App\Models\FeeCollection::where('student_id', $studentId)
+                ->where('academic_year_id', $academicYearId)
+                ->exists();
+
+            if ($hasPaid) {
+                return response()->json([
+                    'message' => 'Cannot change the assigned fee structure because the student has already paid one or more installments under the currently assigned structure.'
+                ], 422);
+            }
+        }
+
         DB::transaction(function () use ($schoolId, $studentId, $academicYearId, $feeStructureId, $optionalFeeIds, $request) {
             // 1. Create or Update Student Fee Assignment
             StudentFeeAssignment::updateOrCreate(
@@ -303,6 +320,18 @@ class StudentFeeAssignmentController extends Controller
             $inserted = 0;
             foreach ($records as $rec) {
                 if ($overwrite) {
+                    $existing = StudentFeeAssignment::where('student_id', $rec->student_id)
+                        ->where('academic_year_id', $academicYearId)
+                        ->first();
+                    if ($existing && $existing->fee_structure_id !== $feeStructureId) {
+                        $hasPaid = \App\Models\FeeCollection::where('student_id', $rec->student_id)
+                            ->where('academic_year_id', $academicYearId)
+                            ->exists();
+                        if ($hasPaid) {
+                            // Skip overwriting for students who have already paid
+                            continue;
+                        }
+                    }
                     StudentFeeAssignment::updateOrCreate(
                         [
                             'school_id' => $schoolId,
