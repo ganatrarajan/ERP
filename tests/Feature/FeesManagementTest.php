@@ -862,4 +862,98 @@ class FeesManagementTest extends TestCase
             ->assertJsonCount(1, 'fine_rules')
             ->assertJsonPath('fine_rules.0.id', $fineRuleAnother->id);
     }
+
+    public function test_fee_assignment_blocked_when_student_has_payments()
+    {
+        $structure1 = FeeStructure::create([
+            'school_id' => $this->school->id,
+            'academic_year_id' => $this->academicYear->id,
+            'class_id' => $this->classModel->id,
+            'name' => 'Structure A',
+            'status' => 'active'
+        ]);
+
+        $structure2 = FeeStructure::create([
+            'school_id' => $this->school->id,
+            'academic_year_id' => $this->academicYear->id,
+            'class_id' => $this->classModel->id,
+            'name' => 'Structure B',
+            'status' => 'active'
+        ]);
+
+        $student = Student::create([
+            'school_id' => $this->school->id,
+            'admission_no' => 'ADM-PAY01',
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'gender' => 'Male',
+            'date_of_birth' => '2010-05-15',
+            'admission_date' => '2025-06-01',
+            'status' => 'active'
+        ]);
+
+        StudentAcademicRecord::create([
+            'school_id' => $this->school->id,
+            'student_id' => $student->id,
+            'academic_year_id' => $this->academicYear->id,
+            'class_id' => $this->classModel->id,
+            'section_id' => $this->section->id,
+            'roll_no' => '42'
+        ]);
+
+        // Assign structure 1 first
+        StudentFeeAssignment::create([
+            'school_id' => $this->school->id,
+            'academic_year_id' => $this->academicYear->id,
+            'student_id' => $student->id,
+            'fee_structure_id' => $structure1->id,
+            'assigned_date' => '2025-06-01'
+        ]);
+
+        // Record a payment under structure 1
+        \App\Models\FeeCollection::create([
+            'school_id' => $this->school->id,
+            'academic_year_id' => $this->academicYear->id,
+            'student_id' => $student->id,
+            'amount_due' => 1000.00,
+            'amount_paid' => 500.00,
+            'payment_date' => '2025-06-10',
+            'payment_method' => 'cash',
+            'collected_by' => $this->schoolAdmin->id
+        ]);
+
+        // Attempting to change to structure 2 individually should be blocked
+        $response = $this->actingAs($this->schoolAdmin)
+            ->postJson('/api/fee-assignments', [
+                'academic_year_id' => $this->academicYear->id,
+                'student_id' => $student->id,
+                'fee_structure_id' => $structure2->id,
+                'assigned_date' => '2025-06-01'
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'message' => 'Cannot change the assigned fee structure because the student has already paid one or more installments under the currently assigned structure.'
+            ]);
+
+        // Attempting to bulk assign structure 2 with overwrite should skip this student
+        $responseBulk = $this->actingAs($this->schoolAdmin)
+            ->postJson('/api/fee-assignments/bulk', [
+                'academic_year_id' => $this->academicYear->id,
+                'class_id' => $this->classModel->id,
+                'fee_structure_id' => $structure2->id,
+                'assigned_date' => '2025-06-01',
+                'overwrite_existing' => true
+            ]);
+
+        $responseBulk->assertStatus(200);
+
+        // Verify the student's assignment was NOT changed
+        $assignment = StudentFeeAssignment::where('student_id', $student->id)
+            ->where('academic_year_id', $this->academicYear->id)
+            ->first();
+
+        $this->assertEquals($structure1->id, $assignment->fee_structure_id);
+    }
 }
+

@@ -823,10 +823,39 @@ export default {
         });
 
         const autoExpandActiveSection = () => {
-            // Keep collapsed by default per user request
+            const path = route.path;
+            
+            // Set all to false first
             Object.keys(expandedSections.value).forEach(key => {
                 expandedSections.value[key] = false;
             });
+
+            // Detect active section based on route path prefix
+            if (path.startsWith('/dashboard') || 
+                path.startsWith('/schools') || 
+                path.startsWith('/password-resets') || 
+                path.startsWith('/users') || 
+                path.startsWith('/roles')) {
+                expandedSections.value.admin = true;
+            } else if (path.startsWith('/academic-years') || 
+                       path.startsWith('/classes') || 
+                       path.startsWith('/sections') || 
+                       path.startsWith('/subjects') || 
+                       path.startsWith('/assignments') || 
+                       path.startsWith('/academics/optional-subjects')) {
+                expandedSections.value.academics = true;
+            } else if (path.startsWith('/students')) {
+                expandedSections.value.students = true;
+            } else if (path.startsWith('/attendance') || 
+                       path.startsWith('/leaves') || 
+                       path.startsWith('/homeworks') || 
+                       path.startsWith('/notices')) {
+                expandedSections.value.operations = true;
+            } else if (path.startsWith('/exams')) {
+                expandedSections.value.exams = true;
+            } else if (path.startsWith('/fees')) {
+                expandedSections.value.fees = true;
+            }
         };
 
         watch(() => route.path, () => {
