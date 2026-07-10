@@ -34,4 +34,17 @@ class FeeInstallment extends Model
     {
         return $this->belongsTo(FeeStructure::class, 'fee_structure_id');
     }
+
+    protected static function booted()
+    {
+        $clearStructureCache = function ($model) {
+            $assignments = \App\Models\StudentFeeAssignment::where('fee_structure_id', $model->fee_structure_id)->get();
+            foreach ($assignments as $asn) {
+                \Illuminate\Support\Facades\Cache::forget("student_fee_dues_{$asn->student_id}_{$asn->academic_year_id}");
+            }
+        };
+
+        static::saved($clearStructureCache);
+        static::deleted($clearStructureCache);
+    }
 }

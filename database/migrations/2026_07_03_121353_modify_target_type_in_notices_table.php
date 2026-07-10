@@ -8,7 +8,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        \Illuminate\Support\Facades\DB::statement("ALTER TABLE notices MODIFY COLUMN target_type ENUM('Entire School', 'Class Wise', 'Section Wise', 'Teacher Only') NOT NULL");
+        if (\Illuminate\Support\Facades\DB::connection()->getDriverName() !== 'sqlite') {
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE notices MODIFY COLUMN target_type ENUM('Entire School', 'Class Wise', 'Section Wise', 'Teacher Only') NOT NULL");
+        }
     }
 
     /**
@@ -16,6 +18,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        \Illuminate\Support\Facades\DB::statement("ALTER TABLE notices MODIFY COLUMN target_type ENUM('Entire School', 'Class Wise', 'Section Wise') NOT NULL");
+        if (\Illuminate\Support\Facades\DB::connection()->getDriverName() !== 'sqlite') {
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE notices MODIFY COLUMN target_type ENUM('Entire School', 'Class Wise', 'Section Wise') NOT NULL");
+        }
     }
 };

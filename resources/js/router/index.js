@@ -49,6 +49,12 @@ const routes = [
         meta: { requiresAuth: true, layout: 'app' } // Custom authorization check in form
     },
     {
+        path: '/schools/payment-settings',
+        name: 'schools.payment-settings',
+        component: () => import('../pages/schools/PaymentSettings.vue'),
+        meta: { requiresAuth: true, permission: 'school.view', layout: 'app' }
+    },
+    {
         path: '/users',
         name: 'users.index',
         component: () => import('../pages/users/Index.vue'),
@@ -314,6 +320,18 @@ const routes = [
         name: 'fees.reports',
         component: () => import('../pages/fees/Reports.vue'),
         meta: { requiresAuth: true, permission: 'report.view', module: 'fees', layout: 'app' }
+    },
+    {
+        path: '/fees/payment-gateway-settings',
+        name: 'fees.payment-gateway-settings',
+        component: () => import('../pages/fees/PaymentGatewaySettings.vue'),
+        meta: { requiresAuth: true, permission: 'payment_gateway.manage', module: 'fees', layout: 'app' }
+    },
+    {
+        path: '/fees/online-payments',
+        name: 'fees.online-payments',
+        component: () => import('../pages/fees/OnlinePayments.vue'),
+        meta: { requiresAuth: true, permission: 'payment_gateway.view', module: 'fees', layout: 'app' }
     },
     {
         path: '/forbidden',
