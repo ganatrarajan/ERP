@@ -315,7 +315,7 @@ class _FeesScreenState extends State<FeesScreen> with SingleTickerProviderStateM
                                 ),
                             ],
                           ),
-                          if (data.onlinePaymentEnabled && !isPaid && inst.remainingDue > 0) ...[
+                          if (!isPaid && inst.effectiveBalance > 0) ...[
                             const SizedBox(height: 12),
                             ElevatedButton.icon(
                               onPressed: () {
@@ -324,7 +324,7 @@ class _FeesScreenState extends State<FeesScreen> with SingleTickerProviderStateM
                                   MaterialPageRoute(
                                     builder: (_) => FeeDetailsScreen(
                                       installment: inst,
-                                      onlinePaymentEnabled: data.onlinePaymentEnabled,
+                                      onlinePaymentEnabled: true,
                                     ),
                                   ),
                                 ).then((_) {

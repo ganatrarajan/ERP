@@ -68,7 +68,7 @@ class _FeeDetailsScreenState extends State<FeeDetailsScreen> {
               builder: (_) => PaymentSuccessScreen(
                 receiptNumber: result['receipt_number'] ?? 'N/A',
                 transactionId: response.paymentId ?? 'N/A',
-                amount: widget.installment.outstandingBalance,
+                amount: widget.installment.effectiveBalance,
                 paymentMethod: 'Online',
                 dateTime: DateTime.now().toString(),
                 receiptId: result['receipt_id'],
@@ -137,7 +137,7 @@ class _FeeDetailsScreenState extends State<FeeDetailsScreen> {
     try {
       final orderData = await feeProv.createPaymentOrder(
         widget.installment.id,
-        widget.installment.outstandingBalance,
+        widget.installment.effectiveBalance,
       );
 
       final keyId = orderData['key_id'];
@@ -202,7 +202,7 @@ class _FeeDetailsScreenState extends State<FeeDetailsScreen> {
       matchingReceipt = null;
     }
 
-    final showPayNow = widget.onlinePaymentEnabled && !isPaid && widget.installment.outstandingBalance > 0;
+    final showPayNow = !isPaid && widget.installment.effectiveBalance > 0;
     final showDownloadReceipt = (isPaid || isPartiallyPaid) && matchingReceipt != null;
 
     final progress = matchingReceipt != null ? receiptProv.getDownloadProgress(matchingReceipt.id) : 0.0;
@@ -290,7 +290,7 @@ class _FeeDetailsScreenState extends State<FeeDetailsScreen> {
                               style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              "₹${widget.installment.outstandingBalance.toStringAsFixed(2)}",
+                              "₹${widget.installment.effectiveBalance.toStringAsFixed(2)}",
                               style: theme.textTheme.titleLarge?.copyWith(
                                 color: showPayNow ? theme.colorScheme.primary : Colors.green,
                                 fontWeight: FontWeight.w800,

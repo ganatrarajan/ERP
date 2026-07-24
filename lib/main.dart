@@ -65,7 +65,7 @@ class EduvoraApp extends StatelessWidget {
         builder: (context, themeProvider, child) {
           return MaterialApp(
             navigatorKey: NotificationService.navigatorKey,
-            title: 'EduvoraX',
+            title: 'Student App',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,

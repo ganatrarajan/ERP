@@ -15,12 +15,20 @@ class FeeResponse {
 
   factory FeeResponse.fromJson(Map<String, dynamic> json) {
     final list = json['installment_details'] as List? ?? [];
+    final rawOnline = json['online_payment_enabled'];
+    // Flexible parsing for bool, int (1/0), or String ("1"/"true")
+    final isOnlineEnabled = rawOnline == true || 
+                            rawOnline == 1 || 
+                            rawOnline == '1' || 
+                            rawOnline == 'true' || 
+                            rawOnline == null; // Default to true if not specified
+
     return FeeResponse(
       totalFees: (json['total_fees'] as num?)?.toDouble() ?? 0.0,
       paidFees: (json['paid_fees'] as num?)?.toDouble() ?? 0.0,
       pendingFees: (json['pending_fees'] as num?)?.toDouble() ?? 0.0,
       installments: list.map((e) => FeeInstallment.fromJson(e)).toList(),
-      onlinePaymentEnabled: json['online_payment_enabled'] ?? false,
+      onlinePaymentEnabled: isOnlineEnabled,
     );
   }
 }
@@ -56,21 +64,39 @@ class FeeInstallment {
     required this.status,
   });
 
+  /// Returns the effective outstanding balance to pay.
+  /// If [outstandingBalance] or [remainingDue] is > 0, it uses that.
+  /// Otherwise, it calculates (amount - paid - discount + fineDue).
+  double get effectiveBalance {
+    if (outstandingBalance > 0) return outstandingBalance;
+    if (remainingDue > 0) return remainingDue;
+    final calc = (amount - paid - discount + fineDue);
+    return calc > 0 ? calc : 0.0;
+  }
+
   factory FeeInstallment.fromJson(Map<String, dynamic> json) {
+    final amt = (json['amount'] as num?)?.toDouble() ?? 0.0;
+    final pd = (json['paid'] as num?)?.toDouble() ?? 0.0;
+    final disc = (json['discount'] as num?)?.toDouble() ?? 0.0;
+    final fDue = (json['fine_due'] as num?)?.toDouble() ?? 0.0;
+
+    final remDue = (json['remaining_due'] as num?)?.toDouble() ?? (json['remaining_amount'] as num?)?.toDouble() ?? 0.0;
+    final outBal = (json['outstanding_balance'] as num?)?.toDouble() ?? (json['pending_amount'] as num?)?.toDouble() ?? 0.0;
+
     return FeeInstallment(
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
       dueDate: json['due_date'] ?? '',
       isOverdue: json['is_overdue'] ?? false,
       overdueDays: json['overdue_days'] ?? 0,
-      amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
-      paid: (json['paid'] as num?)?.toDouble() ?? 0.0,
-      discount: (json['discount'] as num?)?.toDouble() ?? 0.0,
+      amount: amt,
+      paid: pd,
+      discount: disc,
       finePaid: (json['fine_paid'] as num?)?.toDouble() ?? 0.0,
-      fineDue: (json['fine_due'] as num?)?.toDouble() ?? 0.0,
-      remainingDue: (json['remaining_due'] as num?)?.toDouble() ?? 0.0,
-      outstandingBalance: (json['outstanding_balance'] as num?)?.toDouble() ?? 0.0,
-      status: json['status'] ?? 'Unpaid',
+      fineDue: fDue,
+      remainingDue: remDue > 0 ? remDue : ((amt - pd - disc + fDue) > 0 ? (amt - pd - disc + fDue) : 0.0),
+      outstandingBalance: outBal > 0 ? outBal : ((amt - pd - disc + fDue) > 0 ? (amt - pd - disc + fDue) : 0.0),
+      status: json['status'] ?? (pd >= amt && amt > 0 ? 'Paid' : 'Unpaid'),
     );
   }
 }

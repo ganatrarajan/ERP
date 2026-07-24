@@ -182,7 +182,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
           
-          if (data.onlinePaymentEnabled && data.pendingFeeAmount > 0) ...[
+          if (data.pendingFeeAmount > 0 && data.isDueDateWithin5DaysOrOverdue) ...[
             const SizedBox(height: 16),
             Card(
               elevation: 0,
