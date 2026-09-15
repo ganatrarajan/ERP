@@ -45,6 +45,22 @@ class Student extends Authenticatable
         'password_changed',
     ];
 
+    /**
+     * Accessor for student photo.
+     */
+    public function getPhotoAttribute($value): ?string
+    {
+        return \App\Helpers\UrlHelper::formatUrl($value);
+    }
+
+    /**
+     * Mutator for student photo.
+     */
+    public function setPhotoAttribute($value): void
+    {
+        $this->attributes['photo'] = \App\Helpers\UrlHelper::cleanRelativePath($value);
+    }
+
     protected $hidden = [
         'password',
         'remember_token',

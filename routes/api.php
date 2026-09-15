@@ -91,6 +91,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/super-admin/school-payment-settings', [\App\Http\Controllers\Api\OnlinePaymentController::class, 'superAdminListSchools']);
     Route::post('/super-admin/school-payment-settings/{school}/toggle', [\App\Http\Controllers\Api\OnlinePaymentController::class, 'superAdminToggleModule']);
 
+    // Super Admin System Settings (Landing Contact Phone, Email, WhatsApp, Offer Text)
+    Route::get('/super-admin/system-settings', [\App\Http\Controllers\Api\SystemSettingController::class, 'index']);
+    Route::post('/super-admin/system-settings', [\App\Http\Controllers\Api\SystemSettingController::class, 'update']);
+
     // Academics Module Secured Routes
     Route::middleware(['module:academics'])->group(function () {
         // Academic Years

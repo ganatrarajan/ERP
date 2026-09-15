@@ -47,6 +47,22 @@ class User extends Authenticatable
         'last_login_at',
     ];
 
+    /**
+     * Accessor for profile_photo.
+     */
+    public function getProfilePhotoAttribute($value): ?string
+    {
+        return \App\Helpers\UrlHelper::formatUrl($value);
+    }
+
+    /**
+     * Mutator for profile_photo.
+     */
+    public function setProfilePhotoAttribute($value): void
+    {
+        $this->attributes['profile_photo'] = \App\Helpers\UrlHelper::cleanRelativePath($value);
+    }
+
     protected $appends = [
         'selected_academic_year_id',
     ];

@@ -55,6 +55,12 @@ const routes = [
         meta: { requiresAuth: true, permission: 'school.view', layout: 'app' }
     },
     {
+        path: '/super-admin/system-settings',
+        name: 'super-admin.system-settings',
+        component: () => import('../pages/settings/SystemSettings.vue'),
+        meta: { requiresAuth: true, layout: 'app' }
+    },
+    {
         path: '/users',
         name: 'users.index',
         component: () => import('../pages/users/Index.vue'),
