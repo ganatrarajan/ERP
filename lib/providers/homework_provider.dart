@@ -124,7 +124,6 @@ class HomeworkNotifier extends StateNotifier<HomeworkState> {
     required String title,
     required String description,
     required String submissionDate,
-    double? maxMarks,
   }) async {
     state = state.copyWith(isSaving: true, errorMessage: null);
     try {
@@ -133,7 +132,6 @@ class HomeworkNotifier extends StateNotifier<HomeworkState> {
         title: title,
         description: description,
         submissionDate: submissionDate,
-        maxMarks: maxMarks,
       );
 
       final updatedList = state.homeworks.map((h) {

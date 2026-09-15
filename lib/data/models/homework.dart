@@ -54,7 +54,6 @@ class HomeworkModel {
       'title': title,
       'description': description,
       'submission_date': submissionDate,
-      'max_marks': maxMarks,
     };
   }
 }

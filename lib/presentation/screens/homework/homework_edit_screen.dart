@@ -18,7 +18,6 @@ class _HomeworkEditScreenState extends ConsumerState<HomeworkEditScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   late TextEditingController _descController;
-  late TextEditingController _marksController;
   
   DateTime? _submissionDate;
 
@@ -27,9 +26,6 @@ class _HomeworkEditScreenState extends ConsumerState<HomeworkEditScreen> {
     super.initState();
     _titleController = TextEditingController(text: widget.homework.title);
     _descController = TextEditingController(text: widget.homework.description);
-    _marksController = TextEditingController(
-      text: widget.homework.maxMarks != null ? "${widget.homework.maxMarks!.toInt()}" : "",
-    );
     _submissionDate = DateTime.tryParse(widget.homework.submissionDate);
   }
 
@@ -37,7 +33,6 @@ class _HomeworkEditScreenState extends ConsumerState<HomeworkEditScreen> {
   void dispose() {
     _titleController.dispose();
     _descController.dispose();
-    _marksController.dispose();
     super.dispose();
   }
 
@@ -60,14 +55,12 @@ class _HomeworkEditScreenState extends ConsumerState<HomeworkEditScreen> {
     if (_submissionDate == null) return;
 
     final dateStr = DateFormat('yyyy-MM-dd').format(_submissionDate!);
-    final double? maxMarks = _marksController.text.isNotEmpty ? double.tryParse(_marksController.text) : null;
 
     final success = await ref.read(homeworkProvider.notifier).updateHomework(
           widget.homework.id,
           title: _titleController.text.trim(),
           description: _descController.text.trim(),
           submissionDate: dateStr,
-          maxMarks: maxMarks,
         );
 
     if (mounted) {
@@ -154,22 +147,7 @@ class _HomeworkEditScreenState extends ConsumerState<HomeworkEditScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Max Marks
-              CustomTextField(
-                controller: _marksController,
-                label: "Maximum Marks (Optional)",
-                prefixIcon: Icons.score_outlined,
-                keyboardType: TextInputType.number,
-                validator: (val) {
-                  if (val != null && val.isNotEmpty) {
-                    if (double.tryParse(val) == null) {
-                      return "Enter a valid number";
-                    }
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
+
 
               // Submission Date Selector
               InkWell(

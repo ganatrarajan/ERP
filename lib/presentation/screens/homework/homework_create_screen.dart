@@ -17,7 +17,6 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
-  final _marksController = TextEditingController();
 
   int? _selectedClassId;
   int? _selectedSectionId;
@@ -29,7 +28,6 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
   void dispose() {
     _titleController.dispose();
     _descController.dispose();
-    _marksController.dispose();
     super.dispose();
   }
 
@@ -70,7 +68,6 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
       title: _titleController.text.trim(),
       description: _descController.text.trim(),
       submissionDate: DateFormat('yyyy-MM-dd').format(_submissionDate!),
-      maxMarks: _marksController.text.isNotEmpty ? double.tryParse(_marksController.text) : null,
     );
 
     final success = await ref.read(homeworkProvider.notifier).createHomework(newHomework);
@@ -299,22 +296,7 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
                   ),
                   const SizedBox(height: 18),
 
-                  // Max Marks Input
-                  TextFormField(
-                    controller: _marksController,
-                    decoration: buildModernInputDecoration("Maximum Marks (Optional)", Icons.score_outlined),
-                    keyboardType: TextInputType.number,
-                    style: const TextStyle(fontSize: 14),
-                    validator: (val) {
-                      if (val != null && val.isNotEmpty) {
-                        if (double.tryParse(val) == null) {
-                          return "Enter a valid number";
-                        }
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 18),
+
 
                   // Submission Date Selector
                   InkWell(

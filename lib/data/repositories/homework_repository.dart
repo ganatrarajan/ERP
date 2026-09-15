@@ -51,13 +51,11 @@ class HomeworkRepository {
     String? title,
     String? description,
     String? submissionDate,
-    double? maxMarks,
   }) async {
     final Map<String, dynamic> payload = {};
     if (title != null) payload['title'] = title;
     if (description != null) payload['description'] = description;
     if (submissionDate != null) payload['submission_date'] = submissionDate;
-    if (maxMarks != null) payload['max_marks'] = maxMarks;
 
     final response = await _dioClient.put(
       ApiEndpoints.homeworkDetails(id),
