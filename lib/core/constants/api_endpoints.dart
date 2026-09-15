@@ -1,7 +1,7 @@
 class ApiEndpoints {
   // Configurable base URL
-  static String baseUrl = 'http://168.144.147.94/api/mobile';
-  // static String baseUrl = 'http://192.168.1.15:8000/api/mobile';
+  // static String baseUrl = 'https://eduvora.noviqe.in/api/mobile';
+  static String baseUrl = 'http://192.168.1.9:8000/api/mobile';
 
   // Extract server root from baseUrl (handles scheme, host, port)
   static String get rootUrl {
@@ -43,14 +43,34 @@ class ApiEndpoints {
   static String receiptPdfUrl(int receiptId) => '$baseUrl/receipt/$receiptId';
   static String receiptDownloadUrl(int receiptId) => '$baseUrl/receipt/$receiptId/download';
 
-  // Resolves the local database/API path to a fully qualified URL pointing to storage
+  // Resolves local database/API path or legacy absolute URL to fully qualified URL pointing to active server
   static String resolveAttachmentUrl(String? attachmentPath) {
-    if (attachmentPath == null || attachmentPath.isEmpty) return '';
-    if (attachmentPath.startsWith('http')) return attachmentPath;
+    if (attachmentPath == null || attachmentPath.trim().isEmpty) return '';
+
+    final uploadsIndex = attachmentPath.indexOf('/uploads/');
+    if (uploadsIndex != -1) {
+      return '$rootUrl/${attachmentPath.substring(uploadsIndex + 1)}';
+    }
+
+    final storageIndex = attachmentPath.indexOf('/storage/');
+    if (storageIndex != -1) {
+      return '$rootUrl/${attachmentPath.substring(storageIndex + 1)}';
+    }
+
+    if (attachmentPath.startsWith('uploads/')) {
+      return '$rootUrl/$attachmentPath';
+    }
+
     if (attachmentPath.startsWith('storage/')) {
       return '$rootUrl/$attachmentPath';
     }
-    return '$rootUrl/storage/$attachmentPath';
+
+    if (attachmentPath.startsWith('http://') || attachmentPath.startsWith('https://')) {
+      return attachmentPath;
+    }
+
+    final cleanPath = attachmentPath.startsWith('/') ? attachmentPath.substring(1) : attachmentPath;
+    return '$rootUrl/$cleanPath';
   }
 }
 

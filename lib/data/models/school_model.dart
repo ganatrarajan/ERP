@@ -1,3 +1,4 @@
+import '../../core/constants/api_endpoints.dart';
 class SchoolModel {
   final int id;
   final String code;
@@ -24,7 +25,7 @@ class SchoolModel {
       id: json['school_id'] ?? 0,
       code: code ?? json['code'] ?? '',
       name: json['school_name'] ?? '',
-      logo: json['school_logo'] ?? '',
+      logo: ApiEndpoints.resolveAttachmentUrl(json['school_logo'] ?? ''),
       address: json['school_address'] ?? '',
       phone: json['school_phone'] ?? '',
       mobileAcademicYearId: json['mobile_academic_year_id'],

@@ -20,8 +20,7 @@ class FeeResponse {
     final isOnlineEnabled = rawOnline == true || 
                             rawOnline == 1 || 
                             rawOnline == '1' || 
-                            rawOnline == 'true' || 
-                            rawOnline == null; // Default to true if not specified
+                            rawOnline == 'true';
 
     return FeeResponse(
       totalFees: (json['total_fees'] as num?)?.toDouble() ?? 0.0,

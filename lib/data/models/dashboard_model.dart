@@ -70,8 +70,7 @@ class DashboardData {
     final isOnlineEnabled = rawOnline == true || 
                             rawOnline == 1 || 
                             rawOnline == '1' || 
-                            rawOnline == 'true' || 
-                            rawOnline == null; // Default to true if not specified
+                            rawOnline == 'true';
 
     final pendingAmt = (json['pending_fee_amount'] as num?)?.toDouble() ?? 
                        (json['pending_fees'] as num?)?.toDouble() ?? 

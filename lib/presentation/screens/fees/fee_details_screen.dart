@@ -202,7 +202,7 @@ class _FeeDetailsScreenState extends State<FeeDetailsScreen> {
       matchingReceipt = null;
     }
 
-    final showPayNow = !isPaid && widget.installment.effectiveBalance > 0;
+    final showPayNow = widget.onlinePaymentEnabled && !isPaid && widget.installment.effectiveBalance > 0;
     final showDownloadReceipt = (isPaid || isPartiallyPaid) && matchingReceipt != null;
 
     final progress = matchingReceipt != null ? receiptProv.getDownloadProgress(matchingReceipt.id) : 0.0;
