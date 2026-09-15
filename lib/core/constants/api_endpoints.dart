@@ -1,7 +1,7 @@
 class ApiEndpoints {
   // Configurable base URL
-  // static String baseUrl = 'https://eduvora.noviqe.in/api/mobile';
-  static String baseUrl = 'http://192.168.1.9:8000/api/mobile';
+  static String baseUrl = 'https://eduvora.noviqe.in/api/mobile';
+  // static String baseUrl = 'http://192.168.1.9:8000/api/mobile';
 
   // Extract server root from baseUrl (handles scheme, host, port)
   static String get rootUrl {

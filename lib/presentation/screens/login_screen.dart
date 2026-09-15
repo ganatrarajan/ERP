@@ -103,13 +103,30 @@ class _LoginScreenState extends State<LoginScreen> {
                       radius: 50,
                       backgroundImage: NetworkImage(school.logo),
                       backgroundColor: Colors.transparent,
-                      onBackgroundImageError: (_, __) => null,
+                      onBackgroundImageError: (_, __) {},
                     )
                   else
-                    Icon(
-                      Icons.school_rounded,
-                      size: 80,
-                      color: theme.colorScheme.primary,
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Image.asset(
+                          'assets/images/student_app_logo.png',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
                   const SizedBox(height: 16),
                   Text(
