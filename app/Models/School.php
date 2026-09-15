@@ -23,6 +23,22 @@ class School extends Model
     ];
 
     /**
+     * Accessor for school logo.
+     */
+    public function getLogoAttribute($value): ?string
+    {
+        return \App\Helpers\UrlHelper::formatUrl($value);
+    }
+
+    /**
+     * Mutator for school logo.
+     */
+    public function setLogoAttribute($value): void
+    {
+        $this->attributes['logo'] = \App\Helpers\UrlHelper::cleanRelativePath($value);
+    }
+
+    /**
      * Get the mobile academic year of the school.
      */
     public function mobileAcademicYear(): \Illuminate\Database\Eloquent\Relations\BelongsTo

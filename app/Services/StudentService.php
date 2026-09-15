@@ -206,10 +206,10 @@ class StudentService
                     mkdir($newFullDir, 0755, true);
                 }
                 if (rename(public_path($oldRelativePath), public_path($newRelativePath))) {
-                    return url($newRelativePath);
+                    return \App\Helpers\UrlHelper::cleanRelativePath($newRelativePath);
                 }
             }
         }
-        return $photo;
+        return \App\Helpers\UrlHelper::cleanRelativePath($photo);
     }
 }
