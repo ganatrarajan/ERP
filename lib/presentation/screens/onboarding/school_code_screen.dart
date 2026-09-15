@@ -65,15 +65,25 @@ class _SchoolCodeScreenState extends ConsumerState<SchoolCodeScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    width: 100,
+                    height: 100,
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withOpacity(0.08),
-                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(22),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 16,
+                          offset: Offset(0, 6),
+                        ),
+                      ],
                     ),
-                    child: Icon(
-                      Icons.domain_verification_rounded,
-                      size: 80,
-                      color: theme.colorScheme.primary,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(22),
+                      child: Image.asset(
+                        'assets/images/teacher_app_logo.png',
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),

@@ -439,8 +439,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             itemBuilder: (context, index) {
                               final doc = profileState.documents[index];
                               final isDownloaded = _downloadedDocsInfo.containsKey(doc.id.toString());
-                              final docInfo = isDownloaded ? _downloadedDocsInfo[doc.id.toString()] : null;
-                              final filename = docInfo != null ? docInfo['filename'] as String? : null;
 
                               return ListTile(
                                 leading: Icon(

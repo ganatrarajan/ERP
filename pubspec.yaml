@@ -106,3 +106,6 @@ flutter_launcher_icons:
   android: "ic_launcher"
   ios: true
   image_path: "assets/images/teacher_app_logo.png"
+  adaptive_icon_background: "#013BA7"
+  adaptive_icon_foreground: "assets/images/teacher_app_logo.png"
+  remove_alpha_ios: true

@@ -121,48 +121,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // School Logo
-                  // if (school != null && school.logo.isNotEmpty)
-                  //   Center(
-                  //     child: Container(
-                  //       margin: const EdgeInsets.only(bottom: 16),
-                  //       child: CachedNetworkImage(
-                  //         imageUrl: ApiEndpoints.sanitizeUrl(school.logo),
-                  //         imageBuilder: (context, imageProvider) => Container(
-                  //           height: 80,
-                  //           width: 80,
-                  //           decoration: BoxDecoration(
-                  //             shape: BoxShape.circle,
-                  //             image: DecorationImage(
-                  //               image: imageProvider,
-                  //               fit: BoxFit.contain,
-                  //             ),
-                  //           ),
-                  //         ),
-                  //         placeholder: (context, url) => const SizedBox(
-                  //           height: 80,
-                  //           width: 80,
-                  //           child: Center(
-                  //             child: CircularProgressIndicator(strokeWidth: 2),
-                  //           ),
-                  //         ),
-                  //         errorWidget: (context, url, error) => Icon(
-                  //           Icons.school_rounded,
-                  //           size: 80,
-                  //           color: theme.colorScheme.primary,
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   )
-                  // else
-                  //   Icon(
-                  //     Icons.school_rounded,
-                  //     size: 80,
-                  //     color: theme.colorScheme.primary,
-                  //   ),
+                  // App Logo
+                  Center(
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      width: 90,
+                      height: 90,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 15,
+                            offset: Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.asset(
+                          'assets/images/teacher_app_logo.png',
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                  ),
                   
                   Text(
-                    school?.name ?? "EduvoraX",
+                    school?.name ?? "EduvoraX Teacher",
                     style: theme.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.w800,
                       color: theme.colorScheme.primary,

@@ -42,7 +42,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("EduvoraX Dashboard"),
+        title: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: Image.asset(
+                'assets/images/teacher_app_logo.png',
+                height: 30,
+                width: 30,
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Text("EduvoraX Dashboard"),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined, size: 28),
